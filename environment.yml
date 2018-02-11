@@ -1,0 +1,6 @@
+name: dynamics
+dependencies:
+  - python=3.6.1
+  - malramsay::sdanalysis=0.4.6
+  - malramsay::sdrun=0.4.0
+
