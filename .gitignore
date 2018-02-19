@@ -1,0 +1,3 @@
+# Ignore data files
+data
+!experiment.yml
