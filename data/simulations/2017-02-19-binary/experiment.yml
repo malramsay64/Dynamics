@@ -1,0 +1,69 @@
+name: Binary Mixture
+
+command:
+  - >
+    mpirun -np 12
+    sdrun create
+    --pressure {pressure}
+    --temperature {create_temp}
+    --lattice-lengths {cell_dims}
+    --steps {create_steps}
+    Binary-T{create_temp:.2f}-P{pressure:.2f}.gsd
+  - >
+    mpirun -np 12
+    sdrun equil
+    --equil-type {equil_type}
+    --pressure {pressure}
+    --init-temp {create_temp}
+    --temperature {temperature}
+    --output {outdir}
+    --steps {steps}
+    Binary-T{create_temp:.2f}-P{pressure:.2f}.gsd
+    Binary-T{temperature:.2f}-P{pressure:.2f}.gsd
+  - >
+    mpirun -np 12
+    sdrun prod
+    --pressure {pressure}
+    --temperature {temperature}
+    --output {outdir}
+    --steps {steps}
+    Binary-T{temperature:.2f}-P{pressure:.2f}.gsd
+
+variables:
+  create_temp: 2.0
+  create_steps: 50_000_000
+  equil_type: liquid
+  outdir: output
+  cell_dims: 20 30
+  pressure: 13.5
+  zip:
+    temperature:
+      - 1.00
+      - 0.80
+      - 0.70
+      - 0.65
+      - 0.60
+      - 0.55
+      - 0.50
+      - 0.47
+      - 0.45
+      - 0.43
+      - 0.40
+    steps: 
+      - 1_000_000
+      - 1_000_000
+      - 10_000_000
+      - 10_000_000
+      - 10_000_000
+      - 100_000_000
+      - 100_000_000
+      - 100_000_000
+      - 1_000_000_000
+      - 1_000_000_000
+      - 1_000_000_000
+
+pbs:
+  walltime: 360:00:00
+  ncpus: 12
+  project: PRJ-CrysGrowth
+  j: oe
