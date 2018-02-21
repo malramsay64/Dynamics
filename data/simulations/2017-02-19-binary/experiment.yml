@@ -2,7 +2,6 @@ name: Binary Mixture
 
 command:
   - >
-    mpirun -np 12
     sdrun create
     --pressure {pressure}
     --temperature {create_temp}
@@ -10,7 +9,7 @@ command:
     --steps {create_steps}
     Binary-T{create_temp:.2f}-P{pressure:.2f}.gsd
   - >
-    mpirun -np 12
+    mpirun -np 8
     sdrun equil
     --equil-type {equil_type}
     --pressure {pressure}
@@ -21,7 +20,7 @@ command:
     Binary-T{create_temp:.2f}-P{pressure:.2f}.gsd
     Binary-T{temperature:.2f}-P{pressure:.2f}.gsd
   - >
-    mpirun -np 12
+    mpirun -np 8
     sdrun prod
     --pressure {pressure}
     --temperature {temperature}
@@ -31,7 +30,7 @@ command:
 
 variables:
   create_temp: 2.0
-  create_steps: 50_000_000
+  create_steps: 500_000
   equil_type: liquid
   outdir: output
   cell_dims: 20 30
@@ -64,6 +63,9 @@ variables:
 
 pbs:
   walltime: 360:00:00
-  ncpus: 12
+  ncpus: 8
   project: PRJ-CrysGrowth
   j: oe
+  setup:
+    - source ~/.miniconda/etc/profile.d/conda.sh
+    - conda activate dynamics
