@@ -1,10 +1,10 @@
 name: dynamics
 dependencies:
-  - python=3.6.1
+  - python=3.6
   - ipykernel
   - conda-forge::holoviews
-  - malramsay::sdanalysis=0.4.6
-  - malramsay::sdrun=0.4.1
+  - malramsay::sdanalysis=0.4.8
+  - malramsay::sdrun=0.4.2
   - pip:
     - experi==0.2.1
 
