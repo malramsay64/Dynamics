@@ -3,8 +3,9 @@ dependencies:
   - python=3.6
   - ipykernel
   - conda-forge::holoviews
-  - malramsay::sdanalysis=0.4.8
-  - malramsay::sdrun=0.4.2
+  - conda-forge::altair
+  - malramsay::sdanalysis=0.4.12
+  - malramsay::sdrun=0.4.5
   - pip:
-    - experi==0.2.1
+    - experi==0.2.2
 
