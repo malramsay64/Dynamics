@@ -9,6 +9,7 @@
 
 import numpy as np
 import pandas as pd
+from scipy.stats import hmean
 from sdanalysis import relaxation
 
 
@@ -80,7 +81,8 @@ def main():
     df_mol = df_mol.groupby(['init_frame', 'temperature', 'pressure']).mean(
         skipna=False
     )
-    df_mol = df_mol.groupby(['temperature', 'pressure']).mean()
+    df_mol = df_mol.groupby(['temperature', 'pressure']).agg(['mean', hmean])
+    df_mol.columns = ['_'.join(f) for f in df_mol.columns.tolist()]
     pd.concat([df_mol, relaxations], axis=1).to_hdf(
         'data/analysis/dynamics.h5', 'relaxations'
     )
