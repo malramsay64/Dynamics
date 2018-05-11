@@ -2,6 +2,7 @@ name: dynamics
 dependencies:
   - python=3.6
   - ipykernel
+  - pytest
   - conda-forge::holoviews
   - conda-forge::altair
   - malramsay::sdanalysis=0.4.12

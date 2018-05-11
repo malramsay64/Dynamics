@@ -7,13 +7,15 @@
 # Distributed under terms of the MIT license.
 """Compute a single relaxation value from the dynamics."""
 
+from typing import Tuple
+
 import numpy as np
 import pandas as pd
 from scipy.stats import hmean
 from sdanalysis import relaxation
 
 
-def max_relaxation(time: np.ndarray, value: np.ndarray) -> float:
+def max_relaxation(time: np.ndarray, value: np.ndarray) -> Tuple[float, float]:
     """Time at which the maximum value is recorded.
 
     Args:
@@ -22,11 +24,12 @@ def max_relaxation(time: np.ndarray, value: np.ndarray) -> float:
 
     Returns:
         float: The time at which the maximum value occurs.
-        float: Value of the maximum.
+        float: Estimate of error
 
     """
-    max_val_index = np.argmax(value)
-    return time[max_val_index], value[max_val_index]
+    max_val_index = np.nanargmax(value)
+    error = (time[max_val_index+1] - time[max_val_index-1])/2
+    return time[max_val_index], error
 
 
 def compute_relaxations(series: pd.Series):
