@@ -6,7 +6,7 @@ dependencies:
   - glotzer::hoomd=2.2.5
   - conda-forge::holoviews
   - conda-forge::altair
-  - malramsay::sdanalysis=0.5.6
+  - malramsay::sdanalysis=0.5.5
   - malramsay::sdrun=0.5.3
   - malramsay::experi=0.2.6
 
