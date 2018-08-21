@@ -3,7 +3,7 @@ dependencies:
   - python=3.6
   - ipykernel
   - pytest
-  - glotzer::hoomd=2.2.5
+  - ruamel.yaml=0.15.44
   - conda-forge::holoviews
   - conda-forge::altair
   - malramsay::sdanalysis=0.5.5
