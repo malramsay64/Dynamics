@@ -1,11 +1,13 @@
 name: dynamics
+channels:
+  - default
+  - conda-forge
 dependencies:
   - python=3.6
   - ipykernel
   - pytest
   - ruamel.yaml=0.15.44
-  - conda-forge::holoviews
-  - conda-forge::altair
+  - altair
   - malramsay::sdanalysis=0.5.5
   - malramsay::sdrun=0.6.0
   - malramsay::experi=0.2.6
