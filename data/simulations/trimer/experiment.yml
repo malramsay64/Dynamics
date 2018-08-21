@@ -1,0 +1,89 @@
+name: Trimer Dynamics
+
+command:
+  - >
+    mpirun -np 12
+    sdrun
+    --pressure {pressure}
+    --temperature {create_temp}
+    --lattice-lengths {cell_dims}
+    --output {outdir}
+    --num-steps {create_steps}
+    create
+    Trimer-T{create_temp:.2f}-P{pressure:.2f}.gsd
+  - >
+    mpirun -np 12
+    sdrun
+    --pressure {pressure}
+    --init-temp {create_temp}
+    --temperature {temperature}
+    --space-group {space_group}
+    --output {outdir}
+    --num-steps {steps}
+    equil
+    --equil-type {equil_type}
+    Trimer-T{create_temp:.2f}-P{pressure:.2f}.gsd
+    Trimer-T{temperature:.2f}-P{pressure:.2f}.gsd
+  - >
+    mpirun -np 12
+    sdrun
+    --pressure {pressure}
+    --temperature {temperature}
+    --space-group {space_group}
+    --output {outdir}
+    --num-steps {steps}
+    prod
+    Trimer-T{temperature:.2f}-P{pressure:.2f}.gsd
+
+variables:
+  create_temp: 3.00
+  create_steps: 1_000_000
+  equil_type: liquid
+  outdir: output
+  cell_dims: 25
+  pressure: 
+    - 13.50
+    - 1.00
+  zip:
+    steps: 
+      - 1_000_000_000
+      - 1_000_000_000
+      - 1_000_000_000
+      - 1_000_000_000
+      - 1_000_000_000
+
+      - 100_000_000
+      - 100_000_000
+      - 100_000_000
+      - 10_000_000
+      - 10_000_000
+
+      - 10_000_000
+      - 10_000_000
+      - 10_000_000
+    temperature:
+      - 1.25
+      - 1.30
+      - 1.35
+      - 1.40
+      - 1.45
+
+      - 1.50
+      - 1.60
+      - 1.70
+      - 1.80
+      - 2.00
+
+      - 2.20
+      - 2.50
+      - 3.00
+
+pbs:
+  setup:
+    - export PATH="$HOME/.pyenv/versions/dynamics":$PATH
+  cpus: 12
+  memory: 16gb
+  walltime: 504:00:00
+  project: PRJ-CrysGrowth
+  o: logs
+  j: oe
