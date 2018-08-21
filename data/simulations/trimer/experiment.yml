@@ -17,7 +17,6 @@ command:
     --pressure {pressure}
     --init-temp {create_temp}
     --temperature {temperature}
-    --space-group {space_group}
     --output {outdir}
     --num-steps {steps}
     equil
@@ -29,7 +28,6 @@ command:
     sdrun
     --pressure {pressure}
     --temperature {temperature}
-    --space-group {space_group}
     --output {outdir}
     --num-steps {steps}
     prod
@@ -40,7 +38,7 @@ variables:
   create_steps: 1_000_000
   equil_type: liquid
   outdir: output
-  cell_dims: 25
+  cell_dims: 25 25
   pressure: 
     - 13.50
     - 1.00
@@ -51,13 +49,11 @@ variables:
       - 1_000_000_000
       - 1_000_000_000
       - 1_000_000_000
-
       - 100_000_000
       - 100_000_000
       - 100_000_000
       - 10_000_000
       - 10_000_000
-
       - 10_000_000
       - 10_000_000
       - 10_000_000
@@ -67,20 +63,19 @@ variables:
       - 1.35
       - 1.40
       - 1.45
-
       - 1.50
       - 1.60
       - 1.70
       - 1.80
       - 2.00
-
       - 2.20
       - 2.50
       - 3.00
 
 pbs:
   setup:
-    - export PATH="$HOME/.pyenv/versions/dynamics":$PATH
+    - export PATH="$HOME/.pyenv/versions/dynamics/bin":$PATH
+    - export LD_LIBRAY_PATH="$HOME/.pyenv/versions/dynamics/lib":$PATH
   cpus: 12
   memory: 16gb
   walltime: 504:00:00
