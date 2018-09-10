@@ -7,7 +7,7 @@ dynamics:
 	ls data/simulations/trimer/trajectory-* | xargs -n1 sdanalysis comp_dynamics -o data/analysis
 
 relaxations:
-	python src/relaxations.py
+	sdanalysis comp_relaxations data/analysis/dynamics.h5
 
 figures:
 	(cd notebooks; jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute Figures.ipynb)
