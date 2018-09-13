@@ -2,7 +2,7 @@ name: Trimer Dynamics
 
 jobs:
   - command:
-      creates: Trimer-T{create_temp:.2f}-P{pressure:.2f}.gsd
+      creates: Trimer-P{pressure:.2f}-T{create_temp:.2f}.gsd
       cmd: >
         mpirun -np 12
         sdrun
@@ -14,8 +14,8 @@ jobs:
         create
         {creates}
   - command:
-      creates: Trimer-T{create_temp:.2f}-P{pressure:.2f}.gsd
-      requires: Trimer-T{temperature:.2f}-P{pressure:.2f}.gsd
+      requires: Trimer-P{pressure:.2f}-T{create_temp:.2f}.gsd
+      creates: Trimer-P{pressure:.2f}-T{temperature:.2f}.gsd
       cmd: >
         mpirun -np 12
         sdrun
@@ -29,7 +29,8 @@ jobs:
         {requires}
         {creates}
   - command:
-      requires: Trimer-T{temperature:.2f}-P{pressure:.2f}.gsd
+      requires: Trimer-P{pressure:.2f}-T{temperature:.2f}.gsd
+      creates: output/trajectory-Trimer-P{pressure:.2f}-T{temperature:.2f}.gsd
       cmd: >
         mpirun -np 12
         sdrun
@@ -38,6 +39,7 @@ jobs:
         --output {outdir}
         --num-steps {steps}
         prod
+        --dynamics
         {requires}
 
 variables:
@@ -59,7 +61,7 @@ variables:
         - 10_000_000
         - 10_000_000
         - 10_000_000
-    combine:
+    chain:
       - pressure: 13.50
         create_temp: 3.00
         temperature:
