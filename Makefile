@@ -4,7 +4,7 @@
 #
 
 dynamics:
-	ls data/simulations/trimer/trajectory-* | xargs -n1 sdanalysis comp_dynamics -o data/analysis
+	ls data/simulations/trimer/output/trajectory-* | xargs sdanalysis comp_dynamics -o data/analysis
 
 relaxations:
 	sdanalysis comp_relaxations data/analysis/dynamics.h5
