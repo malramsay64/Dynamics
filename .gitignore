@@ -1,3 +1,19 @@
 # Ignore data files
-data
-!experiment.yml
+data/simulations/*/*
+data/analysis/*/*
+*.h5
+*.hdf5
+# but never experiment files
+!data/simulations/*/experiment.yml
+
+# Ignore notebook outputs
+*.json
+*.html
+*.pdf
+
+# Ignore untitiled notebooks
+Untitled*
+
+# Ignore python files
+.pytest_cache
+*.pyc
