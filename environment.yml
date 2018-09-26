@@ -9,6 +9,7 @@ dependencies:
   - altair
   - pip
   - matplotlib
+  - nbdime
   - malramsay::sdanalysis=0.6.6
   - malramsay::sdrun=0.6.0
   - malramsay::experi=0.2.10
