@@ -10,6 +10,6 @@ dependencies:
   - pip
   - matplotlib
   - nbdime
-  - malramsay::sdanalysis=0.6.6
-  - malramsay::sdrun=0.6.0
+  - malramsay::sdanalysis=0.6.8
+  - malramsay::sdrun=0.6.3
   - malramsay::experi=0.2.11
