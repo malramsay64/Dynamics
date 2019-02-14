@@ -3,13 +3,17 @@ channels:
   - default
   - conda-forge
 dependencies:
+  # Running simulations and data analysis
   - python=3.6
-  - ipykernel
-  - pytest
-  - altair
   - pip
-  - matplotlib
-  - nbdime
   - malramsay::sdanalysis=0.6.8
   - malramsay::sdrun=0.6.3
-  - malramsay::experi=0.2.11
+  - malramsay::experi=0.2.10
+  # Notebook/Interactive dependencies
+  - altair
+  - matplotlib
+  - ipywidgets
+  - nbdime
+  - ipykernel
+  # Development dependencies
+  - pytest
