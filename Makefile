@@ -3,11 +3,11 @@
 # Malcolm Ramsay, 2018-03-21 13:06
 #
 
-.PHONY: figures
+.PHONY: dynamics
 dynamics: ## Compute dynamics quantities for all parameters of the trimer molecule
-	ls data/simulations/trimer/output/trajectory-* | xargs sdanalysis comp_dynamics -o data/analysis
+	sdanalysis comp_dynamics -o data/analysis data/simulations/trimer/output/trajectory-*
 
-.PHONY: figures
+.PHONY: relaxations
 relaxations: ## Compute the summary relaxation timescales of the dynamic quantitites
 	sdanalysis comp_relaxations data/analysis/dynamics.h5
 
