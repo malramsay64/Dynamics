@@ -13,7 +13,7 @@ relaxations: ## Compute the summary relaxation timescales of the dynamic quantit
 
 .PHONY: figures
 figures:  ## Create all publication figures.
-	jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/03_Publication_Figures.ipynb
+	jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/20_Publication_Figures.ipynb
 
 .DEFAULT_GOAL := help
 .PHONY: help
