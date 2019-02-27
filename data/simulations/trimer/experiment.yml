@@ -38,6 +38,7 @@ jobs:
         --temperature {temperature}
         --output {outdir}
         --num-steps {steps}
+        --keyframe-interval {keyframe_interval}
         prod
         --dynamics
         {requires}
@@ -47,6 +48,7 @@ variables:
   equil_type: liquid
   outdir: output
   cell_dims: 25 25
+  keyframe_interval: 200_000
   zip:
     cycle:
       times: 2

@@ -5,7 +5,7 @@
 
 .PHONY: dynamics
 dynamics: ## Compute dynamics quantities for all parameters of the trimer molecule
-	sdanalysis comp-dynamics -o data/analysis data/simulations/trimer/output/trajectory-*
+	sdanalysis --keyframe-interval 200_000 comp-dynamics -o data/analysis data/simulations/trimer/output/trajectory-*
 
 .PHONY: relaxations
 relaxations: ## Compute the summary relaxation timescales of the dynamic quantitites

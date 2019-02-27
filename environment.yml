@@ -7,7 +7,7 @@ dependencies:
   - python=3.6
   - pip
   - malramsay::sdanalysis=0.6.8
-  - malramsay::sdrun=0.6.3
+  - malramsay::sdrun=0.6.4
   - malramsay::experi=0.2.10
   # Notebook/Interactive dependencies
   - altair
