@@ -15,9 +15,12 @@ dynamics: ## Compute dynamics quantities for all parameters of the trimer molecu
 relaxations: ## Compute the summary relaxation timescales of the dynamic quantitites
 	sdanalysis comp-relaxations data/analysis/dynamics.h5
 
+
+
 .PHONY: figures
 figures:  ## Create all publication figures.
 	jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/20_Publication_Figures.ipynb
+	jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/21_phd_dynamics.ipynb
 
 .DEFAULT_GOAL := help
 .PHONY: help
