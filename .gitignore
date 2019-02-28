@@ -7,9 +7,9 @@ data/analysis/*/*
 !data/simulations/*/experiment.yml
 
 # Ignore notebook outputs
-*.json
-*.html
-*.pdf
+notebooks/*.json
+notebooks/*.html
+notebooks/*.pdf
 
 # Ignore untitiled notebooks
 Untitled*
