@@ -3,6 +3,10 @@
 # Malcolm Ramsay, 2018-03-21 13:06
 #
 
+.PHONY: experiment
+experiment: ## Run the trimer experiment making use of already generated files where possible
+	experi --use-dependencies --input-file data/simulations/trimer/experiment.yml
+
 .PHONY: dynamics
 dynamics: ## Compute dynamics quantities for all parameters of the trimer molecule
 	sdanalysis --keyframe-interval 200_000 comp-dynamics -o data/analysis data/simulations/trimer/output/trajectory-*
