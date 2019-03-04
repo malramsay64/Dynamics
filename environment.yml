@@ -12,6 +12,7 @@ dependencies:
   # Notebook/Interactive dependencies
   - altair
   - matplotlib
+  - seaborn
   - ipywidgets
   - nbdime
   - ipykernel
