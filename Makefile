@@ -26,6 +26,11 @@ figures:  | ## Create all publication figures.
 	jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/20_Publication_Figures.ipynb
 	jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/21_phd_dynamics.ipynb
 
+clean: ## Remove generated dynamics files and revert figures to latest committed version
+	rm data/analysis/dynamics_clean.h5
+	rm data/analysis/dynamics.h5
+	git checkout figures/*
+
 .DEFAULT_GOAL := help
 .PHONY: help
 help:
