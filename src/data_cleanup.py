@@ -27,8 +27,8 @@ def clean_hdf_file(filename: Path):
 
     # We want to discard values where there are not enough to get decent statistics, in
     # this case I have chosen 10 as the magic number.
-    df = df.assign(count = df.groupby(['time', 'temperature', 'pressure'])['start_index').transform('count')
-    #  df = df.query('count > 10')
+    df = df.assign(count = df.groupby(['time', 'temperature', 'pressure'])['start_index'].transform('count'))
+    df = df.query('count > 10')
     #  # Don't want the count in the final dataset, just a temporary column
     df = df.drop(columns=['count'], axis=1)
 
