@@ -10,6 +10,7 @@ data/analysis/*/*
 notebooks/*.json
 notebooks/*.html
 notebooks/*.pdf
+notebooks/*.csv
 
 # Ignore untitiled notebooks
 Untitled*
