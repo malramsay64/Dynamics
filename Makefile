@@ -28,7 +28,6 @@ figures:  | ## Create all publication figures.
 
 clean: ## Remove generated dynamics files and revert figures to latest committed version
 	rm data/analysis/dynamics_clean.h5
-	rm data/analysis/dynamics.h5
 	git checkout figures/*
 
 .DEFAULT_GOAL := help
