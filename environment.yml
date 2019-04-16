@@ -6,7 +6,7 @@ dependencies:
   # Running simulations and data analysis
   - python=3.6
   - pip
-  - malramsay::sdanalysis=0.7.5
+  - malramsay::sdanalysis=0.7.6
   - malramsay::sdrun=0.6.5
   - malramsay::experi=0.2.11
   # Notebook/Interactive dependencies
