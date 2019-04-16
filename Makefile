@@ -10,7 +10,8 @@ experiment: ## Run the trimer experiment making use of already generated files w
 	experi --use-dependencies --input-file data/simulations/trimer/experiment.yml
 
 ${dynamics}:
-	sdanalysis --keyframe-interval 200_000 comp-dynamics -o data/analysis data/simulations/trimer/output/trajectory-*
+	sdanalysis --keyframe-interval 200_000 --wave-number 2.80 comp-dynamics -o data/analysis data/simulations/trimer/output/trajectory-Trimer-P1.00-*.gsd
+	sdanalysis --keyframe-interval 200_000 --wave-number 2.90 comp-dynamics -o data/analysis data/simulations/trimer/output/trajectory-P13.50-*.gsd
 
 ${dynamics_clean}: ${dynamics}
 	python src/data_cleanup.py $<
