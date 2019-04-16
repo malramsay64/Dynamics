@@ -16,5 +16,6 @@ dependencies:
   - ipywidgets
   - nbdime
   - ipykernel
+  - jupytext
   # Development dependencies
   - pytest
