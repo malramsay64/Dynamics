@@ -47,7 +47,7 @@ variables:
   create_steps: 1_000_000
   equil_type: liquid
   outdir: output
-  cell_dims: 25 25
+  cell_dims: 32 32
   keyframe_interval: 1_000_000
   zip:
     cycle:
