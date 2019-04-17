@@ -1,4 +1,4 @@
-name: Trimer Dynamics
+name: Trimer_Dynamics
 
 jobs:
   - command:
@@ -95,9 +95,11 @@ pbs:
   setup:
     - export PATH="$HOME/.miniconda/bin":$PATH
     - source activate dynamics
+    - module load mpich
   cpus: 12
   memory: 16gb
   walltime: 504:00:00
   project: PRJ-CrysGrowth
+  P: PRJ-CrysGrowth
   o: logs
   j: oe
