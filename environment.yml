@@ -19,3 +19,4 @@ dependencies:
   - jupytext
   # Development dependencies
   - pytest
+  - black
