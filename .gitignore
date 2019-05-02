@@ -1,6 +1,6 @@
 # Ignore data files
 data/simulations/*/*
-data/analysis/*/*
+data/analysis/**
 *.h5
 *.hdf5
 # but never experiment files
@@ -18,3 +18,6 @@ Untitled*
 # Ignore python files
 .pytest_cache
 *.pyc
+
+# Ignore log files
+*.log
