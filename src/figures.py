@@ -20,7 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# logging.basicConfig(level="DEBUG")
+logging.basicConfig(level="DEBUG")
 
 
 def my_theme():
@@ -43,7 +43,7 @@ def radial_distribution(
         snapshot = next(sdanalysis.open_trajectory(infile))
         box = snapshot.box
         # 2D Box
-        if box[2] == 0.0:
+        if box[2] == 1.0:
             rmax = np.min(box[:2]) / 2
         # 3D box
         else:
@@ -76,13 +76,18 @@ def _structure_factor_wave_number(
 
 def static_structure_factor(infile, num_frames):
     num_particles = next(sdanalysis.open_trajectory(infile)).num_mols
+
     rdf = radial_distribution(infile, num_frames=num_frames)
 
     ssf = []
-    for value in rdf.R:
+    xvalues = np.zeros_like(rdf.R)
+    xvalues[:] = rdf.R
+    xvalues = xvalues[2:]
+    for value in xvalues:
         ssf.append(_structure_factor_wave_number(rdf, value, num_particles))
 
-    return rdf.R, ssf
+    logger.debug("x values: %s", rdf.R)
+    return xvalues, ssf
 
 
 @click.group()
@@ -108,10 +113,11 @@ def plot_rdf(infile, outfile, num_frames):
 @main.command()
 @click.argument("infile", type=click.Path())
 @click.argument("outfile", type=click.Path())
-@click.option("--num-frames", default=10000, type=int)
+@click.option("--num-frames", default=1000, type=int)
 def plot_ssf(infile, outfile, num_frames):
     """Plot the static structure factor of an input trajectory."""
     x, ssf = static_structure_factor(infile, num_frames)
+    logger.debug("x values: %s, y values %s", x, ssf)
 
     fig, ax = plt.subplots()
     ax.plot(x, ssf)

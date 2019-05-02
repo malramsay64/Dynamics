@@ -38,8 +38,8 @@ relaxations: | ${dynamics_clean} ## Compute the summary relaxation timescales of
 figures:  | ## Create all publication figures.
 	# jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/20_Publication_Figures.ipynb
 	# jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/21_phd_dynamics.ipynb
-	python3 src/figures.py plot-rdf data/simulations/trimer/Trimer-P13.50-T1.50.gsd figures/thesis/radial_distribution.pdf
-	python3 src/figures.py plot-ssf data/simulations/trimer/Trimer-P13.50-T1.50.gsd figures/thesis/static_structure_factor.pdf
+	python3 src/figures.py plot-rdf --num-frames 100 data/simulations/trimer/Trimer-P13.50-T1.50.gsd figures/thesis/radial_distribution.pdf
+	python3 src/figures.py plot-ssf --num-frames 100 data/simulations/trimer/Trimer-P13.50-T1.50.gsd figures/thesis/static_structure_factor.pdf
 
 clean: ## Remove generated dynamics files and revert figures to latest committed version
 	rm data/analysis/dynamics_clean.h5
