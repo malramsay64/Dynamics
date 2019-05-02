@@ -26,7 +26,7 @@ $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trim
 	sdanalysis --keyframe-interval 200_000 --wave-number 2.90 comp-dynamics $< $@
 
 ${dynamics_clean}: ${dynamics}
-	python src/data_cleanup.py $<
+	python src/data_cleanup.py --min-samples 50 $<
 
 dynamics: | ${dynamics_clean} ## Compute dynamics quantities for all parameters of the trimer molecule
 
