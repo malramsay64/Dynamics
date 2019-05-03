@@ -44,10 +44,10 @@ def radial_distribution(
         box = snapshot.box
         # 2D Box
         if box[2] == 1.0:
-            rmax = np.min(box[:2]) / 2
+            rmax = np.min(box[:2]) / 2.2
         # 3D box
         else:
-            rmax = np.min(box[:3]) / 2
+            rmax = np.min(box[:3]) / 2.2
         logger.debug("rmax set to None, calculated best value as %s", rmax)
 
     if dr is None:
