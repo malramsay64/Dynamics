@@ -48,7 +48,7 @@ def clean_hdf_file(infile: Path, min_samples: int):
 
     # The values where the MSD is greater than 100 are going to have issues with
     # the periodic boundary conditions so remove those columns.
-    df = df.query("msd < 10")
+    df = df.query("msd < 100")
 
     df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "dynamics")
 
