@@ -9,6 +9,8 @@ dependencies:
   - malramsay::sdanalysis=0.7.7
   - malramsay::sdrun=0.6.6
   - malramsay::experi=0.3.0
+  - pip:
+    - bootstrapped
   # Notebook/Interactive dependencies
   - altair
   - matplotlib

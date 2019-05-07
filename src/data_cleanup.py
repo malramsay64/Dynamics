@@ -12,13 +12,78 @@ This is a collection of utilities for cleaning up the raw data from the calculat
 the dynamics.
 
 """
-import pandas
 import sys
 from pathlib import Path
+from typing import Any
+
+import bootstrapped.bootstrap as bs
+import bootstrapped.stats_functions as bs_stats
 import click
+import numpy as np
+import pandas
+from sdanalysis.relaxation import series_relaxation_value
 
 
-@click.command()
+def _value(series: pandas.Series):
+    return bs.bootstrap(
+        series.values, bs_stats.mean, alpha=0.5, num_iterations=1000
+    ).value
+
+
+def _lower(series: pandas.Series):
+    return bs.bootstrap(
+        series.values, bs_stats.mean, alpha=0.5, num_iterations=1000
+    ).lower_bound
+
+
+def _upper(series: pandas.Series):
+    return bs.bootstrap(
+        series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
+    ).upper_bound
+
+
+def bootstap_series(
+    series: pandas.Series,
+    stat_function: Any,
+    alpha: float = 0.5,
+    num_iterations: int = 1000,
+) -> bs.BootstrapResults:
+    results = np.empty(num_iterations)
+    num_samples = len(series)
+    for i in range(num_iterations):
+        results[i] = stat_function(series.sample(num_samples, replace=True))
+
+    low = np.percentile(results, 100 * (alpha / 2.0))
+    val = np.percentile(results, 50)
+    high = np.percentile(results, 100 * (1 - alpha / 2.0))
+
+    return bs.BootstrapResults(low, val, high)
+
+
+def _relax_value(series: pandas.Series):
+    return bootstap_series(
+        series, series_relaxation_value, alpha=0.1, num_iterations=1000
+    ).value
+
+
+def _relax_lower(series: pandas.Series):
+    return bootstap_series(
+        series, series_relaxation_value, alpha=0.1, num_iterations=1000
+    ).lower_bound
+
+
+def _relax_upper(series: pandas.Series):
+    return bootstap_series(
+        series, series_relaxation_value, alpha=0.1, num_iterations=1000
+    ).upper_bound
+
+
+@click.group()
+def main():
+    pass
+
+
+@main.command()
 @click.argument("infile", type=click.Path(file_okay=True, dir_okay=False, exists=True))
 @click.option(
     "--min-samples",
@@ -26,7 +91,7 @@ import click
     type=int,
     help="Minimum number of samples for each data point.",
 )
-def clean_hdf_file(infile: Path, min_samples: int):
+def clean(infile: Path, min_samples: int):
     infile = Path(infile)
     # Cleanup the dynamics dataset
     df = pandas.read_hdf(infile, "dynamics")
@@ -56,5 +121,44 @@ def clean_hdf_file(infile: Path, min_samples: int):
     df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "molecular_relaxations")
 
 
+@main.command()
+@click.argument("infile", type=click.Path(file_okay=True, dir_okay=False, exists=True))
+def bootstrap(infile):
+    infile = Path(infile)
+    outfile = infile.with_name(infile.stem + "_agg" + ".h5")
+    df = pandas.read_hdf(infile, "dynamics")
+
+    df_agg = df.groupby(["temperature", "pressure", "time"]).agg(
+        [_value, _lower, _upper]
+    )
+    df_agg.columns = ["".join(col).strip() for col in df_agg.columns.values]
+
+    df_agg.to_hdf(outfile, "dynamics")
+
+    df_mol = pandas.read_hdf(infile, "molecular_relaxations")
+    df_mol.index.names = ("keyframe", "molecule")
+    df_mol = df_mol.reset_index()
+
+    # Taking the average over all the molecules from a single keyframe
+    # makes the most sense from the perspective of computing an average,
+    # since all molecules are present and not independent. One can be
+    # fast because others are slow.
+    df_mol = df_mol.groupby(["temperature", "pressure", "keyframe"]).mean()
+
+    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(
+        [_value, _lower, _upper]
+    )
+    df_mol_agg.columns = ["".join(col).strip() for col in df_mol_agg.columns.values]
+
+    df_mol_agg.to_hdf(outfile, "molecular_relaxations")
+
+    df_relax = df.groupby(["temperature", "pressure"]).agg(
+        [_relax_value, _relax_lower, _relax_upper]
+    )
+    df_relax.columns = ["".join(col).strip() for col in df_relax.columns.values]
+
+    df_relax.to_hdf(outfile, "relaxations")
+
+
 if __name__ == "__main__":
-    clean_hdf_file()
+    main()
