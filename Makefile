@@ -26,9 +26,12 @@ $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trim
 	sdanalysis --keyframe-interval 200_000 --wave-number 2.90 comp-dynamics $< $@
 
 ${dynamics_clean}: ${dynamics}
-	python src/data_cleanup.py --min-samples 50 $<
+	python src/data_cleanup.py clean --min-samples 50 $<
 
 dynamics: | ${dynamics_clean} ## Compute dynamics quantities for all parameters of the trimer molecule
+
+bootstrap: ${dynamics_clean}
+	python src/data_cleanup.py bootstrap $<
 
 .PHONY: relaxations
 relaxations: | ${dynamics_clean} ## Compute the summary relaxation timescales of the dynamic quantitites
