@@ -20,3 +20,4 @@ dependencies:
   # Development dependencies
   - pytest
   - black
+  - isort
