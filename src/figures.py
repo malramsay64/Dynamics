@@ -9,13 +9,14 @@
 """Code to assist in the creation of figures."""
 
 import logging
-from typing import Optional
+from typing import Any, Dict, Optional
 
-import altair as alt
+import altair.vegalite.v2 as alt
 import click
 import freud
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas
 
 import sdanalysis
 
@@ -38,6 +39,62 @@ def use_my_theme(alt):
     # register and enable the theme
     alt.themes.register("my_theme", my_theme())
     alt.themes.enable("my_theme")
+
+
+def plot_dynamics(
+    df: pandas.DataFrame, prop: str, title: Optional[str] = None, scale: str = "linear"
+) -> alt.Chart:
+    """Helper to plot dynamics quantities using Altair.
+
+    Args:
+        df: DataFrame containing quantities to plot. There should be columns 
+            with suffixes '_value', '_lower', and '_upper'.
+        prop: The property to plot, with the respective values for that property 
+            having suffixes.
+        title: Custom title used to label the property.
+        scale: Type of scale to use for the property, this should be "linear" or "log".
+
+    """
+    if title is None:
+        title = prop
+    axis_format = "g"
+    if scale == "log":
+        axis_format = "e"
+
+    dyn_chart_base = (
+        alt.Chart(df)
+        .encode(
+            x=alt.X(
+                "time",
+                title="Timesteps",
+                scale=alt.Scale(type="log"),
+                axis=alt.Axis(format="e"),
+            ),
+            color=alt.Color("temperature:N", title="Temperature"),
+        )
+        .transform_filter(alt.datum.msd_value < 50)
+    )
+
+    confidence_interval = dyn_chart_base.mark_area(opacity=0.5).encode(
+        y=alt.Y(
+            prop + "_lower",
+            title=title,
+            scale=alt.Scale(type=scale),
+            axis=alt.Axis(format=axis_format),
+        ),
+        y2=alt.Y2(prop + "_upper", title=title),
+    )
+
+    values = dyn_chart_base.mark_line().encode(
+        y=alt.Y(
+            prop + "_value",
+            title=title,
+            scale=alt.Scale(type=scale),
+            axis=alt.Axis(format=axis_format),
+        )
+    )
+
+    return values + confidence_interval
 
 
 def radial_distribution(
