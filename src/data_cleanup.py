@@ -152,6 +152,7 @@ def bootstrap(infile):
         [_value, _lower, _upper]
     )
     df_agg.columns = ["".join(col).strip() for col in df_agg.columns.values]
+    df_agg = df_agg.reset_index()
 
     df_agg.to_hdf(outfile, "dynamics")
 
@@ -169,6 +170,7 @@ def bootstrap(infile):
         [_value, _lower, _upper]
     )
     df_mol_agg.columns = ["".join(col).strip() for col in df_mol_agg.columns.values]
+    df_mol_agg = df_mol_agg.reset_index()
 
     df_mol_agg.to_hdf(outfile, "molecular_relaxations")
 
