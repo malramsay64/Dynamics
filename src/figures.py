@@ -16,12 +16,11 @@ import click
 import freud
 import matplotlib.pyplot as plt
 import numpy as np
+
 import sdanalysis
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-logging.basicConfig(level="DEBUG")
 
 
 def my_theme():
