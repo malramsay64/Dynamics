@@ -21,6 +21,7 @@ import bootstrapped.stats_functions as bs_stats
 import click
 import numpy as np
 import pandas
+
 from sdanalysis.relaxation import series_relaxation_value
 
 
@@ -50,8 +51,15 @@ def bootstap_series(
 ) -> bs.BootstrapResults:
     results = np.empty(num_iterations)
     num_samples = len(series)
+    groups = series.groupby(level=0)
+    keys = list(groups.groups.keys())
     for i in range(num_iterations):
-        results[i] = stat_function(series.sample(num_samples, replace=True))
+        results[i] = stat_function(
+            pandas.concat(
+                groups.get_group(keys[key])
+                for key in np.random.choice(len(keys), len(keys), replace=True)
+            )
+        )
 
     low = np.percentile(results, 100 * (alpha / 2.0))
     val = np.percentile(results, 50)
@@ -117,8 +125,20 @@ def clean(infile: Path, min_samples: int):
 
     df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "dynamics")
 
-    df = pandas.read_hdf(infile, "molecular_relaxations")
-    df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "molecular_relaxations")
+    df_mol = pandas.read_hdf(infile, "molecular_relaxations")
+    df_mol.index.names = ("keyframe", "molecule")
+    df_mol = df_mol.reset_index()
+
+    df_mol = df.assign(
+        count=df_mol.groupby(["temperature", "pressure"])["keyframe"].transform("count")
+    )
+    df_mol = df_mol.query("count > @min_samples")
+    #  # Don't want the count in the final dataset, just a temporary column
+    df_mol = df_mol.drop(columns=["count"], axis=1)
+
+    df_mol.to_hdf(
+        infile.with_name(infile.stem + "_clean" + ".h5"), "molecular_relaxations"
+    )
 
 
 @main.command()
@@ -152,12 +172,18 @@ def bootstrap(infile):
 
     df_mol_agg.to_hdf(outfile, "molecular_relaxations")
 
-    df_relax = df.groupby(["temperature", "pressure"]).agg(
-        [_relax_value, _relax_lower, _relax_upper]
+    df_relax = df.groupby(["temperature", "pressure", "start_index"]).agg(
+        series_relaxation_value
     )
-    df_relax.columns = ["".join(col).strip() for col in df_relax.columns.values]
+    df_relax["inv_diffusion"] = 1 / df_relax["msd"]
+    df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(
+        [_value, _lower, _upper]
+    )
 
-    df_relax.to_hdf(outfile, "relaxations")
+    df_relax_agg.columns = ["".join(col).strip() for col in df_relax_agg.columns.values]
+    df_relax_agg = df_relax_agg.reset_index()
+
+    df_relax_agg.to_hdf(outfile, "relaxations")
 
 
 if __name__ == "__main__":
