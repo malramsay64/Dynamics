@@ -19,6 +19,9 @@ dependencies:
   - nbdime
   - ipykernel
   - jupytext
+  # Saving figures
+  - selenium
+  - geckodriver
   # Development dependencies
   - pytest
   - black
