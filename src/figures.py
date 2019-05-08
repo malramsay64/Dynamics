@@ -8,14 +8,15 @@
 
 """Code to assist in the creation of figures."""
 
-from typing import Optional
-import altair as alt
-import numpy as np
-import matplotlib.pyplot as plt
-import freud
-import sdanalysis
-import click
 import logging
+from typing import Optional
+
+import altair as alt
+import click
+import freud
+import matplotlib.pyplot as plt
+import numpy as np
+import sdanalysis
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
