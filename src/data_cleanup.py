@@ -43,49 +43,6 @@ def _upper(series: pandas.Series):
     ).upper_bound
 
 
-def bootstap_series(
-    series: pandas.Series,
-    stat_function: Any,
-    alpha: float = 0.5,
-    num_iterations: int = 1000,
-) -> bs.BootstrapResults:
-    results = np.empty(num_iterations)
-    num_samples = len(series)
-    groups = series.groupby(level=0)
-    keys = list(groups.groups.keys())
-    for i in range(num_iterations):
-        results[i] = stat_function(
-            pandas.concat(
-                groups.get_group(keys[key])
-                for key in np.random.choice(len(keys), len(keys), replace=True)
-            )
-        )
-
-    low = np.percentile(results, 100 * (alpha / 2.0))
-    val = np.percentile(results, 50)
-    high = np.percentile(results, 100 * (1 - alpha / 2.0))
-
-    return bs.BootstrapResults(low, val, high)
-
-
-def _relax_value(series: pandas.Series):
-    return bootstap_series(
-        series, series_relaxation_value, alpha=0.1, num_iterations=1000
-    ).value
-
-
-def _relax_lower(series: pandas.Series):
-    return bootstap_series(
-        series, series_relaxation_value, alpha=0.1, num_iterations=1000
-    ).lower_bound
-
-
-def _relax_upper(series: pandas.Series):
-    return bootstap_series(
-        series, series_relaxation_value, alpha=0.1, num_iterations=1000
-    ).upper_bound
-
-
 @click.group()
 def main():
     pass
