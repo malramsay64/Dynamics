@@ -97,6 +97,50 @@ def plot_dynamics(
     return values + confidence_interval
 
 
+def plot_relaxations(
+    df: pandas.DataFrame, prop: str, title: Optional[str] = None
+) -> alt.Chart:
+    """Helper to plot relaxation quantities using Altair.
+
+    Args:
+        df: DataFrame containing quantities to plot. There should be columns 
+            with suffixes '_value', '_lower', and '_upper'.
+        prop: The property to plot, with the respective values for that property 
+            having suffixes.
+        title: Custom title used to label the property.
+
+    """
+    if title is None:
+        title = prop
+    axis_format = "e"
+
+    relax_chart_base = alt.Chart(df).encode(
+        x=alt.X("inv_temp:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+        color=alt.Color("pressure:N", title="Pressure"),
+    )
+
+    confidence_interval = relax_chart_base.mark_rule(opacity=1.0).encode(
+        y=alt.Y(
+            prop + "_lower:Q",
+            title=title,
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format=axis_format),
+        ),
+        y2=alt.Y2(prop + "_upper:Q", title=title),
+    )
+
+    values = relax_chart_base.mark_point().encode(
+        y=alt.Y(
+            prop + "_value:Q",
+            title=title,
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format=axis_format),
+        )
+    )
+
+    return values + confidence_interval
+
+
 def radial_distribution(
     infile,
     dr: Optional[float] = None,
