@@ -87,6 +87,14 @@ def clean(infile: Path, min_samples: int):
     df_mol.index.names = ("keyframe", "molecule")
     df_mol = df_mol.reset_index()
 
+    # Replace invalid values (2**32 - 1) with NaN's
+    df_mol.replace(2 ** 32 - 1, np.nan, inplace=True)
+    # Remove keyframes where relaxation hasn't completed,
+    # that is there are NaN values present.
+    df_mol = df_mol.groupby(["keyframe", "temperature", "pressure"]).filter(
+        lambda x: x.isna().sum().sum() == 0
+    )
+
     df_mol = df_mol.assign(
         count=df_mol.groupby(["temperature", "pressure"])["keyframe"].transform("count")
     )
