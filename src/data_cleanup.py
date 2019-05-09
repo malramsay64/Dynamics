@@ -129,7 +129,7 @@ def clean(infile: Path, min_samples: int):
     df_mol.index.names = ("keyframe", "molecule")
     df_mol = df_mol.reset_index()
 
-    df_mol = df.assign(
+    df_mol = df_mol.assign(
         count=df_mol.groupby(["temperature", "pressure"])["keyframe"].transform("count")
     )
     df_mol = df_mol.query("count > @min_samples")
