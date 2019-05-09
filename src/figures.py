@@ -77,17 +77,17 @@ def plot_dynamics(
 
     confidence_interval = dyn_chart_base.mark_area(opacity=0.5).encode(
         y=alt.Y(
-            prop + "_lower",
+            prop + "_lower:Q",
             title=title,
             scale=alt.Scale(type=scale),
             axis=alt.Axis(format=axis_format),
         ),
-        y2=alt.Y2(prop + "_upper", title=title),
+        y2=alt.Y2(prop + "_upper:Q", title=title),
     )
 
     values = dyn_chart_base.mark_line().encode(
         y=alt.Y(
-            prop + "_value",
+            prop + "_value:Q",
             title=title,
             scale=alt.Scale(type=scale),
             axis=alt.Axis(format=axis_format),
