@@ -122,6 +122,7 @@ def clean(infile: Path, min_samples: int):
     # The values where the MSD is greater than 100 are going to have issues with
     # the periodic boundary conditions so remove those columns.
     df = df.query("msd < 100")
+    df = df.reset_index()
 
     df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "dynamics")
 
@@ -157,7 +158,6 @@ def bootstrap(infile):
     df_agg.to_hdf(outfile, "dynamics")
 
     df_mol = pandas.read_hdf(infile, "molecular_relaxations")
-    df_mol.index.names = ("keyframe", "molecule")
     df_mol = df_mol.reset_index()
 
     # Taking the average over all the molecules from a single keyframe
