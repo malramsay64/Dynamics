@@ -174,8 +174,10 @@ def bootstrap(infile):
 
     df_mol_agg.to_hdf(outfile, "molecular_relaxations")
 
-    df_relax = df.groupby(["temperature", "pressure", "start_index"]).agg(
-        series_relaxation_value
+    df_relax = (
+        df.set_index("time")
+        .groupby(["temperature", "pressure", "start_index"])
+        .agg(series_relaxation_value)
     )
     df_relax["inv_diffusion"] = 1 / df_relax["msd"]
     df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(
