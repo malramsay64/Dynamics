@@ -17,7 +17,6 @@ import freud
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
-
 import sdanalysis
 
 logger = logging.getLogger(__name__)
@@ -136,6 +135,74 @@ def plot_relaxations(
             scale=alt.Scale(type="log"),
             axis=alt.Axis(format=axis_format),
         )
+    )
+
+    return values + confidence_interval
+
+
+def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
+    values = []
+    columns = []
+    r_df = df.set_index(["temperature", "pressure", "inv_temp"])
+    for col_name in r_df.columns:
+        col_split = col_name.split("_")
+        columns.append("_".join(col_split[:-1]))
+        values.append(col_split[-1])
+    r_df.columns = pandas.MultiIndex.from_arrays([columns, values])
+    return (
+        r_df.stack(level=0)
+        .reset_index()
+        .rename(index=str, columns={"level_3": "variable"})
+    )
+
+
+def plot_multi_relaxations(
+    df: pandas.DataFrame, prop: str, title: Optional[str] = None
+) -> alt.Chart:
+    """Helper to plot relaxation quantities using Altair.
+
+    Args:
+        df: DataFrame containing quantities to plot. There should be columns 
+            with suffixes '_value', '_lower', and '_upper'.
+        prop: The property to plot, with the respective values for that property 
+            having suffixes.
+        title: Custom title used to label the property.
+
+    """
+    if title is None:
+        title = prop
+    axis_format = "e"
+
+    plot_df = df.loc[df["variable"] == prop, :]
+    plot_df.loc[:, "variable"] = title
+
+    relax_chart_base = (
+        alt.Chart(plot_df)
+        .encode(
+            x=alt.X("inv_temp:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+            color=alt.Color("pressure:N", title="Pressure"),
+        )
+        .transform_filter(alt.datum.variable == title)
+    )
+
+    confidence_interval = relax_chart_base.mark_rule(opacity=1.0).encode(
+        y=alt.Y(
+            "lower:Q",
+            title=title,
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format=axis_format),
+        ),
+        y2=alt.Y2("upper:Q", title=title),
+    )
+
+    values = relax_chart_base.mark_point().encode(
+        y=alt.Y(
+            "value:Q",
+            title=title,
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format=axis_format),
+        ),
+        shape=alt.Shape("variable", title="Relaxation"),
     )
 
     return values + confidence_interval
