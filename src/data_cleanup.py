@@ -16,28 +16,28 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import bootstrapped.bootstrap as bs
-import bootstrapped.stats_functions as bs_stats
 import click
 import numpy as np
-import pandas
-
+import pandas as pd
 from sdanalysis.relaxation import series_relaxation_value
 
+import bootstrapped.bootstrap as bs
+import bootstrapped.stats_functions as bs_stats
 
-def _value(series: pandas.Series):
+
+def _value(series: pd.Series):
     return bs.bootstrap(
         series.values, bs_stats.mean, alpha=0.5, num_iterations=1000
     ).value
 
 
-def _lower(series: pandas.Series):
+def _lower(series: pd.Series):
     return bs.bootstrap(
         series.values, bs_stats.mean, alpha=0.5, num_iterations=1000
     ).lower_bound
 
 
-def _upper(series: pandas.Series):
+def _upper(series: pd.Series):
     return bs.bootstrap(
         series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
     ).upper_bound
@@ -59,7 +59,7 @@ def main():
 def clean(infile: Path, min_samples: int):
     infile = Path(infile)
     # Cleanup the dynamics dataset
-    df = pandas.read_hdf(infile, "dynamics")
+    df = pd.read_hdf(infile, "dynamics")
 
     # Most of the values are plotted on a log scale for the time axis, values less than
     # or equal to 0 cause issues.
@@ -83,7 +83,7 @@ def clean(infile: Path, min_samples: int):
 
     df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "dynamics")
 
-    df_mol = pandas.read_hdf(infile, "molecular_relaxations")
+    df_mol = pd.read_hdf(infile, "molecular_relaxations")
     df_mol.index.names = ("keyframe", "molecule")
     df_mol = df_mol.reset_index()
 
@@ -112,7 +112,7 @@ def clean(infile: Path, min_samples: int):
 def bootstrap(infile):
     infile = Path(infile)
     outfile = infile.with_name(infile.stem + "_agg" + ".h5")
-    df = pandas.read_hdf(infile, "dynamics")
+    df = pd.read_hdf(infile, "dynamics")
 
     df_agg = df.groupby(["temperature", "pressure", "time"]).agg(
         [_value, _lower, _upper]
@@ -122,7 +122,7 @@ def bootstrap(infile):
 
     df_agg.to_hdf(outfile, "dynamics")
 
-    df_mol = pandas.read_hdf(infile, "molecular_relaxations")
+    df_mol = pd.read_hdf(infile, "molecular_relaxations")
     df_mol = df_mol.reset_index()
 
     # Taking the average over all the molecules from a single keyframe
