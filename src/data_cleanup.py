@@ -111,18 +111,19 @@ def clean(infile: Path, min_samples: int):
 def bootstrap(infile):
     infile = Path(infile)
     outfile = infile.with_name(infile.stem + "_agg" + ".h5")
-    df = pd.read_hdf(infile, "dynamics")
+    df = pd.read_hdf(infile, "dynamics").drop(columns=["index"])
 
-    df_agg = df.groupby(["temperature", "pressure", "time"]).agg(
-        [_value, _lower, _upper]
+    df_agg = (
+        df.drop(columns="start_index")
+        .groupby(["temperature", "pressure", "time"])
+        .agg([_value, _lower, _upper])
     )
     df_agg.columns = ["".join(col).strip() for col in df_agg.columns.values]
     df_agg = df_agg.reset_index()
 
     df_agg.to_hdf(outfile, "dynamics")
 
-    df_mol = pd.read_hdf(infile, "molecular_relaxations")
-    df_mol = df_mol.reset_index()
+    df_mol = pd.read_hdf(infile, "molecular_relaxations").drop(columns=["molecule"])
 
     # Taking the average over all the molecules from a single keyframe
     # makes the most sense from the perspective of computing an average,
