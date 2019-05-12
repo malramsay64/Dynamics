@@ -16,13 +16,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import bootstrapped.bootstrap as bs
+import bootstrapped.stats_functions as bs_stats
 import click
 import numpy as np
 import pandas as pd
 from sdanalysis.relaxation import series_relaxation_value
-
-import bootstrapped.bootstrap as bs
-import bootstrapped.stats_functions as bs_stats
 
 
 def _value(series: pd.Series):
