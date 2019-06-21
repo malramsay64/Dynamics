@@ -21,3 +21,6 @@ Untitled*
 
 # Ignore log files
 *.log
+
+# Ignore generated pdf files
+figures/thesis/*.pdf
