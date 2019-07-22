@@ -30,7 +30,15 @@ def my_theme() -> Dict[str, Any]:
     and removing the grid from the figure which is distracting.
 
     """
-    return {"config": {"view": {"height": 400, "width": 600}, "axis": {"grid": False}}}
+    return {
+        "config": {
+            "view": {"height": 400, "width": 600},
+            "legend": {"titleFontSize": 20, "labelFontSize": 16},
+            "axis": {"grid": False, "labelFontSize": 16, "titleFontSize": 20},
+            "header": {"titleFontSize": 22, "labelFontSize": 18},
+            "background": "white",
+        }
+    }
 
 
 def use_my_theme(alt):
