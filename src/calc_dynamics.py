@@ -153,12 +153,15 @@ def bootstrap(infile):
 
     df_mol_agg.to_hdf(outfile, "molecular_relaxations")
 
+    # Calculate the relaxation time from each keyframe
     df_relax = (
         df.set_index("time")
         .groupby(["temperature", "pressure", "start_index"])
         .agg(series_relaxation_value)
     )
     df_relax["inv_diffusion"] = 1 / df_relax["msd"]
+
+    # Calculate the bootstrapped errors in the relaxation times
     df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(
         [_value, _lower, _upper]
     )
