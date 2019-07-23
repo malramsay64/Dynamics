@@ -14,7 +14,7 @@ the dynamics.
 """
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple
 
 import bootstrapped.bootstrap as bs
 import bootstrapped.stats_functions as bs_stats
@@ -40,6 +40,20 @@ def _upper(series: pd.Series):
     return bs.bootstrap(
         series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
     ).upper_bound
+
+
+def normalised_temperature(temperature: np.array, pressure: np.array) -> np.array:
+    melting_points = {"13.50": 1.35, "1.00": 0.36}
+    temp_norm = np.full_like(temperature, np.nan)
+    # Temperature can't be zero or below, so set these values to nan
+    zero_mask = temperature <= 0
+    temp_norm[zero_mask] = np.nan
+    for p, t_m in melting_points.items():
+        mask = np.logical_and(pressure == p, ~zero_mask)
+        print(mask)
+        temp_norm[mask] = t_m / temperature[mask]
+
+    return temp_norm
 
 
 @click.group()
@@ -154,12 +168,7 @@ def bootstrap(infile):
 
     # Include temp_norm column.
     # This is the temperature normalised by the melting point
-    df["temp_norm"] = 0.0
-    t_high_mask = df["temperature"] == "13.50"
-    t_low_mask = df["temperature"] == "1.00"
-
-    df.loc[t_high_mask, "temp_norm"] = 1.35 / df.loc[t_high_mask, "temperature"]
-    df.loc[t_low_mask, "temp_norm"] = 0.36 / df.loc[t_low_mask, "temperature"]
+    df["temp_norm"] = normalised_temperature(df["temperature"], df["pressure"])
 
     df_relax_agg.to_hdf(outfile, "relaxations")
 
