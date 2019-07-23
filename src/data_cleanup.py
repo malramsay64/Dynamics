@@ -152,6 +152,15 @@ def bootstrap(infile):
     df_relax_agg.columns = ["".join(col).strip() for col in df_relax_agg.columns.values]
     df_relax_agg = df_relax_agg.reset_index()
 
+    # Include temp_norm column.
+    # This is the temperature normalised by the melting point
+    df["temp_norm"] = 0.0
+    t_high_mask = df["temperature"] == "13.50"
+    t_low_mask = df["temperature"] == "1.00"
+
+    df.loc[t_high_mask, "temp_norm"] = 1.35 / df.loc[t_high_mask, "temperature"]
+    df.loc[t_low_mask, "temp_norm"] = 0.36 / df.loc[t_low_mask, "temperature"]
+
     df_relax_agg.to_hdf(outfile, "relaxations")
 
 
