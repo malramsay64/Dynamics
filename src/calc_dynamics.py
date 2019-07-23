@@ -164,5 +164,21 @@ def bootstrap(infile):
     df_relax_agg.to_hdf(outfile, "relaxations")
 
 
+@main.command()
+@click.argument("output", type=click.Path(file_okay=True, dir_okay=False))
+@click.argument(
+    "infiles", nargs=-1, type=click.Path(exists=True, file_okay=True, dir_okay=False)
+)
+def collate(output: Path, infiles: Tuple[Path, ...]) -> None:
+    with pandas.HDFStore(output, "w") as dst:
+        for file in infiles:
+            with pandas.HDFStore(file) as src:
+                for key in ["dynamics", "molecular_relaxations"]:
+                    try:
+                        dst.append(key, src.get(key))
+                    except KeyError:
+                        logger.warning("%s doesn't contain key %s", file, key)
+
+
 if __name__ == "__main__":
     main()
