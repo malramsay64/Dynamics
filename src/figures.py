@@ -11,7 +11,7 @@
 import logging
 from typing import Any, Dict, Optional
 
-import altair.vegalite.v2 as alt
+import altair as alt
 import click
 import freud
 import matplotlib.pyplot as plt
@@ -41,10 +41,10 @@ def my_theme() -> Dict[str, Any]:
     }
 
 
-def use_my_theme(alt):
+def use_my_theme():
     """Register and my custom Altair theme."""
     # register and enable the theme
-    alt.themes.register("my_theme", my_theme())
+    alt.themes.register("my_theme", my_theme)
     alt.themes.enable("my_theme")
 
 
