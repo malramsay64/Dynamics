@@ -5,24 +5,23 @@ channels:
 dependencies:
   # Running simulations and data analysis
   - python=3.6
-  - pip
+  - pip=19.1
   - malramsay::sdanalysis=0.7.7
   - malramsay::sdrun=0.6.6
   - malramsay::experi=0.3.0
   - pip:
-    - bootstrapped
+    - bootstrapped==0.0.2
   # Notebook/Interactive dependencies
-  - altair
-  - matplotlib
-  - seaborn
+  - altair=3.1.*
+  - matplotlib=3.1.*
   - ipywidgets
-  - nbdime
-  - ipykernel
-  - jupytext
+  - nbdime=1.0.*
+  - ipykernel=5.1.1
+  - jupytext=1.2.1
   # Saving figures
   - selenium
-  - geckodriver
+  - geckodriver=0.24.0
   # Development dependencies
-  - pytest
-  - black
-  - isort
+  - pytest=5.0.*
+  - black=19.3b0
+  - isort=4.3.21
