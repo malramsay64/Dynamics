@@ -17,10 +17,12 @@ The Brownian motion simulation is taken from the scipy-cookbook (https://scipy-c
 """
 
 from math import sqrt
-from scipy.stats import norm
-import numpy as np
 
-def brownian(x0, n, dt, delta, out=None):
+import numpy as np
+from scipy.stats import norm
+
+
+def brownian(x0: np.ndarray, n: int, dt: float, delta: float, out=None):
     """Generate an instance of Brownian motion (i.e. the Wiener process):
 
         X(t) = X(0) + N(0, delta**2 * t; 0, t)
@@ -68,7 +70,7 @@ def brownian(x0, n, dt, delta, out=None):
 
     # For each element of x0, generate a sample of n numbers from a
     # normal distribution.
-    r = norm.rvs(size=x0.shape + (n,), scale=delta*sqrt(dt))
+    r = norm.rvs(size=x0.shape + (n,), scale=delta * sqrt(dt))
 
     # If `out` was not given, create an output array.
     if out is None:
