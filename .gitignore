@@ -11,6 +11,7 @@ notebooks/*.json
 notebooks/*.html
 notebooks/*.pdf
 notebooks/*.csv
+notebooks/*.ipynb
 
 # Ignore untitiled notebooks
 Untitled*
