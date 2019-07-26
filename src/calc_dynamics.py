@@ -133,6 +133,9 @@ def bootstrap(infile):
     )
     df_agg.columns = ["".join(col).strip() for col in df_agg.columns.values]
     df_agg = df_agg.reset_index()
+    df_agg["temp_norm"] = normalised_temperature(
+        df_agg["temperature"], df_agg["pressure"]
+    )
 
     df_agg.to_hdf(outfile, "dynamics")
 
@@ -149,6 +152,9 @@ def bootstrap(infile):
     )
     df_mol_agg.columns = ["".join(col).strip() for col in df_mol_agg.columns.values]
     df_mol_agg = df_mol_agg.reset_index()
+    df_mol_agg["temp_norm"] = normalised_temperature(
+        df_mol_agg["temperature"], df_mol_agg["pressure"]
+    )
 
     df_mol_agg.to_hdf(outfile, "molecular_relaxations")
 
@@ -170,7 +176,9 @@ def bootstrap(infile):
 
     # Include temp_norm column.
     # This is the temperature normalised by the melting point
-    df["temp_norm"] = normalised_temperature(df["temperature"], df["pressure"])
+    df_relax_agg["temp_norm"] = normalised_temperature(
+        df_relax_agg["temperature"], df_relax_agg["pressure"]
+    )
 
     df_relax_agg.to_hdf(outfile, "relaxations")
 
