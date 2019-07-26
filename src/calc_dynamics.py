@@ -43,14 +43,13 @@ def _upper(series: pd.Series):
 
 
 def normalised_temperature(temperature: np.array, pressure: np.array) -> np.array:
-    melting_points = {"13.50": 1.35, "1.00": 0.36}
+    melting_points = {13.50: 1.35, "13.50": 1.35, 1.00: 0.36, "1.00": 0.36}
     temp_norm = np.full_like(temperature, np.nan)
     # Temperature can't be zero or below, so set these values to nan
-    zero_mask = temperature <= 0
-    temp_norm[zero_mask] = np.nan
+    zero_mask = temperature > 0
+    temp_norm[~zero_mask] = np.nan
     for p, t_m in melting_points.items():
-        mask = np.logical_and(pressure == p, ~zero_mask)
-        print(mask)
+        mask = np.logical_and(pressure == p, zero_mask)
         temp_norm[mask] = t_m / temperature[mask]
 
     return temp_norm

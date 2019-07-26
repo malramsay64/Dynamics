@@ -13,7 +13,7 @@ from numpy.testing import assert_array_almost_equal
 from src import calc_dynamics
 
 
-@pytest.mark.parametrize("press, temp", [("13.50", 1.35), ("1.00", 0.36)])
+@pytest.mark.parametrize("press, temp", [("13.50", 1.35), ("1.00", 0.36) , (13.50, 1.35), (1.00, 0.36)])
 def test_temperature_normalisation_melting(press, temp):
     shape = 10
     pressure = np.full(shape, press)
@@ -22,7 +22,7 @@ def test_temperature_normalisation_melting(press, temp):
     assert_array_almost_equal(result, np.ones(shape))
 
 
-@pytest.mark.parametrize("press, temp", [("13.50", 1.35), ("1.00", 0.36)])
+@pytest.mark.parametrize("press, temp", [("13.50", 1.35), ("1.00", 0.36) , (13.50, 1.35), (1.00, 0.36)])
 def test_temperature_normalisation_one(press, temp):
     shape = 10
     pressure = np.full(shape, press)
@@ -31,7 +31,7 @@ def test_temperature_normalisation_one(press, temp):
     assert_array_almost_equal(result, np.full(shape, temp))
 
 
-@pytest.mark.parametrize("press, temp", [("13.50", 1.35), ("1.00", 0.36)])
+@pytest.mark.parametrize("press, temp", [("13.50", 1.35), ("1.00", 0.36) , (13.50, 1.35), (1.00, 0.36)])
 def test_temperature_normalisation_zero(press, temp):
     shape = 10
     pressure = np.full(shape, press)
