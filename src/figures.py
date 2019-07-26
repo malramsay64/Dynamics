@@ -9,7 +9,7 @@
 """Code to assist in the creation of figures."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import altair as alt
 import click
@@ -82,7 +82,7 @@ def plot_dynamics(
         .transform_filter(alt.datum.msd_value < 50)
     )
 
-    confidence_interval = dyn_chart_base.mark_area(opacity=0.5).encode(
+    confidence_interval = dyn_chart_base.mark_errorband().encode(
         y=alt.Y(
             prop + "_lower:Q",
             title=title,
@@ -122,7 +122,7 @@ def plot_relaxations(
     axis_format = "e"
 
     relax_chart_base = alt.Chart(df).encode(
-        x=alt.X("inv_temp:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+        x=alt.X("temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
         color=alt.Color("pressure:N", title="Pressure"),
     )
 
@@ -151,7 +151,7 @@ def plot_relaxations(
 def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
     values = []
     columns = []
-    r_df = df.set_index(["temperature", "pressure", "inv_temp"])
+    r_df = df.set_index(["temperature", "pressure", "temp_norm"])
     for col_name in r_df.columns:
         col_split = col_name.split("_")
         columns.append("_".join(col_split[:-1]))
@@ -165,7 +165,7 @@ def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def plot_multi_relaxations(
-    df: pandas.DataFrame, prop: str, title: Optional[str] = None
+    df: pandas.DataFrame, prop: List[str], title: str = "Relaxation Values"
 ) -> alt.Chart:
     """Helper to plot relaxation quantities using Altair.
 
@@ -177,20 +177,21 @@ def plot_multi_relaxations(
         title: Custom title used to label the property.
 
     """
-    if title is None:
-        title = prop
+    if isinstance(prop, str):
+        prop = [prop]
+
     axis_format = "e"
 
-    plot_df = df.loc[df["variable"] == prop, :]
-    plot_df.loc[:, "variable"] = title
+    #  plot_df = df.query("variable in @prop")
+    #  plot_df.loc[:, "variable"] = title
 
     relax_chart_base = (
-        alt.Chart(plot_df)
+        alt.Chart(df)
         .encode(
-            x=alt.X("inv_temp:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+            x=alt.X("temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
             color=alt.Color("pressure:N", title="Pressure"),
         )
-        .transform_filter(alt.datum.variable == title)
+        .transform_filter(alt.FieldOneOfPredicate(field="variable", oneOf=prop))
     )
 
     confidence_interval = relax_chart_base.mark_rule(opacity=1.0).encode(
