@@ -12,6 +12,7 @@ This is a collection of utilities for cleaning up the raw data from the calculat
 the dynamics.
 
 """
+import logging
 import sys
 from pathlib import Path
 from typing import Any, Tuple
@@ -22,6 +23,9 @@ import click
 import numpy as np
 import pandas as pd
 from sdanalysis.relaxation import series_relaxation_value
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def _value(series: pd.Series):
@@ -80,7 +84,7 @@ def clean(infile: Path, min_samples: int):
     # We want to discard values where there are not enough to get decent statistics, in
     # this case I have chosen 10 as the magic number.
     df = df.assign(
-        count=df.groupby(["time", "temperature", "pressure"])["start_index"].transform(
+        count=df.groupby(["time", "temperature", "pressure"])["keyframe"].transform(
             "count"
         )
     )
@@ -96,7 +100,6 @@ def clean(infile: Path, min_samples: int):
     df.to_hdf(infile.with_name(infile.stem + "_clean" + ".h5"), "dynamics")
 
     df_mol = pd.read_hdf(infile, "molecular_relaxations")
-    df_mol.index.names = ("keyframe", "molecule")
     df_mol = df_mol.reset_index()
 
     # Replace invalid values (2**32 - 1) with NaN's
@@ -127,7 +130,7 @@ def bootstrap(infile):
     df = pd.read_hdf(infile, "dynamics").drop(columns=["index"])
 
     df_agg = (
-        df.drop(columns="start_index")
+        df.drop(columns="keyframe")
         .groupby(["temperature", "pressure", "time"])
         .agg([_value, _lower, _upper])
     )
@@ -161,7 +164,7 @@ def bootstrap(infile):
     # Calculate the relaxation time from each keyframe
     df_relax = (
         df.set_index("time")
-        .groupby(["temperature", "pressure", "start_index"])
+        .groupby(["temperature", "pressure", "keyframe"])
         .agg(series_relaxation_value)
     )
     df_relax["inv_diffusion"] = 1 / df_relax["msd"]
@@ -189,14 +192,18 @@ def bootstrap(infile):
     "infiles", nargs=-1, type=click.Path(exists=True, file_okay=True, dir_okay=False)
 )
 def collate(output: Path, infiles: Tuple[Path, ...]) -> None:
-    with pandas.HDFStore(output, "w") as dst:
+    with pd.HDFStore(output, "w") as dst:
         for file in infiles:
-            with pandas.HDFStore(file) as src:
+            with pd.HDFStore(file) as src:
                 for key in ["dynamics", "molecular_relaxations"]:
                     try:
-                        dst.append(key, src.get(key))
+                        df = src.get(key)
                     except KeyError:
-                        logger.warning("%s doesn't contain key %s", file, key)
+                        logger.warning("File %s doesn't contain key %s", file, key)
+
+                    df["temperature"] = df["temperature"].astype(float)
+                    df["pressure"] = df["pressure"].astype(float)
+                    dst.append(key, df)
 
 
 if __name__ == "__main__":
