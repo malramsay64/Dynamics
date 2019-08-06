@@ -8,6 +8,7 @@ dependencies:
   - pip=19.1
   - pandas=0.25.*
   - bokeh=1.2.*
+  - numba=0.45.0
   - malramsay::sdanalysis=0.9.3
   - malramsay::sdrun=0.6.8
   - malramsay::experi=0.3.3
