@@ -15,13 +15,14 @@ the dynamics.
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Tuple
+from typing import Any, Dict, List, Tuple
 
 import bootstrapped.bootstrap as bs
 import bootstrapped.stats_functions as bs_stats
 import click
 import numpy as np
 import pandas as pd
+import sdanalysis
 from sdanalysis.relaxation import series_relaxation_value
 
 logger = logging.getLogger(__name__)
@@ -204,6 +205,31 @@ def collate(output: Path, infiles: Tuple[Path, ...]) -> None:
                     df["temperature"] = df["temperature"].astype(float)
                     df["pressure"] = df["pressure"].astype(float)
                     dst.append(key, df)
+
+
+@main.command()
+@click.argument("infile", type=click.Path(file_okay=True, exists=True, dir_okay=False))
+@click.argument("outfile", type=click.Path(file_okay=True, dir_okay=False))
+def stokes_einstein(infile: Path, outfile: Path):
+    sdanalysis.read.process_file(infile, outfile=outfile, wave_number=2.90)
+
+    data: List[Dict[str, np.ndarray]] = []
+    dyn = None
+    for frame in sdanalysis.read.open_trajectory(infile, progressbar=True):
+        if dyn is None:
+            dyn = sdanalysis.dynamics.Dynamics.from_frame(frame)
+        data.append(
+            pd.DataFrame(
+                {
+                    "timestep": dyn.compute_time_delta(frame.timestep),
+                    "molecule": dyn.get_molid(),
+                    "displacement": dyn.get_displacements(frame.position),
+                    "rotation": dyn.get_rotations(frame.orientation),
+                }
+            )
+        )
+    disp_df = pd.concat(data)
+    disp_df.to_hdf(outfile, "displacements")
 
 
 if __name__ == "__main__":
