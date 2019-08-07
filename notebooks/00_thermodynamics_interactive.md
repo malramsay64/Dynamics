@@ -39,7 +39,7 @@ sys.path.append("../src")
 import figures
 figures.use_my_theme()
 
-alt.data_transformers.enable("csv")
+alt.data_transformers.enable("json")
 ```
 
 ```python
@@ -76,8 +76,7 @@ pressure.observe(update_temperatures, names="value")
 
 @widgets.interact(pressure=pressure, temperature=temperature, quantity=quantities)
 def plot_figure(pressure, temperature, quantity):
-    print(dataset)
-    filename = dataset.get(pressure).get(temperature)
+    filename = dataset.get(pressure).get(temperature).get("None").get("None")
     df = pd.read_csv(
         filename,
         sep="\t",
@@ -96,4 +95,8 @@ def plot_figure(pressure, temperature, quantity):
     )
     c = c.mark_line() + c.mark_errorband().encode(yError=alt.YError("std"))
     return c
+```
+
+```python
+
 ```

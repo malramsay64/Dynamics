@@ -12,7 +12,6 @@ jupyter:
     name: dynamics
 ---
 
-<!-- #region -->
 Relaxation Dynamics
 ==========
 
@@ -27,7 +26,7 @@ for the understanding of relaxation over a series of variables.
 All the simulation data is from a set of simulations stored on RDS
 in the folder `data/simulations/trimer`.
 This set of simulations were all run at a pressure of 13.50.
-<!-- #endregion -->
+
 
 ## Setup
 
@@ -69,7 +68,12 @@ dynamics = dynamics.reset_index()
 
 ```python
 relaxations = pd.read_hdf(data_file, "relaxations")
-relaxations = relaxations.query("pressure == 13.50")
+# relaxations = relaxations.query("pressure == 13.50")
+```
+
+```python
+mol_relax = pd.read_hdf(data_file, "molecular_relaxations")
+# mol_relax = mol_relax.query("pressure == 13.50")
 ```
 
 The available temperatures for plotting are listed below.
@@ -119,51 +123,27 @@ The values calculated below summarise the above information,
 providing a method of investigating temperature dependence of these properties.
 
 ```python
-relaxations.diffusion_constant
+figures.plot_relaxations(relaxations, "msd")
 ```
 
 ```python
-relaxations
+relaxations.columns
 ```
 
 ```python
-relaxation_chart = (
-    alt.Chart(relaxations)
-    .mark_point()
-    .encode(
-        alt.X("inv_temp:Q", scale=alt.Scale(zero=False), axis=alt.Axis(title="1/T"))
-    )
-)
+figures.plot_relaxations(relaxations, "inv_diffusion")
 ```
 
 ```python
-relaxation_chart.encode(
-    alt.Y(
-        "inv_diffusion:Q",
-        scale=alt.Scale(type="log"),
-        axis=alt.Axis(title="1/D", format="e"),
-    )
-)
+figures.plot_relaxations(relaxations, "rot2")
 ```
 
 ```python
-relaxation_chart.encode(
-    alt.Y(
-        "tau_T2",
-        scale=alt.Scale(type="log"),
-        axis=alt.Axis(title="Rotational Relaxation", format="e"),
-    )
-)
+mol_relax.columns
 ```
 
 ```python
-relaxation_chart.encode(
-    alt.Y(
-        "tau_R2",
-        scale=alt.Scale(type="log"),
-        axis=alt.Axis(title="Rotational Relaxation", format="e"),
-    )
-)
+figures.plot_relaxations(mol_relax, "tau_T2")
 ```
 
 ```python
@@ -173,19 +153,20 @@ relaxations.columns
 ```python
 values = pd.DataFrame(
     {
+        "temp_norm": relaxations.temp_norm,
         "Temperature": relaxations.temperature,
-        "r1r2": relaxations.tau_R1 / relaxations.tau_R2,
-        "Dr1T": relaxations.diffusion_constant
-        * relaxations.tau_R1
-        * relaxations.inv_temp,
-        "Dr2T": relaxations.diffusion_constant
-        * relaxations.tau_R2
-        * relaxations.inv_temp,
-        "DsT": relaxations.diffusion_constant
-        * relaxations.tau_S
-        * relaxations.inv_temp,
-        "Dr1": relaxations.diffusion_constant * relaxations.tau_R1,
-        "Dr2": relaxations.diffusion_constant * relaxations.tau_R2,
+        "r1r2": relaxations.rot1_value / relaxations.rot2_value,
+        "Dr1T": relaxations.msd_value
+        * relaxations.rot2_value
+        * relaxations.temp_norm,
+        "Dr2T": relaxations.msd_value
+        * relaxations.rot2_value
+        * relaxations.temp_norm,
+        "DsT": relaxations.msd_value
+        * relaxations.com_struct_value
+        * relaxations.temp_norm,
+        "Dr1": relaxations.msd_value * relaxations.rot1_value,
+        "Dr2": relaxations.msd_value * relaxations.rot2_value,
     }
 )
 ```
@@ -194,11 +175,12 @@ values = pd.DataFrame(
 c = (
     alt.Chart(values)
     .mark_point(filled=True)
-    .encode(alt.X("Temperature", scale=alt.Scale(zero=False)))
+    .encode(alt.X("temp_norm", scale=alt.Scale(zero=False)))
 )
 
 c.encode(y="r1r2")
 ```
 
 ```python
+
 ```

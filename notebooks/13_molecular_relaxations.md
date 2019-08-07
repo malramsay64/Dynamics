@@ -55,73 +55,46 @@ data_file = "../data/analysis/dynamics_clean_agg.h5"
 
 ```python
 relaxations = pd.read_hdf(data_file, "relaxations")
-relaxations = relaxations.query("pressure == 13.50")
-relaxations["inv_temp"] = 1 / relaxations.temperature
+mol_relax = pd.read_hdf(data_file, "molecular_relaxations")
+relax_df = relaxations.merge(mol_relax, on=["temperature", "pressure", "temp_norm"])
 ```
 
 ```python
-long_relax = relaxations.drop(columns=["diffusion_constant"]).melt(
-    id_vars=["temperature", "pressure", "inv_temp"], var_name="Quantity"
-)
-
-# Drop invalid and abnormal values
-mask = long_relax.value < 0
-long_relax.value.values[mask] = np.nan
-long_relax = long_relax.replace([np.inf, -np.inf], np.nan).dropna()
+plot_relax_df = figures.reshape_dataframe(relax_df)
 ```
 
 ```python
-relax_chart = (
-    alt.Chart(long_relax)
-    .mark_point(filled=True, size=100)
-    .encode(
-        alt.X("inv_temp", scale=alt.Scale(zero=False), axis=alt.Axis(title="1/T")),
-        alt.Y(
-            "value", scale=alt.Scale(type="log"), axis=alt.Axis(format="e", title="")
-        ),
-        alt.Color("Quantity"),
-    )
-)
+figures.plot_multi_relaxations(plot_relax_df, ["tau_D", "inv_diffusion"])
 ```
 
 ```python
-relax_chart.transform_filter(
-    alt.FieldOneOfPredicate(field="Quantity", oneOf=["tau_D1_mean", "inv_diffusion"])
-)
+figures.plot_multi_relaxations(plot_relax_df, ["tau_D", "inv_diffusion"])
 ```
 
 ```python
-long_relax.Quantity.unique()
+plot_relax_df.variable.unique()
 ```
 
 ```python
-relax_chart.transform_filter(
-    alt.FieldOneOfPredicate(
-        field="Quantity", oneOf=["tau_D", "tau_Fmol", "tau_S", "tau_F"]
-    )
-)
+figures.plot_multi_relaxations(plot_relax_df, ["tau_D", "struct", "tau_F"])
 ```
 
 ```python
-relax_chart.transform_filter(
-    alt.FieldOneOfPredicate(field="Quantity", oneOf=["tau_R1", "tau_T2"])
-)
+figures.plot_multi_relaxations(plot_relax_df, ["tau_T2", "rot1"])
 ```
 
 ```python
-relax_chart.transform_filter(
-    alt.FieldOneOfPredicate(field="Quantity", oneOf=["tau_R2", "tau_T4"])
-)
+figures.plot_multi_relaxations(plot_relax_df, ["tau_T4", "rot2"])
 ```
 
 ```python
-relax_chart.transform_filter(
-    alt.FieldOneOfPredicate(field="Quantity", oneOf=["tau_R2", "inv_diffusion"])
-)
+figures.plot_multi_relaxations(plot_relax_df, ["rot2", "inv_diffusion"])
 ```
 
 ```python
-relax_chart.transform_filter(
-    alt.FieldOneOfPredicate(field="Quantity", oneOf=["tau_D", "tau_Fmol"])
-)
+figures.plot_multi_relaxations(plot_relax_df, ["tau_D"])
+```
+
+```python
+
 ```

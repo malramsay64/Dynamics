@@ -34,10 +34,11 @@ import altair as alt
 import sys
 sys.path.append("../src")
 import figures
+import calc_dynamics
 
 figures.use_my_theme()
 
-alt.data_transformers.enable('csv')
+alt.data_transformers.enable("json")
 ```
 
 This notebook generates a collection of figures which are exported as pdf files to the `../figures/thesis` directory.
@@ -71,30 +72,12 @@ data_dir = Path('../data/analysis')
 dynamics_df = pandas.read_hdf(data_dir / 'dynamics_clean_agg.h5', 'dynamics')
 
 dynamics_df = dynamics_df.query("pressure == 13.50")
+dynamics_df = dynamics_df.sort_values("time")
 
 # Output path for all figures
 figure_dir = Path("../figures/thesis")
 # Ensure the directory exists
 figure_dir.mkdir(exist_ok=True)
-```
-
-## Normalisation by Melting Point
-
-The dynamics of many quantities are plotted as a fraction of the melting point,
-this creates a column in the data frames with this normalised temperature.
-
-```python
-dynamics_df['temp_norm'] = 0
-
-select_high_pressure = (dynamics_df.pressure == 13.50).values
-dynamics_df.loc[select_high_pressure, 'temp_norm'] = 1.35 / dynamics_df.loc[select_high_pressure, 'pressure']
-
-select_low_pressure = (dynamics_df.pressure == 1.00).values
-dynamics_df.loc[select_low_pressure, 'temp_norm'] = 0.36 / dynamics_df.loc[select_low_pressure, 'pressure']
-```
-
-```python
-dynamics_df.info()
 ```
 
 ## Comparative Dynamics
@@ -109,7 +92,7 @@ from figures import plot_dynamics
 
 
 ```python
-c = plot_dynamics(dynamics_df, 'msd', scale='log')
+c = plot_dynamics(dynamics_df, 'msd', title="Mean Squared Displacement", scale='log')
 
 if save_figures:
     c.save(str(figure_dir / "mean_squared_displacement.svg"), webdriver='firefox')
@@ -165,15 +148,7 @@ c
 ```python
 relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
 # relaxations_df = relaxations_df.query("pressure == 13.50")
-mask = relaxations_df.pressure == 13.50
-t_melting_high = 1.35
-t_melting_low = 0.35
-relaxations_df['inv_temp'] = 0.
-relaxations_df.loc[mask, 'inv_temp'] = t_melting_high / relaxations_df.temperature
-relaxations_df.loc[~mask, 'inv_temp'] = t_melting_low / relaxations_df.temperature
 relaxations_df[relaxations_df < 0] = np.NaN
-
-# relaxations_df['inv_diffusion'] = 1 / relaxations_df.diffusion_constant
 ```
 
 ```python
@@ -190,7 +165,6 @@ relaxations_df.columns
 
 ### Scattering Function
 
-
 ```python
 plot_relaxations(relaxations_df, 'scattering_function')
 ```
@@ -205,7 +179,6 @@ c
 ```
 
 ### Diffusion
-
 
 ```python
 c = plot_relaxations(relaxations_df, 'inv_diffusion', title="1/D")
@@ -231,18 +204,11 @@ c
 
 ```python
 mol_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "molecular_relaxations")
-
-mask = mol_df.pressure == 13.50
-t_melting_high = 1.35
-t_melting_low = 0.35
-mol_df['inv_temp'] = 0.
-mol_df.loc[mask, 'inv_temp'] = t_melting_high / mol_df.temperature
-mol_df.loc[~mask, 'inv_temp'] = t_melting_low / mol_df.temperature
 ```
 
 ```python
-relax_df = relaxations_df.set_index(['temperature', 'pressure', 'inv_temp']).join(
-    mol_df.set_index(['temperature', 'pressure', 'inv_temp'])
+relax_df = relaxations_df.set_index(['temperature', 'pressure', 'temp_norm']).join(
+    mol_df.set_index(['temperature', 'pressure', 'temp_norm'])
 ).reset_index()
 ```
 
@@ -251,26 +217,11 @@ from figures import reshape_dataframe, plot_multi_relaxations
 ```
 
 ```python
-mol_df
+mol_df.head()
 ```
 
 ```python
-melt_df = reshape_dataframe(relax_df)
-```
-
-```python
-melt_df.variable.unique()
-```
-
-```python
-plot_relaxations(mol_df, "tau_F")
-```
-
-```python
-(
-    plot_multi_relaxations(melt_df, "tau_F", title="Molecular") +
-    plot_multi_relaxations(melt_df, "scattering_function", title="Scattering")
-)
+comp_relax_df = reshape_dataframe(relax_df)
 ```
 
 ```python
@@ -278,89 +229,21 @@ comp_relax_df.variable.unique()
 ```
 
 ```python
-import altair as alt
-
-c = alt.Chart(comp_relax_df).mark_point().encode(
-    alt.X('inv_temp:Q', title="Tm/T"),
-    alt.Y('value:Q', title="Relaxtion Time", scale=alt.Scale(type='log'), axis=alt.Axis(format='e')),
-    alt.Color('pressure:N', title="Pressure"),
-    alt.Shape('variable:N', title="Quantity"),
-)
-
-c.transform_filter((alt.datum.variable == "rot1_value")) + c.transform_filter((alt.datum.variable == "rot2_value"))
+plot_relaxations(mol_df, "tau_F")
 ```
 
 ```python
-import altair as alt
-
-c = alt.Chart(comp_relax_df).mark_point().encode(
-    alt.X('inv_temp', title="Tm/T"),
-    alt.Y('value', title="Relaxtion Time", scale=alt.Scale(type='log'), axis=alt.Axis(format='e')),
-    alt.Color('pressure:N', title="Pressure"),
-    alt.Shape('variable', title="Quantity"),
-)
-
-c.transform_filter((alt.datum.variable == "inv_diffusion") | (alt.datum.variable == "tau_D"))
+plot_multi_relaxations(comp_relax_df, ["tau_F", "scattering_function"], title="Molecular")
 ```
 
 ```python
-import altair as alt
-
-c = alt.Chart(comp_relax_df).mark_point().encode(
-    alt.X('inv_temp', title="Tm/T"),
-    alt.Y('value', title="Relaxtion Time", scale=alt.Scale(type='log'), axis=alt.Axis(format='e')),
-    alt.Color('pressure:N', title="Pressure"),
-    alt.Shape('variable', title="Quantity"),
-)
-
-c.transform_filter((alt.datum.variable == "inv_diffusion") | (alt.datum.variable == "tau_D"))
+comp_relax_df.variable.unique()
 ```
 
 ```python
-c = alt.Chart(comp_relax_df).mark_point().encode(
-    alt.X('inv_temp', title="Tm/T"),
-    alt.Y('value', title="Relaxtion Time", scale=alt.Scale(type='log'), axis=alt.Axis(format='e')),
-    alt.Color('pressure:N', title="Pressure"),
-    alt.Shape('variable', title="Quantity"),
-)
-
-c.transform_filter((alt.datum.variable == "tau_Fmol"))
-
+plot_multi_relaxations(comp_relax_df, ["rot1", "rot2"])
 ```
 
 ```python
-fig, ax = plt.subplots()
-
-ax.plot('inv_temp', 'inv_diffusion', 's', data=relaxations_df, label="1/D")
-ax.plot('inv_temp', 'tau_R1', 'x', data=relaxations_df, label=r"$\tau_S$")
-ax.plot('inv_temp', 'tau_F', 'o', data=relaxations_df, label=r"$\tau_F$")
-ax.plot('inv_temp', 'tau_S', 'o', data=relaxations_df, label=r"$\tau_S$")
-
-ax.set_xlabel('$T_m/T$')
-ax.set_ylabel("Relaxation Time")
-
-# ax.set_xscale('log')
-ax.set_yscale('log')
-ax.legend()
-
-fig.savefig("Relaxations.pdf")
-```
-
-```python
-c = alt.Chart(comp_relax_df).mark_point().encode(
-    alt.X('inv_temp', title="Tm/T"),
-    alt.Y('value', title="Relaxtion Time", scale=alt.Scale(type='log'), axis=alt.Axis(format='e')),
-    alt.Color('pressure:N', title="Pressure"),
-    alt.Shape('variable', title="Quantity"),
-)
-
-c.transform_filter((alt.datum.variable == "inv_diffusion"))
-```
-
-```python
-dynamics_df.info()
-```
-
-```python
-relaxations_df
+plot_multi_relaxations(comp_relax_df, ["inv_diffusion", "tau_D"])
 ```

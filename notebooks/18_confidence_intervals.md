@@ -146,7 +146,7 @@ for each of the starting configurations.
 ```python
 val_index, df = next(iter(dynamics_df.groupby(["temperature", "pressure"])))
 df = df.set_index("time")
-index, group = next(iter(df.groupby("start_index")))
+index, group = next(iter(df.groupby("keyframe")))
 group.head()
 ```
 
@@ -159,7 +159,7 @@ from sdanalysis.relaxation import series_relaxation_value
 ```
 
 ```python
-results = df.groupby("start_index").struct.agg(series_relaxation_value)
+results = df.groupby("keyframe").struct.agg(series_relaxation_value)
 ```
 
 ```python
@@ -169,14 +169,14 @@ alt.Chart(pandas.DataFrame({"results": results})).mark_bar().encode(
 ```
 
 ```python
-df_relax = df.groupby("start_index").agg(series_relaxation_value)
+df_relax = df.groupby("keyframe").agg(series_relaxation_value)
 val = bs.bootstrap(df_relax.struct.values, bs_stats.mean)
 val
 ```
 
 ```python
 df_relax = dynamics_df.set_index("time")
-df_agg = df_relax.groupby(["temperature", "pressure", "start_index"]).agg(
+df_agg = df_relax.groupby(["temperature", "pressure", "keyframe"]).agg(
     series_relaxation_value
 )
 ```
@@ -189,4 +189,8 @@ df_vals = df_agg.groupby(["temperature", "pressure"]).agg(_value)
 alt.Chart(df_vals.reset_index().query("pressure == 13.50")).mark_point().encode(
     x="temperature", y="rot2"
 )
+```
+
+```python
+
 ```

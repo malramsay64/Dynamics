@@ -76,13 +76,5 @@ df = pd.read_hdf(
 ```
 
 ```python
-df.reset_index().groupby("level_0").mean()
-```
-
-```python
-df.index.names = ("keyframe", "molecule")
-```
-
-```python
 df.head()
 ```

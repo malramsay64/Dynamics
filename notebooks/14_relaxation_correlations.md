@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -39,7 +40,7 @@ figures.use_my_theme()
 
 output_notebook()
 
-alt.data_transformers.enable("csv")
+alt.data_transformers.enable("json")
 ```
 
 ## Data Import
@@ -58,13 +59,10 @@ pressure = "13.50"
 infile = "../data/analysis/dynamics.h5"
 
 # Load input file into a pandas dataframe
-df = pandas.read_hdf(infile, "molecular_relaxations").query(
-    "temperature==@temperature and pressure==@pressure"
-)
-# There are a number of initial configurations in the data, only select the first
-df = df.loc[0]
+df = pandas.read_hdf(infile, "molecular_relaxations")
 
-df = df.drop(columns=["pressure", "temperature"])
+# There are a number of initial configurations in the data, only select the first
+# df = pandas.concat(chunks)
 ```
 
 ## Visualisation
@@ -79,9 +77,9 @@ The timescales I am plotting in this figure are the time for a molecule to under
 with all motions relative to the initial position.
 The motions are tabulated below;
 
-- `tau_D04` -> travel a distance of 0.4
-- `tau_D1`  -> travel a distance of 1
-- `tau_DL04` -> last passage of a distance of 0.4 before reaching 1.0
+- `tau_F` -> travel a distance of 0.4
+- `tau_D`  -> travel a distance of 1
+- `tau_L` -> last passage of a distance of 0.4 before reaching 1.0
 - `tau_T2`  -> rotate a distance of $\pi/2$
 - `tau_T3`  -> rotate a distance of $\pi/3$
 - `tau_T4`  -> rotate a distance of $\pi/4$
@@ -115,19 +113,19 @@ for x1, x2 in itertools.combinations(df.columns, 2):
     print(f"{x1: <8} {x2: <8} {correlation:.2f}")
 ```
 
-It is notable that the correlation between the last passage time `tau_DL04` and the diffusion time `tau_D1` are so similar.
+It is notable that the correlation between the last passage time `tau_L` and the diffusion time `tau_D` are so similar.
 This really is indicating that the last passage time is a good proxy for diffusive behaviour.
 There is still a strong correlation between the last passage time and the relaxation times,
 so there is a reasonable argument to be made that these values are all connected in some way.
 
 ```python
-selected = ["tau_DL04", "tau_T2", "tau_T3", "tau_T4"]
-data = df[selected].melt("tau_DL04")
+selected = ["tau_L", "tau_T2", "tau_T3", "tau_T4"]
+data = df[selected].melt("tau_L")
 f = figure(
     x_axis_type="log", y_axis_type="log", x_axis_label="tau_L", y_axis_label="tau_Tn"
 )
 f.scatter(
-    "tau_DL04",
+    "tau_L",
     "value",
     source=data,
     color=factor_cmap(
@@ -155,7 +153,7 @@ show(f)
 
 ```python
 data_log = data.copy()
-data_log.value = np.log10(data_log.value / data_log.tau_DL04)
+data_log.value = np.log10(data_log.value / data_log["tau_L"])
 alt.Chart(data_log).mark_area(opacity=0.7, interpolate="step").encode(
     alt.X("value", bin=alt.Bin(maxbins=100)),
     alt.Y("count()", stack=None),
@@ -164,4 +162,5 @@ alt.Chart(data_log).mark_area(opacity=0.7, interpolate="step").encode(
 ```
 
 ```python
+
 ```

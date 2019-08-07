@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    target_format: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -62,7 +63,7 @@ import figures
 
 figures.use_my_theme()
 
-alt.data_transformers.enable("csv")
+alt.data_transformers.enable("json")
 ```
 
 ### Loading Data
@@ -87,11 +88,11 @@ correspond to the data loaded from the trajectory.
 
 ```python
 pressure = "13.50"
-temperature = "1.35"
+temperature = "1.30"
 directory = Path("../data/simulations/trimer/output/")
 # Load up a linear trajectory for ease of analysis
 file = directory / f"trajectory-Trimer-P{pressure}-T{temperature}.gsd"
-stem = f"Trimer-13.50-{temperature}"
+outfile = Path(f"Trimer-13.50-{temperature}.h5")
 # # Read in pre-computed dynamics properties for a single trajectory
 # dynamics_df = pandas.read_hdf(directory / 'dynamics' / f'trajectory-13.50-{temperature}.hdf5',
 #                               'relaxations').loc[0, :]
@@ -108,67 +109,49 @@ I have stored the configuration at a series of linear steps and so the below ana
 The data is stored in a sqlite database as this is a highly queryable format while still remaining compatible with a range of systems.
 
 ```python
-max_steps = None
-recompute = False
-# Uncomment to recompute quantities this takes a long time to compute
-recompute = True
-if recompute:
-    dataframes = []
-
-    with gsd.hoomd.open(str(file)) as trj:
-        # Read the first frame of the snapshot to set up dynamics
-        snap = sdanalysis.HoomdFrame(trj[0])
-        num_mols = snap.num_mols
-        dyn = Dynamics(
-            timestep=snap.timestep,
-            box=snap.box,
-            position=snap.position,
-            orientation=snap.orientation,
-        )
-        first_passage = MolecularRelaxation(num_mols, 0.4)
-        last_passage = LastMolecularRelaxation(num_mols, 0.4, 1.0)
-        exists = False
-        for snap in trj:
-            snap = sdanalysis.HoomdFrame(snap)
-            delta_time = dyn.compute_time_delta(snap.timestep)
-            delta_disp = dyn.get_displacements(snap.position)
-            dataframes.append(
-                {
-                    "mol_index": np.arange(snap.num_mols),
-                    "time": delta_time,
-                    "displacement": delta_disp,
-                    "rotation": dyn.get_rotations(snap.orientation),
-                }
-            )
-            exists = True
-            first_passage.add(delta_time, delta_disp)
-            last_passage.add(delta_time, delta_disp)
-            if max_steps and snap.configuration.step > max_steps:
-                break
-    pdf = pandas.DataFrame(
-        {
-            "first_passage": first_passage.get_status(),
-            "last_passage": last_passage.get_status(),
-        }
-    )
-    # Write data to files
-    df = pandas.concat([pandas.DataFrame(data) for data in dataframes])
-    df.to_hdf(f"{stem}.h5", "single_motion")
-    pdf.to_hdf(f"{stem}.h5", "passage_times")
-else:
-    df = pandas.read_hdf(f"{stem}.h5", "single_motion")
-    pdf = pandas.read_hdf(f"{stem}.h5", "passage_times")
+import sdanalysis
 ```
 
 ```python
-df.set_index(["mol_index", "time"], inplace=True, drop=False)
+max_steps = None
+recompute = False
+# Uncomment to recompute quantities this takes a long time to compute
+# recompute = True
+if recompute or not outfile.exists():
+#     sdanalysis.read.process_file(file, 2.90, outfile=outfile)
+    dyn = None
+    displacements = []
+    for frame in sdanalysis.read.open_trajectory(file):
+        if len(frame) == 0:
+            continue
+        if dyn is None:
+            dyn = sdanalysis.dynamics.Dynamics.from_frame(frame)
+        displacements.append(pandas.DataFrame({
+            "timestep": dyn.compute_time_delta(frame.timestep),
+            "molecule": dyn.get_molid(),
+            "displacement": dyn.get_displacements(frame.position),
+            "rotation": dyn.get_rotations(frame.orientation),
+            })
+        )
+    disp_df = pandas.concat(displacements)
+    disp_df.to_hdf(outfile, "displacements")
+
+
+with pandas.HDFStore(outfile) as src:
+    dyn_df = src.get("dynamics")
+    mol_df = src.get("molecular_relaxations")
+    df = src.get("displacements")
+```
+
+```python
+# df.set_index(["mol_index", "time"], inplace=True, drop=False)
 df.info()
 ```
 
 ```python
 # Molecules for selection
 selected = [120, 130, 140]
-df_fast = df.loc[selected]
+df_fast = df.query("molecule in @selected")
 ```
 
 ```python
@@ -176,28 +159,28 @@ df_fast.head()
 ```
 
 ```python
-df_fast = df_fast.set_index(pandas.TimedeltaIndex(df_fast["time"], unit="ns"))
-df_fast_groups = df_fast.groupby("mol_index").resample("1ms")
+df_fast = df_fast.set_index(pandas.TimedeltaIndex(df_fast["timestep"], unit="ns"))
+df_fast_groups = df_fast.groupby("molecule").resample("1ms")
 ```
 
 ```python
 alt.Chart(df_fast_groups.mean().reset_index(drop=True)).mark_line().encode(
-    x="time", y="displacement", color="mol_index:N"
+    x="timestep", y="displacement", color="molecule:N"
 )
 ```
 
 ```python
 mol_id = 140
 
-df_path = df_fast.loc[df_fast.mol_index.values == mol_id, :].copy()
+df_path = df_fast.query("molecule == @mol_id").copy()
 df_path = df_path[1:]
-df_path.loc[:, "time"] = np.log(df_path.loc[:, "time"].values)
+df_path.loc[:, "timestep"] = np.log(df_path.loc[:, "timestep"].values)
 df_path = df_path[:80000]
 ```
 
 ```python
 alt.Chart(df_path).mark_point(opacity=0.4, filled=True).encode(
-    x="displacement", y="rotation", color="time"
+    x="displacement", y="rotation", color=alt.Color("timestep", scale=alt.Scale(scheme="viridis"))
 )
 ```
 
@@ -206,43 +189,32 @@ df_path.columns
 ```
 
 ```python
-alt.Chart.mar
-```
-
-```python
-df_path
-```
-
-```python
-pdf.sort_values("last_passage")
-pdf = pdf[pdf.last_passage != 2 ** 32 - 1]
+mol_df.sort_values("tau_L")
+mol_df = mol_df.query("tau_L != 2 ** 32 - 1")
 ```
 
 ```python
 fig, ax = plt.subplots()
-ax.plot(pdf.sort_values("first_passage").reset_index(drop=True).first_passage, ".")
-ax.plot(pdf.sort_values("first_passage").reset_index(drop=True).last_passage, ".")
+ax.plot(mol_df.sort_values("tau_F").reset_index(drop=True)["tau_F"], ".")
+ax.plot(mol_df.sort_values("tau_F").reset_index(drop=True)["tau_L"], ".")
 ax.legend()
-ax.set_yscale("linear")
+ax.set_yscale("log")
 fig.savefig("passage_times.pdf")
 ```
 
 ```python
-pdf.sort_values("last_passage").reset_index(drop=True).plot(logy=True)
-```
-
-```python
-df.info()
+mol_df.info()
 ```
 
 ```python
 rotations_first = []
 rotations_last = []
-for index, first, last in pdf.itertuples():
+df_lookup = df.set_index(["timestep", "molecule"])
+for molecule, first, last in mol_df.set_index("molecule")[["tau_F", "tau_L"]].itertuples():
     if last == 2 ** 32 - 1:
         continue
-    rotations_first.append(df.loc[index, first].rotation)
-    rotations_last.append(df.loc[index, last].rotation)
+    rotations_first.append(df_lookup.loc[(first, molecule), "rotation"])
+    rotations_last.append(df_lookup.loc[(last, molecule), "rotation"])
 ```
 
 ```python
@@ -256,10 +228,10 @@ rotations = (
 ```
 
 ```python
-altair.Chart(rotations).mark_bar(opacity=0.8).encode(
-    x=altair.X("value:Q", title="Angular Displacement", bin=altair.Bin(maxbins=20)),
-    y=altair.Y("count():Q", title="Occurence"),
-    color=altair.Color("variable", title="Time"),
+alt.Chart(rotations).mark_bar(opacity=0.8).encode(
+    x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=20)),
+    y=alt.Y("count():Q", title="Occurence"),
+    color=alt.Color("variable", title="Time"),
 )
 ```
 
@@ -269,8 +241,9 @@ ax.hist(rot_last, range=(0, np.pi), density=True, alpha=0.7, label="Last Passage
 ax.hist(rot_first, range=(0, np.pi), density=True, alpha=0.7, label="First Passage")
 ax.legend(frameon=False)
 ax.set_xlabel(r"$\Delta\theta$")
-fig.savefig(f"Rotational_disp-{stem}.pdf")
+fig.savefig(f"Rotational_disp-{outfile.stem}.pdf")
 ```
 
 ```python
+
 ```

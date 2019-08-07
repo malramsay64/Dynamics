@@ -73,7 +73,7 @@ pressures = widgets.ToggleButtons(
 
 # The metadata columns, or those we are using for the other axes of the figure
 # shouldn't be available for plotting since they are non-sensical.
-metadata_cols = ["temperature", "pressure", "start_index", "time"]
+metadata_cols = ["temperature", "pressure", "keyframe", "time"]
 axes = widgets.ToggleButtons(
     description="Quantity",
     options=[col for col in df.columns if col not in metadata_cols],
@@ -108,7 +108,7 @@ pressure = 13.50
 temperature = 1.40
 
 df1 = df.query(
-    "temperature==@temperature and pressure==@pressure and start_index % 5 == 0"
+    "temperature==@temperature and pressure==@pressure and keyframe % 5 == 0"
 )
 
 c_base = alt.Chart(df1)
@@ -117,7 +117,7 @@ c_base = alt.Chart(df1)
     c_base.mark_line(color="grey", opacity=0.05).encode(
         x=alt.X("time", axis=alt.Axis(format="e"), scale=alt.Scale(type="log")),
         y=alt.Y("msd", axis=alt.Axis(format="e"), scale=alt.Scale(type="log")),
-        detail="start_index",
+        detail="keyframe",
     )
     + c_base.mark_line().encode(x="time", y="mean(msd)")
 ).interactive()
