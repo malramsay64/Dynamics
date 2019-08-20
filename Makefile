@@ -47,14 +47,18 @@ $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trim
 
 .PHONY: figures
 figures:  | ## Create all publication figures.
-	# jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/20_Publication_Figures.ipynb
-	# jupyter nbconvert --ExecutePreprocessor.timeout=600 --execute notebooks/21_phd_dynamics.ipynb
 	python3 src/figures.py plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/thesis/radial_distribution.pdf
 	python3 src/figures.py plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/thesis/static_structure_factor.pdf
 
 all_notebooks = $(wildcard notebooks/*.md)
 
 notebooks: $(all_notebooks:.md=.ipynb)
+
+.PHONY: sync
+sync:
+	jupytext --set-formats ipynb,md notebooks/*.md
+	jupytext --set-formats ipynb,md notebooks/*.ipynb
+	jupytext --sync --pipe black notebooks/*.ipynb
 
 notebooks/%.ipynb: notebooks/%.md
 	cd notebooks && jupytext --to ipynb --execute $(notdir $<)
