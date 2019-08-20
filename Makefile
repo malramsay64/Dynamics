@@ -36,10 +36,10 @@ $(dynamics): $(analysis)
 	python3 src/calc_dynamics.py collate $@ $^
 
 $(analysis_dir)/trajectory-Trimer-P1.00-%.h5: $(simulation_dir)/trajectory-Trimer-P1.00-%.gsd
-	sdanalysis --keyframe-interval 200_000 --linear-steps 100 --wave-number 2.80 comp-dynamics $< $@
+	sdanalysis --keyframe-interval 1_000_000 --linear-steps 100 --wave-number 2.80 comp-dynamics --scattering-function $< $@
 
 $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trimer-P13.50-%.gsd
-	sdanalysis --keyframe-interval 200_000 --linear-steps 100 --wave-number 2.90 comp-dynamics $< $@
+	sdanalysis --keyframe-interval 1_000_000 --linear-steps 100 --wave-number 2.90 comp-dynamics --scattering-function $< $@
 
 #
 # Figures and Notebooks
