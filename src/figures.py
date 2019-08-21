@@ -9,6 +9,7 @@
 """Code to assist in the creation of figures."""
 
 import logging
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import altair as alt
@@ -39,6 +40,14 @@ def my_theme() -> Dict[str, Any]:
             "background": "white",
         }
     }
+
+
+def json_dir(data, data_dir="altairdata"):
+    data_dir = Path(data_dir)
+    data_dir.mkdir(exist_ok=True)
+    return alt.pipe(
+        data, alt.to_json(filename=str(data_dir / "{prefix}-{hash}.{extension}"))
+    )
 
 
 def use_my_theme():
