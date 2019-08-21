@@ -30,7 +30,7 @@ $(dynamics_agg): $(dynamics_clean)
 	python src/calc_dynamics.py bootstrap $<
 
 $(dynamics_clean): $(dynamics)
-	python src/calc_dynamics.py clean --min-samples 50 $<
+	python src/calc_dynamics.py clean --min-samples 10 $<
 
 $(dynamics): $(analysis)
 	python3 src/calc_dynamics.py collate $@ $^
