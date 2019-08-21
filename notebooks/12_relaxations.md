@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -42,10 +43,6 @@ import altair as alt
 
 sys.path.append("../src")
 import figures
-
-figures.use_my_theme()
-
-alt.data_transformers.enable("json")
 ```
 
 ### Import Data
@@ -156,12 +153,8 @@ values = pd.DataFrame(
         "temp_norm": relaxations.temp_norm,
         "Temperature": relaxations.temperature,
         "r1r2": relaxations.rot1_value / relaxations.rot2_value,
-        "Dr1T": relaxations.msd_value
-        * relaxations.rot2_value
-        * relaxations.temp_norm,
-        "Dr2T": relaxations.msd_value
-        * relaxations.rot2_value
-        * relaxations.temp_norm,
+        "Dr1T": relaxations.msd_value * relaxations.rot2_value * relaxations.temp_norm,
+        "Dr2T": relaxations.msd_value * relaxations.rot2_value * relaxations.temp_norm,
         "DsT": relaxations.msd_value
         * relaxations.com_struct_value
         * relaxations.temp_norm,

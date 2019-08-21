@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -24,12 +25,9 @@ import altair as alt
 import ipywidgets as widgets
 
 import sys
+
 sys.path.append("../src")
 import figures
-
-figures.use_my_theme()
-
-alt.data_transformers.enable("csv")
 ```
 
 <!-- #region -->
@@ -55,7 +53,9 @@ This is the interactive figure which provides allows selecting the relaxation qu
 metadata_cols = ["temperature", "pressure"]
 props = widgets.ToggleButtons(
     description="Relaxation",
-    options=list(set([col.split("_")[0] for col in df.columns if col not in metadata_cols])),
+    options=list(
+        set([col.split("_")[0] for col in df.columns if col not in metadata_cols])
+    ),
 )
 
 

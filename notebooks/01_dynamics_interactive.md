@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -24,14 +25,9 @@ import altair as alt
 import ipywidgets as widgets
 
 import sys
+
 sys.path.append("../src")
 import figures
-
-figures.use_my_theme()
-
-# We are dealing with datasets larger than the 5000 rows,
-# so save the data to a csv file and read from that.
-alt.data_transformers.enable("csv")
 ```
 
 <!-- #region -->

@@ -33,6 +33,7 @@ from IPython.display import display
 import altair as alt
 
 import sys
+
 sys.path.append("../src")
 import figures
 

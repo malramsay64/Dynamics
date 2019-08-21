@@ -267,6 +267,7 @@ def static_structure_factor(
     return 1 + 4 * numpy.pi * density / wave_number * integral
 ```
 
+
 ```python
 ssf = []
 x = numpy.linspace(0.5, 20, 1000)
@@ -274,7 +275,7 @@ for value in x:
     ssf.append(static_structure_factor(rdf, value, snapshot.num_mols))
 
 plt.plot(x, ssf)
-plt.savefig("../figures/thesis/static_structure_factor.pdf")
+plt.savefig("../figures/static_structure_factor.pdf")
 ```
 
 ```python
@@ -338,7 +339,7 @@ scale_factor = 2
 rdf_doubled = scale_trajectory(filename, scale_factor)
 
 plt.plot(rdf_doubled.R, rdf_doubled.RDF)
-plt.savefig("../figures/thesis/radial_distribution.pdf")
+plt.savefig("../figures/radial_distribution.pdf")
 ```
 
 ```python
@@ -498,6 +499,7 @@ def intermediate_scattering_function(
     return numpy.mean(numpy.cos(numpy.dot(wave_vector, displacement.T)))
 ```
 
+
 This function we have just written can now be used the compute
 the structural relaxation for this trajectory.
 
@@ -560,6 +562,7 @@ def structural_relaxation(
     return numpy.mean(displacements < distance)
 ```
 
+
 ```python
 timesteps = []
 relaxation_d03 = []
@@ -621,9 +624,7 @@ intermediate_scattering_function(
 
 ```python
 %%timeit
-structural_relaxation(
-    box, init_snapshot.position, snapshot.position, distance=0.6
-)
+structural_relaxation(box, init_snapshot.position, snapshot.position, distance=0.6)
 ```
 
 The results above shows that

@@ -41,13 +41,10 @@ import bootstrapped.stats_functions as bs_stats
 from sdanalysis.relaxation import series_relaxation_value
 
 import sys
+
 sys.path.append("../src")
 import figures
 from calc_dynamics import _value, _upper, _lower
-
-figures.use_my_theme()
-
-alt.data_transformers.enable("csv")
 ```
 
 For this analysis we are going to be using

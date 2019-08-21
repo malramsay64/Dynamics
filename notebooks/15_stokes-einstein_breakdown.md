@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     target_format: ipynb,md
     text_representation:
       extension: .md
@@ -58,6 +59,7 @@ from sdanalysis.StepSize import GenerateStepSeries
 import sdanalysis
 
 import sys
+
 sys.path.append("../src")
 import figures
 
@@ -118,7 +120,7 @@ recompute = False
 # Uncomment to recompute quantities this takes a long time to compute
 # recompute = True
 if recompute or not outfile.exists():
-#     sdanalysis.read.process_file(file, 2.90, outfile=outfile)
+    #     sdanalysis.read.process_file(file, 2.90, outfile=outfile)
     dyn = None
     displacements = []
     for frame in sdanalysis.read.open_trajectory(file):
@@ -126,12 +128,15 @@ if recompute or not outfile.exists():
             continue
         if dyn is None:
             dyn = sdanalysis.dynamics.Dynamics.from_frame(frame)
-        displacements.append(pandas.DataFrame({
-            "timestep": dyn.compute_time_delta(frame.timestep),
-            "molecule": dyn.get_molid(),
-            "displacement": dyn.get_displacements(frame.position),
-            "rotation": dyn.get_rotations(frame.orientation),
-            })
+        displacements.append(
+            pandas.DataFrame(
+                {
+                    "timestep": dyn.compute_time_delta(frame.timestep),
+                    "molecule": dyn.get_molid(),
+                    "displacement": dyn.get_displacements(frame.position),
+                    "rotation": dyn.get_rotations(frame.orientation),
+                }
+            )
         )
     disp_df = pandas.concat(displacements)
     disp_df.to_hdf(outfile, "displacements")
@@ -180,7 +185,9 @@ df_path = df_path[:80000]
 
 ```python
 alt.Chart(df_path).mark_point(opacity=0.4, filled=True).encode(
-    x="displacement", y="rotation", color=alt.Color("timestep", scale=alt.Scale(scheme="viridis"))
+    x="displacement",
+    y="rotation",
+    color=alt.Color("timestep", scale=alt.Scale(scheme="viridis")),
 )
 ```
 
@@ -210,7 +217,9 @@ mol_df.info()
 rotations_first = []
 rotations_last = []
 df_lookup = df.set_index(["timestep", "molecule"])
-for molecule, first, last in mol_df.set_index("molecule")[["tau_F", "tau_L"]].itertuples():
+for molecule, first, last in mol_df.set_index("molecule")[
+    ["tau_F", "tau_L"]
+].itertuples():
     if last == 2 ** 32 - 1:
         continue
     rotations_first.append(df_lookup.loc[(first, molecule), "rotation"])

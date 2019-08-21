@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -45,9 +46,6 @@ sys.path.append("../src")
 
 from brownian import brownian
 import figures
-figures.use_my_theme()
-
-alt.data_transformers.enable("csv")
 ```
 
 ### Testing Brownian Dynamics
@@ -84,7 +82,9 @@ Now we have a function to generate brownian dynamics,
 I want to use it to
 
 ```python
-def get_relax(steps: int = 1000, time: int = 10, step_size: float = 0.25, molecules: int = 2000):
+def get_relax(
+    steps: int = 1000, time: int = 10, step_size: float = 0.25, molecules: int = 2000
+):
     all_tau_L = np.zeros(molecules)
     all_tau_F = np.zeros(molecules)
     delta = np.linalg.norm(
@@ -98,6 +98,7 @@ def get_relax(steps: int = 1000, time: int = 10, step_size: float = 0.25, molecu
     return tau_F, tau_L
 ```
 
+
 ```python
 num_samples = 10_000
 ```
@@ -107,7 +108,9 @@ relax = get_relax(steps=10000, time=10, step_size=0.75, molecules=num_samples)
 ```
 
 ```python
-brownian_relation = pandas.DataFrame({"tau_F": relax[0].get_status(), "tau_L": relax[1].get_status()})
+brownian_relation = pandas.DataFrame(
+    {"tau_F": relax[0].get_status(), "tau_L": relax[1].get_status()}
+)
 brownian_relation = brownian_relation[brownian_relation.tau_L != 2 ** 32 - 1]
 ```
 
@@ -189,7 +192,7 @@ df.reset_index(drop=True, inplace=True)
 df["diffs"] = df.tau_L - df.tau_F
 df["log_diffs"] = np.log10(df.diffs[df.diffs > 0])
 df["log_tau_F"] = np.log10(df.tau_F)
-df=df.query("log_diffs > 0")
+df = df.query("log_diffs > 0")
 ```
 
 ```python
@@ -232,7 +235,7 @@ all_df["log_diffs"] = np.nan
 pos_diffs = all_df["diffs"] > 0
 all_df.loc[pos_diffs, "log_diffs"] = np.log10(all_df.loc[pos_diffs, "diffs"])
 all_df["log_tau_F"] = np.log10(all_df.tau_F)
-all_df=all_df.query("log_diffs > 0")
+all_df = all_df.query("log_diffs > 0")
 ```
 
 ```python

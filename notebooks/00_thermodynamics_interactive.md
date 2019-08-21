@@ -1,6 +1,7 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
@@ -35,17 +36,14 @@ from sdanalysis.util import get_filename_vars
 from sdanalysis.figures.interactive_config import parse_directory
 
 import sys
+
 sys.path.append("../src")
 import figures
-figures.use_my_theme()
-
-alt.data_transformers.enable("json")
 ```
 
 ```python
 dataset = parse_directory(
-    directory=Path("../data/simulations/trimer/output/"),
-    glob="thermo-*log",
+    directory=Path("../data/simulations/trimer/output/"), glob="thermo-*log"
 )
 ```
 
@@ -82,7 +80,7 @@ def plot_figure(pressure, temperature, quantity):
         sep="\t",
         index_col="timestep",
         usecols=["timestep", quantity],
-        converters={"timestep": pd.to_timedelta}
+        converters={"timestep": pd.to_timedelta},
     )
     df = df[~df.index.duplicated(keep="first")]
     df = df.resample("10ms").agg(["mean", "std"])
@@ -96,6 +94,7 @@ def plot_figure(pressure, temperature, quantity):
     c = c.mark_line() + c.mark_errorband().encode(yError=alt.YError("std"))
     return c
 ```
+
 
 ```python
 

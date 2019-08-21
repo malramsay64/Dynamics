@@ -1,11 +1,12 @@
 ---
 jupyter:
   jupytext:
+    formats: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.0
   kernelspec:
     display_name: dynamics
     language: python
@@ -32,13 +33,10 @@ import numpy as np
 import altair as alt
 
 import sys
+
 sys.path.append("../src")
 import figures
 import calc_dynamics
-
-figures.use_my_theme()
-
-alt.data_transformers.enable("json")
 ```
 
 This notebook generates a collection of figures which are exported as pdf files to the `../figures/thesis` directory.
@@ -47,7 +45,7 @@ you can set the `save_figures` variable to `False`.
 
 ```python
 save_figures = True
-save_figures = False
+# save_figures = False
 ```
 
 ## Datasets
@@ -66,16 +64,16 @@ with the `dynamics.h5` file containing all the dynamics results in 3 tables
 
 ```python
 # Where the data files with the results are located
-data_dir = Path('../data/analysis')
+data_dir = Path("../data/analysis")
 
 # Load data for most of the figures
-dynamics_df = pandas.read_hdf(data_dir / 'dynamics_clean_agg.h5', 'dynamics')
+dynamics_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "dynamics")
 
 dynamics_df = dynamics_df.query("pressure == 13.50")
 dynamics_df = dynamics_df.sort_values("time")
 
 # Output path for all figures
-figure_dir = Path("../figures/thesis")
+figure_dir = Path("../figures")
 # Ensure the directory exists
 figure_dir.mkdir(exist_ok=True)
 ```
@@ -92,10 +90,11 @@ from figures import plot_dynamics
 
 
 ```python
-c = plot_dynamics(dynamics_df, 'msd', title="Mean Squared Displacement", scale='log')
+c = plot_dynamics(dynamics_df, "msd", title="Mean Squared Displacement", scale="log")
 
 if save_figures:
-    c.save(str(figure_dir / "mean_squared_displacement.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "mean_squared_displacement.svg"), webdriver="firefox")
 
 c
 ```
@@ -103,10 +102,11 @@ c
 ## Non-gaussian
 
 ```python
-c = plot_dynamics(dynamics_df, 'alpha', title="Non Gaussian")
+c = plot_dynamics(dynamics_df, "alpha", title="Non Gaussian")
 
 if save_figures:
-    c.save(str(figure_dir / "non_gaussian.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "non_gaussian.svg"), webdriver="firefox")
 
 c
 ```
@@ -114,19 +114,23 @@ c
 ## Structural Relaxation
 
 ```python
-c = plot_dynamics(dynamics_df, 'struct', title="Structrual Relaxation")
+c = plot_dynamics(dynamics_df, "struct", title="Structrual Relaxation")
 
 if save_figures:
-    c.save(str(figure_dir / "structural_relaxation.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "structural_relaxation.svg"), webdriver="firefox")
 
 c
 ```
 
 ```python
-c = plot_dynamics(dynamics_df, 'scattering_function', title="Intermediate Scattering Function")
+c = plot_dynamics(
+    dynamics_df, "scattering_function", title="Intermediate Scattering Function"
+)
 
 if save_figures:
-    c.save(str(figure_dir / "scattering_function.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "scattering_function.svg"), webdriver="firefox")
 
 c
 ```
@@ -135,19 +139,25 @@ c
 
 
 ```python
-c = plot_dynamics(dynamics_df, 'rot2', title="Rotational Relaxation")
+c = plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
 
 if save_figures:
-    c.save(str(figure_dir / "rotational_relaxtion.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(
+            str(figure_dir / "rotational_relaxation_function.svg"), webdriver="firefox"
+        )
 
 c
+```
+
+```python
+
 ```
 
 ## Relaxation Quantities
 
 ```python
 relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
-# relaxations_df = relaxations_df.query("pressure == 13.50")
 relaxations_df[relaxations_df < 0] = np.NaN
 ```
 
@@ -166,14 +176,15 @@ relaxations_df.columns
 ### Scattering Function
 
 ```python
-plot_relaxations(relaxations_df, 'scattering_function')
+plot_relaxations(relaxations_df, "scattering_function")
 ```
 
 ```python
-plot_relaxations(relaxations_df, 'struct', title="Structural Relaxation")
+plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
 
 if save_figures:
-    c.save(str(figure_dir / "isf_relaxation.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "isf_relaxation.svg"), webdriver="firefox")
 
 c
 ```
@@ -181,10 +192,11 @@ c
 ### Diffusion
 
 ```python
-c = plot_relaxations(relaxations_df, 'inv_diffusion', title="1/D")
+c = plot_relaxations(relaxations_df, "inv_diffusion", title="1/D")
 
 if save_figures:
-    c.save(str(figure_dir / "diffusion_constant.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "diffusion_constant.svg"), webdriver="firefox")
 
 c
 ```
@@ -192,10 +204,11 @@ c
 ### Rotational Relaxation
 
 ```python
-c = plot_relaxations(relaxations_df, 'rot2', title="Rotational Relaxation")
+c = plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation")
 
 if save_figures:
-    c.save(str(figure_dir / "rotational_relaxation.svg"), webdriver='firefox')
+    with alt.data_transformers.enable("default"):
+        c.save(str(figure_dir / "rotational_relaxation.svg"), webdriver="firefox")
 
 c
 ```
@@ -207,9 +220,11 @@ mol_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "molecular_relaxati
 ```
 
 ```python
-relax_df = relaxations_df.set_index(['temperature', 'pressure', 'temp_norm']).join(
-    mol_df.set_index(['temperature', 'pressure', 'temp_norm'])
-).reset_index()
+relax_df = (
+    relaxations_df.set_index(["temperature", "pressure", "temp_norm"])
+    .join(mol_df.set_index(["temperature", "pressure", "temp_norm"]))
+    .reset_index()
+)
 ```
 
 ```python
@@ -233,7 +248,9 @@ plot_relaxations(mol_df, "tau_F")
 ```
 
 ```python
-plot_multi_relaxations(comp_relax_df, ["tau_F", "scattering_function"], title="Molecular")
+plot_multi_relaxations(
+    comp_relax_df, ["tau_F", "scattering_function"], title="Molecular"
+)
 ```
 
 ```python
