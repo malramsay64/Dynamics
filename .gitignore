@@ -24,4 +24,4 @@ Untitled*
 *.log
 
 # Ignore generated pdf files
-figures/thesis/*.pdf
+figures/*.pdf
