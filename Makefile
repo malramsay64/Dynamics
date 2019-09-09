@@ -50,15 +50,15 @@ figures:  | ## Create all publication figures.
 	python3 src/figures.py plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/thesis/radial_distribution.pdf
 	python3 src/figures.py plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/thesis/static_structure_factor.pdf
 
-all_notebooks = $(wildcard notebooks/*.md)
+all_notebooks = $(wildcard notebooks/[0-9][0-9]_*.md)
 
 notebooks: $(all_notebooks:.md=.ipynb)
 
 .PHONY: sync
 sync:
-	jupytext --set-formats ipynb,md notebooks/*.md
-	jupytext --set-formats ipynb,md notebooks/*.ipynb
-	jupytext --sync --pipe black notebooks/*.ipynb
+	jupytext --set-formats ipynb,md $(all_notebooks)
+	jupytext --set-formats ipynb,md $(all_notebooks:.md=.ipynb)
+	jupytext --sync --pipe black $(all_notebooks:.md=.ipynb)
 
 notebooks/%.ipynb: notebooks/%.md
 	cd notebooks && jupytext --to ipynb --execute $(notdir $<)
