@@ -12,6 +12,7 @@ notebooks/*.html
 notebooks/*.pdf
 notebooks/*.csv
 notebooks/*.ipynb
+notebooks/altairdata
 
 # Ignore untitiled notebooks
 Untitled*
