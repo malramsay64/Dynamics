@@ -2,11 +2,12 @@
 jupyter:
   jupytext:
     formats: ipynb,md
+    target_format: ipynb,md
     text_representation:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.0
+      jupytext_version: 1.2.1
   kernelspec:
     display_name: dynamics
     language: python
@@ -17,11 +18,6 @@ jupyter:
 
 These are a collection of figures for my PhD thesis.
 The naming of the figures will remain consistent throughout and the ordering of the figures should be roughly the same as in the thesis.
-
-```python
-%load_ext autoreload
-%autoreload 2
-```
 
 ```python
 # Make dealing with filesystem paths much, much simpler
@@ -143,21 +139,16 @@ c = plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
-        c.save(
-            str(figure_dir / "rotational_relaxation_function.svg"), webdriver="firefox"
-        )
+        c.save(str(figure_dir / "rotational_relaxation.svg"), webdriver="firefox")
 
 c
-```
-
-```python
-
 ```
 
 ## Relaxation Quantities
 
 ```python
 relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
+# relaxations_df = relaxations_df.query("pressure == 13.50")
 relaxations_df[relaxations_df < 0] = np.NaN
 ```
 
@@ -180,11 +171,11 @@ plot_relaxations(relaxations_df, "scattering_function")
 ```
 
 ```python
-plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
+c = plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
-        c.save(str(figure_dir / "isf_relaxation.svg"), webdriver="firefox")
+        c.save(str(figure_dir / "scattering_function_summary.svg"), webdriver="firefox")
 
 c
 ```
@@ -196,7 +187,7 @@ c = plot_relaxations(relaxations_df, "inv_diffusion", title="1/D")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
-        c.save(str(figure_dir / "diffusion_constant.svg"), webdriver="firefox")
+        c.save(str(figure_dir / "diffusion_constant_summary.svg"), webdriver="firefox")
 
 c
 ```
@@ -208,7 +199,9 @@ c = plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
-        c.save(str(figure_dir / "rotational_relaxation.svg"), webdriver="firefox")
+        c.save(
+            str(figure_dir / "rotational_relaxation_summary.svg"), webdriver="firefox"
+        )
 
 c
 ```
