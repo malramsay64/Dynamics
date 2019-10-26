@@ -57,7 +57,7 @@ data_file = "../data/analysis/dynamics_clean_agg.h5"
 ```python
 relaxations = pd.read_hdf(data_file, "relaxations")
 mol_relax = pd.read_hdf(data_file, "molecular_relaxations")
-relax_df = relaxations.merge(mol_relax, on=["temperature", "pressure", "temp_norm"])
+relax_df = relaxations.merge(mol_relax, on=["temperature", "pressure", "inv_temp_norm"])
 ```
 
 ```python
