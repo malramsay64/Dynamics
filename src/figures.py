@@ -142,7 +142,7 @@ def plot_relaxations(
     axis_format = "e"
 
     relax_chart_base = alt.Chart(df).encode(
-        x=alt.X("temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+        x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
         color=alt.Color("pressure:N", title="Pressure"),
     )
 
@@ -171,7 +171,7 @@ def plot_relaxations(
 def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
     values = []
     columns = []
-    r_df = df.set_index(["temperature", "pressure", "temp_norm"])
+    r_df = df.set_index(["temperature", "pressure", "inv_temp_norm"])
     for col_name in r_df.columns:
         col_split = col_name.split("_")
         columns.append("_".join(col_split[:-1]))
@@ -208,7 +208,7 @@ def plot_multi_relaxations(
     relax_chart_base = (
         alt.Chart(df)
         .encode(
-            x=alt.X("temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+            x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
             color=alt.Color("pressure:N", title="Pressure"),
         )
         .transform_filter(alt.FieldOneOfPredicate(field="variable", oneOf=prop))

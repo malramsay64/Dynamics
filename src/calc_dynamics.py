@@ -48,6 +48,7 @@ def _upper(series: pd.Series):
         series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
     ).upper_bound
 
+
 def _read_temperatures(filename: Path) -> Dict[float, float]:
     """Read temperatures from a CSV file and format for simple translation.
 
@@ -139,7 +140,7 @@ def bootstrap(infile):
     )
     df_agg.columns = ["".join(col).strip() for col in df_agg.columns.values]
     df_agg = df_agg.reset_index()
-    df_agg["temp_norm"] = normalised_temperature(
+    df_agg["inv_temp_norm"] = 1 / normalised_temperature(
         df_agg["temperature"].values, df_agg["pressure"].values
     )
 
@@ -158,7 +159,7 @@ def bootstrap(infile):
     )
     df_mol_agg.columns = ["".join(col).strip() for col in df_mol_agg.columns.values]
     df_mol_agg = df_mol_agg.reset_index()
-    df_mol_agg["temp_norm"] = normalised_temperature(
+    df_mol_agg["inv_temp_norm"] = 1 / normalised_temperature(
         df_mol_agg["temperature"].values, df_mol_agg["pressure"].values
     )
 
@@ -180,9 +181,9 @@ def bootstrap(infile):
     df_relax_agg.columns = ["".join(col).strip() for col in df_relax_agg.columns.values]
     df_relax_agg = df_relax_agg.reset_index()
 
-    # Include temp_norm column.
+    # Include inv_temp_norm column.
     # This is the temperature normalised by the melting point
-    df_relax_agg["temp_norm"] = normalised_temperature(
+    df_relax_agg["inv_temp_norm"] = 1.0 / normalised_temperature(
         df_relax_agg["temperature"].values, df_relax_agg["pressure"].values
     )
 

@@ -150,14 +150,14 @@ relaxations.columns
 ```python
 values = pd.DataFrame(
     {
-        "temp_norm": relaxations.temp_norm,
+        "inv_temp_norm": relaxations.inv_temp_norm,
         "Temperature": relaxations.temperature,
         "r1r2": relaxations.rot1_value / relaxations.rot2_value,
-        "Dr1T": relaxations.msd_value * relaxations.rot2_value * relaxations.temp_norm,
-        "Dr2T": relaxations.msd_value * relaxations.rot2_value * relaxations.temp_norm,
+        "Dr1T": relaxations.msd_value * relaxations.rot2_value * relaxations.inv_temp_norm,
+        "Dr2T": relaxations.msd_value * relaxations.rot2_value * relaxations.inv_temp_norm,
         "DsT": relaxations.msd_value
         * relaxations.com_struct_value
-        * relaxations.temp_norm,
+        * relaxations.inv_temp_norm,
         "Dr1": relaxations.msd_value * relaxations.rot1_value,
         "Dr2": relaxations.msd_value * relaxations.rot2_value,
     }
@@ -168,7 +168,7 @@ values = pd.DataFrame(
 c = (
     alt.Chart(values)
     .mark_point(filled=True)
-    .encode(alt.X("temp_norm", scale=alt.Scale(zero=False)))
+    .encode(alt.X("inv_temp_norm", scale=alt.Scale(zero=False)))
 )
 
 c.encode(y="r1r2")
