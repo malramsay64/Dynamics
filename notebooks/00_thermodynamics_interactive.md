@@ -86,16 +86,12 @@ def plot_figure(pressure, temperature, quantity):
     df = df.resample("10ms").agg(["mean", "std"])
     df.columns = [col[-1] for col in df.columns.values]
     df = df.reset_index()
-    df["timestep"] = df["timestep"].astype(int)
+    df["time"] = df["timestep"].astype(int) * 0.005
+    df = df.drop(columns="timestep")
     c = alt.Chart(df).encode(
-        x=alt.X("timestep", axis=alt.Axis(format="e")),
+        x=alt.X("time", title="Time", axis=alt.Axis(format="e")),
         y=alt.Y("mean", title=quantity, scale=alt.Scale(zero=False)),
     )
     c = c.mark_line() + c.mark_errorband().encode(yError=alt.YError("std"))
     return c
-```
-
-
-```python
-
 ```

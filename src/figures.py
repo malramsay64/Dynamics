@@ -93,7 +93,7 @@ def plot_dynamics(
         .encode(
             x=alt.X(
                 "time",
-                title="Timesteps",
+                title="Time",
                 scale=alt.Scale(type="log"),
                 axis=alt.Axis(format="e"),
             ),

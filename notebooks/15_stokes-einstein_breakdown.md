@@ -132,6 +132,7 @@ if recompute or not outfile.exists():
             pandas.DataFrame(
                 {
                     "timestep": dyn.compute_time_delta(frame.timestep),
+                    "time": dyn.compute_time_delta(frame.timestep) * 0.005,
                     "molecule": dyn.get_molid(),
                     "displacement": dyn.get_displacements(frame.position),
                     "rotation": dyn.get_rotations(frame.orientation),
