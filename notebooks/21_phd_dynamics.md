@@ -95,6 +95,8 @@ if save_figures:
 c
 ```
 
+![](../figures/mean_squared_displacement.svg)
+
 ## Non-gaussian
 
 ```python
@@ -106,6 +108,8 @@ if save_figures:
 
 c
 ```
+
+![](../figures/non_gaussian.svg)
 
 ## Structural Relaxation
 
@@ -119,6 +123,8 @@ if save_figures:
 c
 ```
 
+![](../figures/structural_relaxation.svg)
+
 ```python
 c = plot_dynamics(
     dynamics_df, "scattering_function", title="Intermediate Scattering Function"
@@ -130,6 +136,8 @@ if save_figures:
 
 c
 ```
+
+![](../figures/scattering_function.svg)
 
 ## Rotational Relaxation
 
@@ -143,6 +151,8 @@ if save_figures:
 
 c
 ```
+
+![](../figures/rotational_relaxation.svg)
 
 ## Relaxation Quantities
 
@@ -180,6 +190,8 @@ if save_figures:
 c
 ```
 
+![](../figures/scattering_function_summary.svg)
+
 ### Diffusion
 
 ```python
@@ -191,6 +203,8 @@ if save_figures:
 
 c
 ```
+
+![](../figures/diffusion_constant_summary.svg)
 
 ### Rotational Relaxation
 
@@ -205,6 +219,8 @@ if save_figures:
 
 c
 ```
+
+![](../figures/rotational_relaxation_summary.svg)
 
 ## Molecular Relaxations
 
