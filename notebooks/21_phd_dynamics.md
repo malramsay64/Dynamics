@@ -230,8 +230,8 @@ mol_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "molecular_relaxati
 
 ```python
 relax_df = (
-    relaxations_df.set_index(["temperature", "pressure", "temp_norm"])
-    .join(mol_df.set_index(["temperature", "pressure", "temp_norm"]))
+    relaxations_df.set_index(["temperature", "pressure", "inv_temp_norm"])
+    .join(mol_df.set_index(["temperature", "pressure", "inv_temp_norm"]))
     .reset_index()
 )
 ```
