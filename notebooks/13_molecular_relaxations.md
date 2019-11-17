@@ -6,17 +6,19 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
     name: dynamics
 ---
 
-Molecular Relaxations
-===========
+# Molecular Relaxations
 
-Rather than investigating relaxations as an average over all the molecules, we want to investigate individual molecules and how their behaviour is related to that of the aggregate.
+Rather than investigating relaxations as
+an average over all the molecules,
+we want to investigate individual molecules
+and how their behaviour is related to that of the aggregate.
 
 All the simulation data is from a set of simulations stored on RDS
 in the folder `Dynamics/data/simulations/trimer`.
@@ -94,8 +96,4 @@ figures.plot_multi_relaxations(plot_relax_df, ["rot2", "inv_diffusion"])
 
 ```python
 figures.plot_multi_relaxations(plot_relax_df, ["tau_D"])
-```
-
-```python
-
 ```

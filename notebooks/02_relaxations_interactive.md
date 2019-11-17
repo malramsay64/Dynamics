@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
@@ -47,7 +47,8 @@ the calculation of the dynamics.
 df = pd.read_hdf("../data/analysis/dynamics_clean_agg.h5", "relaxations")
 ```
 
-This is the interactive figure which provides allows selecting the relaxation quantity of interest.
+This is the interactive figure which allows selecting
+the relaxation quantity of interest.
 
 ```python
 metadata_cols = ["temperature", "pressure"]

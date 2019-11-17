@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
@@ -46,7 +46,9 @@ alt.data_transformers.enable("json")
 
 ## Data Import
 
-The data used for this analysis is from a series of simulations studying the dynamics of a Trimer molecule at a pressure of 13.50.
+The data used for this analysis is from
+a series of simulations studying the dynamics of
+a Trimer molecule at a pressure of 13.50.
 These simulations are all of equilibrated systems at a range of temperatures.
 For the purposes of this investigation only a single temperature has been studied,
 although it is feasible to extend this to multiple temperatures.
@@ -70,11 +72,13 @@ df = pandas.read_hdf(infile, "molecular_relaxations")
 
 A simple method of understanding how these timescales relate to one another
 is to plot them against each other in a scatter plot.
-Where there is some correlation between them this will exist on a straight line throughout the figure.
+Where there is some correlation between them
+this will exist on a straight line throughout the figure.
 Since the values of the timescales I am investigating are over such a large range,
 both the x and y axis have a log scale.
 
-The timescales I am plotting in this figure are the time for a molecule to undergo a certain motion,
+The timescales I am plotting in this figure are
+the time for a molecule to undergo a certain motion,
 with all motions relative to the initial position.
 The motions are tabulated below;
 
@@ -114,7 +118,8 @@ for x1, x2 in itertools.combinations(df.columns, 2):
     print(f"{x1: <8} {x2: <8} {correlation:.2f}")
 ```
 
-It is notable that the correlation between the last passage time `tau_L` and the diffusion time `tau_D` are so similar.
+It is notable that the correlation between
+the last passage time `tau_L` and the diffusion time `tau_D` are so similar.
 This really is indicating that the last passage time is a good proxy for diffusive behaviour.
 There is still a strong correlation between the last passage time and the relaxation times,
 so there is a reasonable argument to be made that these values are all connected in some way.
@@ -160,8 +165,4 @@ alt.Chart(data_log).mark_area(opacity=0.7, interpolate="step").encode(
     alt.Y("count()", stack=None),
     alt.Color("variable"),
 )
-```
-
-```python
-
 ```

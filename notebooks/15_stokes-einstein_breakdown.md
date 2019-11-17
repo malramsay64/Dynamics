@@ -7,15 +7,15 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
     name: dynamics
 ---
 
-Stokes-Einstein Breakdown
-==============
+# Stokes-Einstein Breakdown
+
 
 One of the major results that we observe
 is what appears to be a breakdown
@@ -36,8 +36,8 @@ finding something interesting,
 I will be using the dynamics from T=1.30, P=13.50.
 
 
-Data Ingest/Calculation
-----------------------
+## Data Ingest/Calculation
+
 
 I don't have the translations and rotations from
 every timepoint saved anywhere,
@@ -252,8 +252,4 @@ ax.hist(rot_first, range=(0, np.pi), density=True, alpha=0.7, label="First Passa
 ax.legend(frameon=False)
 ax.set_xlabel(r"$\Delta\theta$")
 fig.savefig(f"Rotational_disp-{outfile.stem}.pdf")
-```
-
-```python
-
 ```

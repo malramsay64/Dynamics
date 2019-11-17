@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
@@ -15,7 +15,9 @@ jupyter:
 
 # Dynamics Summary
 
-This is a summary of the dynamics quantities from a simulation presented in a way that is simple to check that the values are sensible before continuing with further analysis.
+This is a summary of the dynamics quantities from a simulation
+presented in a way that is simple to check
+that the values are sensible before continuing with further analysis.
 
 ```python
 import pandas as pd
@@ -31,7 +33,8 @@ import figures
 ```
 
 <!-- #region -->
-The processing of the dataset has to be performed before this notebook will display anything useful.
+The processing of the dataset has to be performed
+before this notebook will display anything useful.
 This processing can be performed using the command
 
 ```sh
@@ -59,7 +62,7 @@ df_plot = df.groupby(["temperature", "pressure", "time"]).mean().reset_index()
 ```
 
 This is the part where the generation of the figure takes place.
-The selection of the pressure and the dyanmic quantity is designed to be interactive,
+The selection of the pressure and the dynamic quantity is designed to be interactive,
 selecting the value of interest.
 
 ```python

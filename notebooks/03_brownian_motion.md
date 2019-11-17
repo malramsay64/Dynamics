@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
@@ -221,10 +221,6 @@ sim_df["temperature"] = sim_df["temperature"].astype(str)
 ```
 
 ```python
-np
-```
-
-```python
 all_df = pandas.concat([br_df, sim_df])
 ```
 
@@ -250,8 +246,4 @@ alt.Chart(all_plot_df).mark_bar(opacity=0.8).encode(
     y=alt.Y("count()", stack=None),
     color="temperature",
 )
-```
-
-```python
-
 ```

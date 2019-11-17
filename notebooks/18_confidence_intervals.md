@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
@@ -186,8 +186,4 @@ df_vals = df_agg.groupby(["temperature", "pressure"]).agg(_value)
 alt.Chart(df_vals.reset_index().query("pressure == 13.50")).mark_point().encode(
     x="temperature", y="rot2"
 )
-```
-
-```python
-
 ```

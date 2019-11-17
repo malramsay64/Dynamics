@@ -6,20 +6,21 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.4
   kernelspec:
     display_name: dynamics
     language: python
     name: dynamics
 ---
 
-Relaxation Dynamics
-==========
+# Relaxation Dynamics
 
-There are many different methods which can be used to understand the dynamics of a system.
+There are many different methods
+which can be used to understand the dynamics of a system.
 From short timescale events like structural relaxation,
 to long timescale events including dynamics.
-There are also important degrees of freedom in the rotations which have their own relaxation timescales.
+There are also important degrees of freedom
+in the rotations which have their own relaxation timescales.
 
 This is a collection of figures and analysis
 for the understanding of relaxation over a series of variables.
@@ -77,44 +78,50 @@ The available temperatures for plotting are listed below.
 To make the visualisations of time dependent properties less cluttered
 only a subset of the temperatures will be used for plotting.
 For relaxation timescales all the temperatures will be used.
-This list of temperatures for plotting can be modified by changing the plot_temperatures variable.
+This list of temperatures for plotting
+can be modified by changing the plot_temperatures variable.
 
 ```python
 np.sort(dynamics["temperature"].unique())
 ```
 
-Diffusion
---------
+### Diffusion
 
-Generating the figures for diffusive relaxation of molecules. Lines are indications of fit, where $D t$ is the function that is defining the fit. The parameter `D` is then used as the diffusion constant in the following figure.
+
+Generating the figures for diffusive relaxation of molecules.
+Lines are indications of fit,
+where $D t$ is the function defining the fit.
+The parameter `D` is used as the diffusion constant in the following figure.
 
 ```python
 figures.plot_dynamics(dynamics, "msd", scale="log")
 ```
 
-Rotational Relaxation R2
---------------------
+### Rotational Relaxation R2
 
 This is the second order relaxation function,
 given by;
+
 $$R_2(t) = \langle 2[ \hat{\mathbf{e}}(0) \cdot \hat{\mathbf{e}}(t)]^2 - 1 \rangle$$
+
 where the value is averaged over all molecules and starting configurations.
 
 ```python
 figures.plot_dynamics(dynamics, "rot2")
 ```
 
-Structural Relaxation
---------------------
+### Structural Relaxation
 
-This is the fraction of particles which have moved a distance of 0.3 from their initial position.
+
+This is the fraction of particles which
+have moved a distance of 0.3 from their initial position.
 
 ```python
 figures.plot_dynamics(dynamics, "struct")
 ```
 
-Summary Values
-========
+## Summary Values
+
 
 The values calculated below summarise the above information,
 providing a method of investigating temperature dependence of these properties.
@@ -172,8 +179,4 @@ c = (
 )
 
 c.encode(y="r1r2")
-```
-
-```python
-
 ```
