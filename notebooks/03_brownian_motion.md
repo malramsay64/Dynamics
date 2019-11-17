@@ -36,7 +36,6 @@ import pandas
 import altair as alt
 import itertools
 import scipy.stats
-import numba
 
 from sdanalysis import dynamics
 
