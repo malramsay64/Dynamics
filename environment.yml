@@ -6,27 +6,27 @@ dependencies:
   # Running simulations and data analysis
   - python=3.6
   - pip=19.1
-  - pandas=0.25.*
-  - bokeh=1.2.*
-  - malramsay::sdanalysis=0.9.8
-  - malramsay::sdrun=0.6.8
-  - malramsay::experi=0.3.3
+  - pandas=0.25
+  - bokeh=1.2
+  - malramsay::sdanalysis==0.9.8
+  - malramsay::sdrun==0.6.8
+  - malramsay::experi==0.3.3
   - pip:
     - bootstrapped==0.0.2
     - blacken-docs==1.2.0
   # Notebook/Interactive dependencies
-  - altair=3.1.*
-  - matplotlib=3.1.*
+  - altair=3.1
+  - matplotlib=3.1
   - ipywidgets
-  - nbdime=1.0.*
+  - nbdime=1.0
   - ipykernel=5.1.1
-  - jupytext=1.2.1
+  - jupytext==1.2.4
   # Saving figures
   - selenium
   - geckodriver=0.24.0
   # Development dependencies
   - pytest=5.0.*
-  - black=19.3b0
-  - isort=4.3.21
+  - black==19.10b0
+  - isort==4.3.21
   - hypothesis=4.23.*
-  - mypy
+  - mypy==0.740
