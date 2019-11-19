@@ -84,49 +84,51 @@ I want to use it to
 def get_relax(
     steps: int = 1000, time: int = 10, step_size: float = 0.25, molecules: int = 2000
 ):
-    all_tau_L = np.zeros(molecules)
-    all_tau_F = np.zeros(molecules)
     delta = np.linalg.norm(
         brownian(np.zeros((2, molecules)), steps, time / steps, step_size), axis=0
     )
     tau_F = dynamics.MolecularRelaxation(molecules, 0.4)
-    tau_L = dynamics.LastMolecularRelaxation(molecules, 0.4, 1.0)
+    tau_D = dynamics.MolecularRelaxation(molecules, 2.0)
+    tau_L = dynamics.LastMolecularRelaxation(molecules, 0.4, 2.0)
     for time in range(delta.shape[-1]):
         tau_F.add(time, delta[:, time])
+        tau_D.add(time, delta[:, time])
         tau_L.add(time, delta[:, time])
-    return tau_F, tau_L
+    return tau_F, tau_D, tau_L
 ```
 
 
 ```python
-num_samples = 10_000
-```
-
-```python
+num_samples = 20_000
 relax = get_relax(steps=10000, time=10, step_size=0.75, molecules=num_samples)
 ```
 
 ```python
-brownian_relation = pandas.DataFrame(
-    {"tau_F": relax[0].get_status(), "tau_L": relax[1].get_status()}
+df_brownian = pandas.DataFrame(
+    {
+        "tau_F": relax[0].get_status(),
+        "tau_D": relax[1].get_status(),
+        "tau_L": relax[2].get_status(),
+    }
 )
-brownian_relation = brownian_relation[brownian_relation.tau_L != 2 ** 32 - 1]
+df_brownian = df_brownian.mask(df_brownian == 2 ** 32 - 1).dropna()
+df_brownian = df_brownian / df_brownian["tau_F"].mean()
 ```
 
 ```python
-c = (
-    alt.Chart(brownian_relation.sample(num_samples))
-    .mark_point()
+c_brownian = (
+    alt.Chart(df_brownian.sample(num_samples, replace=True))
+    .mark_point(opacity=0.3)
     .encode(
         x=alt.X("tau_F", scale=alt.Scale(type="log")),
-        y=alt.Y("tau_L", scale=alt.Scale(type="log")),
+        y=alt.Y("tau_D", scale=alt.Scale(type="log")),
     )
 )
-c
+c_brownian
 ```
 
 ```python
-df = brownian_relation[["tau_L", "tau_F"]]
+df = df_brownian[["tau_D", "tau_L"]]
 for x1, x2 in itertools.combinations(df.columns, 2):
     correlation, pValue = scipy.stats.pearsonr(getattr(df, x1), getattr(df, x2))
     print(f"{x1: <8} {x2: <8} {correlation:.2f}")
@@ -134,53 +136,53 @@ for x1, x2 in itertools.combinations(df.columns, 2):
 
 ```python
 # brownian_relation = brownian_relation.loc[:, ["tau_L", "tau_F"]]
-brownian_relation["dataset"] = "Brownian"
+df_brownian["dataset"] = "Brownian"
 
-df = pandas.read_hdf("../data/analysis/dynamics.h5", "molecular_relaxations")
-df = df[df.tau_L != 2 ** 32 - 1]
-df = df[df.tau_F != 2 ** 32 - 1]
+df = pandas.read_hdf("../data/analysis/dynamics_clean.h5", "molecular_relaxations")
+df = df.set_index(["pressure", "temperature"]).sort_index()
 
-lowT_mask = (df["pressure"] == 13.50) & (df["temperature"] == 1.30)
-lowT_df = df[lowT_mask].copy()
-lowT_df["dataset"] = "Low T"
-lowT_df.reset_index(inplace=True)
+df_low = df.loc[(13.50, 1.30), :].copy()
+df_low = df_low / df_low["tau_F"].mean()
+df_low["dataset"] = "Low T"
+df_low.reset_index(inplace=True)
 
-highT_mask = (df["pressure"] == 13.50) & (df["temperature"] == 2.50)
-highT_df = df[highT_mask].copy()
-highT_df["dataset"] = "High T"
-highT_df.reset_index(inplace=True)
+df_high = df.loc[(13.50, 2.50), :].copy()
+df_high = df_high.query("tau_F < 1e7")
+df_high = df_high / df_high["tau_F"].mean()
+df_high["dataset"] = "High T"
+df_high.reset_index(inplace=True)
 ```
 
 ```python
-c = (
-    alt.Chart(lowT_df.sample(num_samples))
+c_low = (
+    alt.Chart(df_low.sample(num_samples, replace=True))
+    .mark_point(opacity=0.2)
+    .encode(
+        x=alt.X("tau_F", scale=alt.Scale(type="log")),
+        y=alt.Y("tau_D", scale=alt.Scale(type="log")),
+    )
+)
+c_low
+```
+
+```python
+c_high = (
+    alt.Chart(df_high.sample(num_samples, replace=True))
     .mark_point(opacity=0.2)
     .encode(
         x=alt.X("tau_F", scale=alt.Scale(type="log")),
         y=alt.Y("tau_L", scale=alt.Scale(type="log")),
     )
 )
-c
-```
-
-```python
-c = (
-    alt.Chart(highT_df.sample(num_samples))
-    .mark_point(opacity=0.2)
-    .encode(
-        x=alt.X("tau_F", scale=alt.Scale(type="log")),
-        y=alt.Y("tau_L", scale=alt.Scale(type="log")),
-    )
-)
-c
+c_high
 ```
 
 ```python
 df = pandas.concat(
     [
-        brownian_relation.sample(num_samples),
-        lowT_df.sample(num_samples),
-        highT_df.sample(num_samples),
+        df_brownian.sample(num_samples, replace=True),
+        df_low.sample(num_samples, replace=True),
+        df_high.sample(num_samples, replace=True),
     ],
     sort=True,
 )
@@ -188,7 +190,16 @@ df.reset_index(drop=True, inplace=True)
 ```
 
 ```python
-df["diffs"] = df.tau_L - df.tau_F
+alt.Chart(df).mark_point(opacity=0.3).encode(
+    x=alt.X("tau_D", scale=alt.Scale(type="log")),
+    y=alt.Y("tau_L", scale=alt.Scale(type="log")),
+    color="dataset",
+    row="dataset",
+)
+```
+
+```python
+df["diffs"] = (df.tau_L - df.tau_F) / df.tau_F
 df["log_diffs"] = np.log10(df.diffs[df.diffs > 0])
 df["log_tau_F"] = np.log10(df.tau_F)
 df = df.query("log_diffs > 0")
@@ -203,47 +214,62 @@ alt.Chart(df).mark_bar(opacity=0.8).encode(
 ```
 
 ```python
-sim_df = pandas.read_hdf("../data/analysis/dynamics.h5", "molecular_relaxations")
-sim_df = sim_df[sim_df["pressure"] == 13.50]
-sim_df = sim_df[sim_df.tau_L != 2 ** 32 - 1]
-sim_df = sim_df[sim_df.tau_F != 2 ** 32 - 1]
-sim_df = sim_df.reset_index()
-sim_df = sim_df[["tau_F", "tau_L", "temperature"]]
+df_sim = pandas.read_hdf("../data/analysis/dynamics_clean.h5", "molecular_relaxations")
+df_sim = df_sim[df_sim["pressure"] == 13.50]
+df_sim = df_sim.reset_index()
+df_sim = df_sim[["tau_F", "tau_L", "tau_D", "temperature"]]
+df_sim["temperature"] = df_sim["temperature"].astype(str)
 ```
 
 ```python
-br_df = brownian_relation[["tau_F", "tau_L"]]
-br_df["temperature"] = "Brownian"
+df_brownian["temperature"] = "Brownian"
 ```
 
 ```python
-sim_df["temperature"] = sim_df["temperature"].astype(str)
-```
-
-```python
-all_df = pandas.concat([br_df, sim_df])
-```
-
-```python
-all_df["diffs"] = all_df.tau_L - all_df.tau_F
-all_df["log_diffs"] = np.nan
-pos_diffs = all_df["diffs"] > 0
-all_df.loc[pos_diffs, "log_diffs"] = np.log10(all_df.loc[pos_diffs, "diffs"])
-all_df["log_tau_F"] = np.log10(all_df.tau_F)
-all_df = all_df.query("log_diffs > 0")
+df = pandas.concat([df_brownian, df_sim], sort=True)
+df["diffs"] = (df.tau_L - df.tau_F) / df.tau_F
+df["log_diffs"] = np.nan
+pos_diffs = df["diffs"] > 0
+df.loc[pos_diffs, "log_diffs"] = np.log10(df.loc[pos_diffs, "diffs"])
+# df_all = df_all.query("log_diffs > 0")
 ```
 
 ```python
 all_groups = []
-for index, group in all_df.groupby("temperature"):
+for index, group in df.groupby("temperature"):
     all_groups.append(group.sample(num_samples, replace=True))
-all_plot_df = pandas.concat(all_groups)
+df_plot = pandas.concat(all_groups)
 ```
 
 ```python
-alt.Chart(all_plot_df).mark_bar(opacity=0.8).encode(
-    x=alt.X("log_diffs:Q", bin=alt.Bin(maxbins=100)),
+alt.Chart(df_plot).mark_line().encode(
+    x=alt.X("log_diffs:Q", bin=alt.Bin(maxbins=50)),
     y=alt.Y("count()", stack=None),
     color="temperature",
+)
+```
+
+```python
+df["diffs"] = (df.tau_D - df.tau_F) / df.tau_F
+df["log_diffs"] = np.nan
+pos_diffs = df["diffs"] > 0
+df.loc[pos_diffs, "log_diffs"] = np.log10(df.loc[pos_diffs, "diffs"])
+# all_df = df.query("log_diffs > 0")
+
+all_groups = []
+for index, group in df.groupby("temperature"):
+    all_groups.append(group.sample(num_samples, replace=True))
+all_plot_df = pandas.concat(all_groups)
+
+alt.Chart(all_plot_df).mark_line().encode(
+    x=alt.X("log_diffs:Q", bin=alt.Bin(maxbins=50)),
+    y=alt.Y("count()", stack=None),
+    color="temperature",
+)
+```
+
+```python
+all_plot_df.groupby("temperature")["tau_D"].agg(
+    [lambda x: np.mean(x) / scipy.stats.hmean(x.values)]
 )
 ```
