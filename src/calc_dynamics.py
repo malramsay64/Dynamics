@@ -152,12 +152,11 @@ def bootstrap(infile):
     # makes the most sense from the perspective of computing an average,
     # since all molecules are present and not independent. One can be
     # fast because others are slow.
-    df_mol = df_mol.groupby(["temperature", "pressure", "keyframe"]).mean()
-
-    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(
-        [_value, _lower, _upper]
+    df_mol_agg = df_mol.groupby(["temperature", "pressure", "keyframe"]).agg(
+        ["mean", "std"]
     )
-    df_mol_agg.columns = ["".join(col).strip() for col in df_mol_agg.columns.values]
+
+    df_mol_agg.columns = ["_".join(col).strip() for col in df_mol_agg.columns.values]
     df_mol_agg = df_mol_agg.reset_index()
     df_mol_agg["inv_temp_norm"] = 1 / normalised_temperature(
         df_mol_agg["temperature"].values, df_mol_agg["pressure"].values
