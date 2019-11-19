@@ -184,7 +184,9 @@ c2 = c + plot_relaxations(relaxations_df, "struct", title="Structural Relaxation
 
 if save_figures:
     with alt.data_transformers.enable("default"):
-        c2.save(str(figure_dir / "structural_relaxation_summary.svg"), webdriver="firefox")
+        c2.save(
+            str(figure_dir / "structural_relaxation_summary.svg"), webdriver="firefox"
+        )
 ```
 
 ![](../figures/structural_relaxation_summary.svg)
