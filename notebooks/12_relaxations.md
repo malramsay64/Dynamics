@@ -160,8 +160,12 @@ values = pd.DataFrame(
         "inv_temp_norm": relaxations.inv_temp_norm,
         "Temperature": relaxations.temperature,
         "r1r2": relaxations.rot1_value / relaxations.rot2_value,
-        "Dr1T": relaxations.msd_value * relaxations.rot2_value * relaxations.inv_temp_norm,
-        "Dr2T": relaxations.msd_value * relaxations.rot2_value * relaxations.inv_temp_norm,
+        "Dr1T": relaxations.msd_value
+        * relaxations.rot2_value
+        * relaxations.inv_temp_norm,
+        "Dr2T": relaxations.msd_value
+        * relaxations.rot2_value
+        * relaxations.inv_temp_norm,
         "DsT": relaxations.msd_value
         * relaxations.com_struct_value
         * relaxations.inv_temp_norm,

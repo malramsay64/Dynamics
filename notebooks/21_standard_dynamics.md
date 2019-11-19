@@ -91,11 +91,10 @@ c = plot_dynamics(dynamics_df, "msd", title="Mean Squared Displacement", scale="
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "mean_squared_displacement.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/mean_squared_displacement.svg)
+
 
 ## Non-gaussian
 
@@ -105,11 +104,10 @@ c = plot_dynamics(dynamics_df, "alpha", title="Non Gaussian")
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "non_gaussian.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/non_gaussian.svg)
+
 
 ## Structural Relaxation
 
@@ -119,8 +117,6 @@ c = plot_dynamics(dynamics_df, "struct", title="Structrual Relaxation")
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "structural_relaxation.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/structural_relaxation.svg)
@@ -133,14 +129,12 @@ c = plot_dynamics(
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "scattering_function.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/scattering_function.svg)
 
-## Rotational Relaxation
 
+## Rotational Relaxation
 
 ```python
 c = plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
@@ -148,11 +142,10 @@ c = plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "rotational_relaxation.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/rotational_relaxation.svg)
+
 
 ## Relaxation Quantities
 
@@ -177,20 +170,25 @@ relaxations_df.columns
 ### Scattering Function
 
 ```python
-plot_relaxations(relaxations_df, "scattering_function")
-```
-
-```python
-c = plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
+c = plot_relaxations(relaxations_df, "scattering_function")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "scattering_function_summary.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/scattering_function_summary.svg)
+
+```python
+c2 = c + plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
+
+if save_figures:
+    with alt.data_transformers.enable("default"):
+        c2.save(str(figure_dir / "structural_relaxation_summary.svg"), webdriver="firefox")
+```
+
+![](../figures/structural_relaxation_summary.svg)
+
 
 ### Diffusion
 
@@ -200,11 +198,10 @@ c = plot_relaxations(relaxations_df, "inv_diffusion", title="1/D")
 if save_figures:
     with alt.data_transformers.enable("default"):
         c.save(str(figure_dir / "diffusion_constant_summary.svg"), webdriver="firefox")
-
-c
 ```
 
 ![](../figures/diffusion_constant_summary.svg)
+
 
 ### Rotational Relaxation
 
@@ -216,11 +213,10 @@ if save_figures:
         c.save(
             str(figure_dir / "rotational_relaxation_summary.svg"), webdriver="firefox"
         )
-
-c
 ```
 
 ![](../figures/rotational_relaxation_summary.svg)
+
 
 ## Molecular Relaxations
 

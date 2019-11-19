@@ -86,7 +86,12 @@ def create_chart(pressure, axis):
         alt.Chart(df_local, width=600, height=500)
         .mark_point(size=75)
         .encode(
-            alt.X("time", title="Time", axis=alt.Axis(format="e"), scale=alt.Scale(type="log")),
+            alt.X(
+                "time",
+                title="Time",
+                axis=alt.Axis(format="e"),
+                scale=alt.Scale(type="log"),
+            ),
             alt.Y(axis, type="quantitative"),
             alt.Color("temperature:N"),
             tooltip=["temperature", "time", axis],
@@ -120,4 +125,8 @@ c_base = alt.Chart(df1)
     )
     + c_base.mark_line().encode(x="time", y="mean(msd)")
 ).interactive()
+```
+
+```python
+
 ```

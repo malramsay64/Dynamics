@@ -62,10 +62,6 @@ import sys
 
 sys.path.append("../src")
 import figures
-
-figures.use_my_theme()
-
-alt.data_transformers.enable("json")
 ```
 
 ### Loading Data
@@ -181,7 +177,7 @@ mol_id = 140
 df_path = df_fast.query("molecule == @mol_id").copy()
 df_path = df_path[1:]
 df_path.loc[:, "timestep"] = np.log(df_path.loc[:, "timestep"].values)
-df_path = df_path[:80000]
+df_path = df_path[:8000]
 ```
 
 ```python
