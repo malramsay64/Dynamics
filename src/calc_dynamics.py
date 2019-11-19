@@ -33,13 +33,13 @@ logger.setLevel(logging.DEBUG)
 
 def _value(series: pd.Series):
     return bs.bootstrap(
-        series.values, bs_stats.mean, alpha=0.5, num_iterations=1000
+        series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
     ).value
 
 
 def _lower(series: pd.Series):
     return bs.bootstrap(
-        series.values, bs_stats.mean, alpha=0.5, num_iterations=1000
+        series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
     ).lower_bound
 
 
