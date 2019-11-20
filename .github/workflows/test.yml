@@ -13,18 +13,6 @@ jobs:
       - name: Get conda info
         run: $CONDA/bin/conda info
 
-      - name: Install conda-forge channel
-        run: $CONDA/bin/conda config --append channels conda-forge
-
-      - name: Install glotzer channel
-        run: $CONDA/bin/conda config --append channels glotzer
-
-      - name: Install malramsay channel
-        run: $CONDA/bin/conda config --append channels malramsay
-
-      - name: Install python in environment
-        run: $CONDA/bin/conda create --name dynamics python==3.6
-
       - name: Install environment using conda
         run: $CONDA/bin/conda env update --name dynamics
 
