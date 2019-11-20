@@ -19,12 +19,8 @@ jobs:
       - name: Install malramsay channel
         run: $CONDA/bin/conda config --append channels malramsay
 
-      - name: Install mamba using conda
-        run: $CONDA/bin/conda install mamba -y
-
-        # Mamba has better error messages and progress reports
       - name: Install environment using mamba
-        run: $CONDA/bin/mamba env update --name dynamics
+        run: $CONDA/bin/conda env create --name dynamics
 
       - name: Run repository tests
         run: $CONDA/bin/envs/dynamics/bin/pytest
