@@ -57,11 +57,7 @@ import altair as alt
 from sdanalysis.dynamics import Dynamics, MolecularRelaxation, LastMolecularRelaxation
 from sdanalysis.StepSize import GenerateStepSeries
 import sdanalysis
-
-import sys
-
-sys.path.append("../src")
-import figures
+from dynamics_analysis import figures
 
 ```
 

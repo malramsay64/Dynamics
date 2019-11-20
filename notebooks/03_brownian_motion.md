@@ -38,13 +38,7 @@ import itertools
 import scipy.stats
 
 from sdanalysis import dynamics
-
-import sys
-
-sys.path.append("../src")
-
-from brownian import brownian
-import figures
+from dynamics_analysis import figures, brownian
 
 ```
 
@@ -55,7 +49,7 @@ ensuring that the resulting trajectory is sensible,
 and to give some idea of the spread of values.
 
 ```python
-x = brownian(np.zeros((2,)), 100, 0.25, 0.25)
+x = brownian.brownian(np.zeros((2,)), 100, 0.25, 0.25)
 ```
 
 ```python
@@ -84,12 +78,16 @@ I want to use it to
 
 
 
+
+
+
 ```python
 def get_relax(
     steps: int = 1000, time: int = 10, step_size: float = 0.25, molecules: int = 2000
 ):
     delta = np.linalg.norm(
-        brownian(np.zeros((2, molecules)), steps, time / steps, step_size), axis=0
+        brownian.brownian(np.zeros((2, molecules)), steps, time / steps, step_size),
+        axis=0,
     )
     tau_F = dynamics.MolecularRelaxation(molecules, 0.4)
     tau_D = dynamics.MolecularRelaxation(molecules, 2.0)

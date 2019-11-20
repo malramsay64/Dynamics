@@ -312,6 +312,9 @@ and the calculated values should reflect this.
 
 
 
+
+
+
 ```python
 def scale_trajectory(filename: Path, scale_factor: int):
     # This is the size of the bins for the distribution function
@@ -553,6 +556,9 @@ From the static structure calculation above,
 I should be using a value of $d=0.6$,
 so does this make a significant difference
 to how I am measuring the structural realxation?
+
+
+
 
 
 

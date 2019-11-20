@@ -40,11 +40,7 @@ import bootstrapped.stats_functions as bs_stats
 
 from sdanalysis.relaxation import series_relaxation_value
 
-import sys
-
-sys.path.append("../src")
-import figures
-from calc_dynamics import _value, _upper, _lower
+from dynamics_analysis import figures
 
 ```
 

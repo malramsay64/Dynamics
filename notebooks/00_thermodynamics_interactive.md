@@ -35,11 +35,7 @@ import altair as alt
 
 from sdanalysis.util import get_filename_vars
 from sdanalysis.figures.interactive_config import parse_directory
-
-import sys
-
-sys.path.append("../src")
-import figures
+from dynamics_analysis import figures
 
 ```
 

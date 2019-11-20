@@ -22,13 +22,8 @@ import itertools
 import scipy.stats
 
 from sdanalysis import dynamics
+from dynamics_analysis import brownian, figures
 
-import sys
-
-sys.path.append("../src")
-
-from brownian import brownian_rotation
-import figures
 ```
 
 
@@ -37,7 +32,7 @@ def get_rotational_relax(
     steps: int, time: int = 10, step_size: float = 0.005, molecules: int = 2000
 ):
     delta_theta = np.angle(
-        brownian_rotation(
+        brownian.brownian_rotation(
             np.ones(molecules, np.complex128), steps, steps / time, step_size
         )
     )
