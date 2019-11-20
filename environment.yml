@@ -12,7 +12,6 @@ dependencies:
   - malramsay::sdrun==0.6.8
   - malramsay::experi==0.3.3
   - pip:
-    - bootstrapped==0.0.2
     - blacken-docs==1.2.0
   # Notebook/Interactive dependencies
   - altair=3.1
