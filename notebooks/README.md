@@ -1,9 +1,9 @@
 # Notebooks
 
-This is a collection of notebooks 
-primarily focused on the interactive analysis of 
+This is a collection of notebooks
+primarily focused on the interactive analysis of
 the dynamics results.
-There are a number of differing levels of analysis 
+There are a number of differing levels of analysis
 which are indicated by the numbering scheme.
 
 - 0*-<name>: These notebooks are preliminary analysis, there are no results in these
