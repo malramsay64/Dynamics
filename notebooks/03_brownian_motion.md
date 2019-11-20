@@ -45,6 +45,7 @@ sys.path.append("../src")
 
 from brownian import brownian
 import figures
+
 ```
 
 ### Testing Brownian Dynamics
@@ -79,6 +80,9 @@ Dynamics Analysis
 
 Now we have a function to generate brownian dynamics,
 I want to use it to
+
+
+
 
 ```python
 def get_relax(

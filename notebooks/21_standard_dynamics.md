@@ -33,6 +33,7 @@ import sys
 sys.path.append("../src")
 import figures
 import calc_dynamics
+
 ```
 
 This notebook generates a collection of figures which are exported as pdf files to the `../figures/thesis` directory.

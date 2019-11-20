@@ -40,6 +40,7 @@ import sys
 
 sys.path.append("../src")
 import figures
+
 ```
 
 ```python
@@ -95,9 +96,4 @@ def plot_figure(pressure, temperature, quantity):
     )
     c = c.mark_line() + c.mark_errorband().encode(yError=alt.YError("std"))
     return c
-```
-
-
-```python
-
 ```
