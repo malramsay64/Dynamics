@@ -17,4 +17,4 @@ jobs:
         run: $CONDA/bin/conda env update --name dynamics
 
       - name: Run repository tests
-        run: $CONDA/bin/source activate dynamics && python3 -m pytest
+        run: source $CONDA/bin/activate dynamics && python3 -m pytest
