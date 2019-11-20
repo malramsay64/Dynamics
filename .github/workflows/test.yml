@@ -1,0 +1,17 @@
+name: Test source code
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Install environment using conda
+        run: $CONDA/bin/conda env update --name base
+
+      - name: Run repository tests
+        run: $CONDA/bin/pytest
