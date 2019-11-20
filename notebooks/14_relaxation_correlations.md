@@ -32,16 +32,9 @@ import itertools
 from IPython.display import display
 import altair as alt
 
-import sys
-
-sys.path.append("../src")
-import figures
-
-figures.use_my_theme()
+from dynamics_analysis import figures
 
 output_notebook()
-
-alt.data_transformers.enable("json")
 ```
 
 ## Data Import

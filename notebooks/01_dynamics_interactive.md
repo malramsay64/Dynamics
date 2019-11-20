@@ -26,10 +26,7 @@ import altair as alt
 # This is for the interactive elements
 import ipywidgets as widgets
 
-import sys
-
-sys.path.append("../src")
-import figures
+from dynamics_analysis import figures
 
 ```
 

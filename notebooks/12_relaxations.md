@@ -36,16 +36,12 @@ This imports the modules necessary for running the code in the rest of this note
 while also setting up some helper functions to make the rest of the analysis simpler.
 
 ```python
-import sys
-
 import pandas as pd
 import numpy as np
 import altair as alt
-
-sys.path.append("../src")
-import figures
-
+from dynamics_analysis import figures
 ```
+
 
 ### Import Data
 

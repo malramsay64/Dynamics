@@ -27,12 +27,7 @@ from pathlib import Path
 import pandas
 import numpy as np
 import altair as alt
-
-import sys
-
-sys.path.append("../src")
-import figures
-import calc_dynamics
+from dynamics_analysis import figures, calc_dynamics
 
 ```
 
