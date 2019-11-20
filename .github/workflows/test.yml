@@ -24,7 +24,7 @@ jobs:
 
         # Mamba has better error messages and progress reports
       - name: Install environment using mamba
-        run: $CONDA/bin/mamba env update --name base
+        run: $CONDA/bin/mamba env update --name dynamics
 
       - name: Run repository tests
-        run: $CONDA/bin/pytest
+        run: $CONDA/bin/envs/dynamics/bin/pytest
