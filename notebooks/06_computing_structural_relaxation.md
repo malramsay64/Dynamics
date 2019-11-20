@@ -288,6 +288,7 @@ k_bragg = numpy.pi / (2 * wave_number)
 k_bragg
 ```
 
+
 In the numpy implementation the first N/2 wave-vectors are the positive ones
 while the last N/2 are the negative ones.
 To find the wave-vector which is most prominent
@@ -307,6 +308,9 @@ and the appropriate wave number
 are all correct.
 We can scale all the positions by a constant value,
 and the calculated values should reflect this.
+
+
+
 
 ```python
 def scale_trajectory(filename: Path, scale_factor: int):
@@ -534,6 +538,7 @@ plt.plot(timesteps, scattering_values)
 plt.xscale("log")
 ```
 
+
 where the figure above shows a reasonable curve for the structural relaxation.
 
 
@@ -548,6 +553,9 @@ From the static structure calculation above,
 I should be using a value of $d=0.6$,
 so does this make a significant difference
 to how I am measuring the structural realxation?
+
+
+
 
 ```python
 def structural_relaxation(

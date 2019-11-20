@@ -44,6 +44,7 @@ import altair as alt
 
 sys.path.append("../src")
 import figures
+
 ```
 
 ### Import Data

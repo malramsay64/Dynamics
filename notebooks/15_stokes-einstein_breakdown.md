@@ -62,6 +62,7 @@ import sys
 
 sys.path.append("../src")
 import figures
+
 ```
 
 ### Loading Data

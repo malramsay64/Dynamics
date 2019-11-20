@@ -45,6 +45,7 @@ import sys
 sys.path.append("../src")
 import figures
 from calc_dynamics import _value, _upper, _lower
+
 ```
 
 For this analysis we are going to be using

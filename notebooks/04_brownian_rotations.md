@@ -31,12 +31,19 @@ from brownian import brownian_rotation
 import figures
 ```
 
+
 ```python
-def get_rotational_relax(steps: int, time: int = 10, step_size: float = 0.005, molecules: int = 2000):
-    delta_theta = np.angle(brownian_rotation(np.ones(molecules, np.complex128), steps, steps/time, step_size))
-    tau_P2 = dynamics.MolecularRelaxation(molecules, np.pi/2)
-    tau_P3 = dynamics.MolecularRelaxation(molecules, np.pi/3)
-    tau_P4 = dynamics.MolecularRelaxation(molecules, np.pi/4)
+def get_rotational_relax(
+    steps: int, time: int = 10, step_size: float = 0.005, molecules: int = 2000
+):
+    delta_theta = np.angle(
+        brownian_rotation(
+            np.ones(molecules, np.complex128), steps, steps / time, step_size
+        )
+    )
+    tau_P2 = dynamics.MolecularRelaxation(molecules, np.pi / 2)
+    tau_P3 = dynamics.MolecularRelaxation(molecules, np.pi / 3)
+    tau_P4 = dynamics.MolecularRelaxation(molecules, np.pi / 4)
     for time in range(delta_theta.shape[-1]):
         tau_P2.add(time, delta_theta[:, time])
         tau_P3.add(time, delta_theta[:, time])
@@ -44,12 +51,13 @@ def get_rotational_relax(steps: int, time: int = 10, step_size: float = 0.005, m
     return tau_P2, tau_P2, tau_P4
 ```
 
+
 ```python
 num_samples = 10_000
 relax = get_rotational_relax(10_000, time=10, molecules=num_samples)
 df_brownian = pandas.DataFrame(
     {
-        "tau_T2": relax[0].get_status(), 
+        "tau_T2": relax[0].get_status(),
         "tau_T3": relax[1].get_status(),
         "tau_T4": relax[2].get_status(),
         "temperature": "Brownian",
@@ -59,8 +67,7 @@ df_brownian = pandas.DataFrame(
 
 ```python
 alt.Chart(df_brownian).mark_bar().encode(
-    x=alt.X("tau_P2", bin=alt.Bin(maxbins=100)),
-    y="count()"
+    x=alt.X("tau_P2", bin=alt.Bin(maxbins=100)), y="count()"
 )
 ```
 
@@ -71,7 +78,7 @@ df_brownian["tau_T2"].mean() / df_brownian["tau_T4"].mean()
 ```python
 df = pandas.read_hdf("../data/analysis/dynamics_clean.h5", "molecular_relaxations")
 df = df.query("pressure==13.50")
-df = df.mask(df > 2**20).dropna()
+df = df.mask(df > 2 ** 20).dropna()
 df["temperature"] = df["temperature"].astype(str)
 ```
 
@@ -103,7 +110,9 @@ df_brownian["tau_T2"].agg(["mean", lambda x: scipy.stats.hmean(x.values)])
 ```
 
 ```python
-df_plot.groupby("temperature")["tau_T2"].agg([lambda x: np.mean(x) / scipy.stats.hmean(x.values)])
+df_plot.groupby("temperature")["tau_T2"].agg(
+    [lambda x: np.mean(x) / scipy.stats.hmean(x.values)]
+)
 ```
 
 ```python

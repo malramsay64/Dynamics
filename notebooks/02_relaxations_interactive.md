@@ -28,6 +28,7 @@ import sys
 
 sys.path.append("../src")
 import figures
+
 ```
 
 <!-- #region -->

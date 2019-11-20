@@ -30,6 +30,7 @@ import sys
 
 sys.path.append("../src")
 import figures
+
 ```
 
 <!-- #region -->
@@ -125,8 +126,4 @@ c_base = alt.Chart(df1)
     )
     + c_base.mark_line().encode(x="time", y="mean(msd)")
 ).interactive()
-```
-
-```python
-
 ```
