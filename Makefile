@@ -55,10 +55,10 @@ all_notebooks = $(wildcard notebooks/[0-9][0-9]_*.md)
 notebooks: $(all_notebooks:.md=.ipynb)
 
 .PHONY: sync
-sync:
+sync: ## Synchronise notebook and markdown representations
 	jupytext --set-formats ipynb,md $(all_notebooks)
 	jupytext --set-formats ipynb,md $(all_notebooks:.md=.ipynb)
-	jupytext --sync --pipe black $(all_notebooks:.md=.ipynb)
+	jupytext --sync --pipe-fmt py --pipe black $(all_notebooks:.md=.ipynb)
 
 notebooks/%.ipynb: notebooks/%.md
 	cd notebooks && jupytext --to ipynb --execute $(notdir $<)
