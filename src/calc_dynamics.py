@@ -17,8 +17,6 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-import bootstrapped.bootstrap as bs
-import bootstrapped.stats_functions as bs_stats
 import click
 import numpy as np
 import pandas as pd
@@ -29,24 +27,6 @@ from util import normalised_temperature
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-
-def _value(series: pd.Series):
-    return bs.bootstrap(
-        series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
-    ).value
-
-
-def _lower(series: pd.Series):
-    return bs.bootstrap(
-        series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
-    ).lower_bound
-
-
-def _upper(series: pd.Series):
-    return bs.bootstrap(
-        series.values, bs_stats.mean, alpha=0.1, num_iterations=1000
-    ).upper_bound
 
 
 def _read_temperatures(filename: Path) -> Dict[float, float]:
@@ -136,9 +116,9 @@ def bootstrap(infile):
     df_agg = (
         df.drop(columns="keyframe")
         .groupby(["temperature", "pressure", "time"])
-        .agg([_value, _lower, _upper])
+        .agg(["mean", "std"])
     )
-    df_agg.columns = ["".join(col).strip() for col in df_agg.columns.values]
+    df_agg.columns = ["_".join(col).strip() for col in df_agg.columns.values]
     df_agg = df_agg.reset_index()
     df_agg["inv_temp_norm"] = 1 / normalised_temperature(
         df_agg["temperature"].values, df_agg["pressure"].values
@@ -152,9 +132,7 @@ def bootstrap(infile):
     # makes the most sense from the perspective of computing an average,
     # since all molecules are present and not independent. One can be
     # fast because others are slow.
-    df_mol_agg = df_mol.groupby(["temperature", "pressure", "keyframe"]).agg(
-        ["mean", "std"]
-    )
+    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(["mean", "std"])
 
     df_mol_agg.columns = ["_".join(col).strip() for col in df_mol_agg.columns.values]
     df_mol_agg = df_mol_agg.reset_index()
@@ -173,11 +151,11 @@ def bootstrap(infile):
     df_relax["inv_diffusion"] = 1 / df_relax["msd"]
 
     # Calculate the bootstrapped errors in the relaxation times
-    df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(
-        [_value, _lower, _upper]
-    )
+    df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(["mean", "std"])
 
-    df_relax_agg.columns = ["".join(col).strip() for col in df_relax_agg.columns.values]
+    df_relax_agg.columns = [
+        "_".join(col).strip() for col in df_relax_agg.columns.values
+    ]
     df_relax_agg = df_relax_agg.reset_index()
 
     # Include inv_temp_norm column.
