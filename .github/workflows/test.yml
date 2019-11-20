@@ -10,6 +10,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v1
 
+      - name: Get conda info
+        run: $CONDA/bin/conda info
+
       - name: Install conda-forge channel
         run: $CONDA/bin/conda config --append channels conda-forge
 
