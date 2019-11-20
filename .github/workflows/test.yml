@@ -10,8 +10,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v1
 
-      - name: Install environment using conda
-        run: $CONDA/bin/conda env update --name base
+      - name: Install mamba using conda
+        run: $CONDA/bin/conda install mamba -y
+
+        # Mamba has better error messages and progress reports
+      - name: Install environment using mamba
+        run: $CONDA/bin/mamba env update --name base
 
       - name: Run repository tests
         run: $CONDA/bin/pytest
