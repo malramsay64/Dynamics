@@ -10,6 +10,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v1
 
+      - name: Install conda channels
+        run: $CONDA/bin/conda config --append channels conda-forge glotzer malramsay
+
       - name: Install mamba using conda
         run: $CONDA/bin/conda install mamba -y
 
