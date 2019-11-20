@@ -56,7 +56,7 @@ def normalised_temperature(temperature: np.array, pressure: np.array) -> np.arra
         raise ValueError("The pressure needs to be specified as floating point values.")
 
     melting_points = _read_temperatures(
-        Path(__file__).parent.parent / "results/melting_points.csv"
+        Path(__file__).parent.parent.parent / "results/melting_points.csv"
     )
 
     # Initialise output array
