@@ -23,7 +23,7 @@ import pandas as pd
 import sdanalysis
 from sdanalysis.relaxation import series_relaxation_value
 
-from util import normalised_temperature
+from .util import normalised_temperature
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
