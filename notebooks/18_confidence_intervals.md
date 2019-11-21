@@ -176,7 +176,7 @@ df_agg = df_relax.groupby(["temperature", "pressure", "keyframe"]).agg(
 ```
 
 ```python
-df_vals = df_agg.groupby(["temperature", "pressure"]).agg(_value)
+df_vals = df_agg.groupby(["temperature", "pressure"]).agg("mean")
 ```
 
 ```python

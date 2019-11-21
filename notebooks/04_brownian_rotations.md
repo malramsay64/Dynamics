@@ -36,14 +36,14 @@ def get_rotational_relax(
             np.ones(molecules, np.complex128), steps, steps / time, step_size
         )
     )
-    tau_P2 = dynamics.MolecularRelaxation(molecules, np.pi / 2)
-    tau_P3 = dynamics.MolecularRelaxation(molecules, np.pi / 3)
-    tau_P4 = dynamics.MolecularRelaxation(molecules, np.pi / 4)
+    tau_T2 = dynamics.MolecularRelaxation(molecules, np.pi / 2)
+    tau_T3 = dynamics.MolecularRelaxation(molecules, np.pi / 3)
+    tau_T4 = dynamics.MolecularRelaxation(molecules, np.pi / 4)
     for time in range(delta_theta.shape[-1]):
-        tau_P2.add(time, delta_theta[:, time])
-        tau_P3.add(time, delta_theta[:, time])
-        tau_P4.add(time, delta_theta[:, time])
-    return tau_P2, tau_P2, tau_P4
+        tau_T2.add(time, delta_theta[:, time])
+        tau_T3.add(time, delta_theta[:, time])
+        tau_T4.add(time, delta_theta[:, time])
+    return tau_T2, tau_T2, tau_T4
 ```
 
 
@@ -62,7 +62,7 @@ df_brownian = pandas.DataFrame(
 
 ```python
 alt.Chart(df_brownian).mark_bar().encode(
-    x=alt.X("tau_P2", bin=alt.Bin(maxbins=100)), y="count()"
+    x=alt.X("tau_T2", bin=alt.Bin(maxbins=100)), y="count()"
 )
 ```
 

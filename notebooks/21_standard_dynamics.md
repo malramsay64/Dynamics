@@ -74,15 +74,10 @@ figure_dir.mkdir(exist_ok=True)
 
 These are a collection of dynamics quantities to establish that the system we are dealing with has behaviour that more or less aligns with much of the literature.
 
-```python
-from figures import plot_dynamics
-```
-
 ### Mean Squared Displacement
 
-
 ```python
-c = plot_dynamics(dynamics_df, "msd", title="Mean Squared Displacement", scale="log")
+c = figures.plot_dynamics(dynamics_df, "msd", title="Mean Squared Displacement", scale="log")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -95,7 +90,7 @@ if save_figures:
 ## Non-gaussian
 
 ```python
-c = plot_dynamics(dynamics_df, "alpha", title="Non Gaussian")
+c = figures.plot_dynamics(dynamics_df, "alpha", title="Non Gaussian")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -108,7 +103,7 @@ if save_figures:
 ## Structural Relaxation
 
 ```python
-c = plot_dynamics(dynamics_df, "struct", title="Structrual Relaxation")
+c = figures.plot_dynamics(dynamics_df, "struct", title="Structrual Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -118,7 +113,7 @@ if save_figures:
 ![](../figures/structural_relaxation.svg)
 
 ```python
-c = plot_dynamics(
+c = figures.plot_dynamics(
     dynamics_df, "scattering_function", title="Intermediate Scattering Function"
 )
 
@@ -133,7 +128,7 @@ if save_figures:
 ## Rotational Relaxation
 
 ```python
-c = plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
+c = figures.plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -152,21 +147,13 @@ relaxations_df[relaxations_df < 0] = np.NaN
 ```
 
 ```python
-from figures import plot_relaxations
-```
-
-```python
-relaxations_df.head()
-```
-
-```python
 relaxations_df.columns
 ```
 
 ### Scattering Function
 
 ```python
-c = plot_relaxations(relaxations_df, "scattering_function")
+c = figures.plot_relaxations(relaxations_df, "scattering_function")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -176,7 +163,7 @@ if save_figures:
 ![](../figures/scattering_function_summary.svg)
 
 ```python
-c2 = c + plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
+c2 = c + figures.plot_relaxations(relaxations_df, "struct", title="Structural Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -191,7 +178,7 @@ if save_figures:
 ### Diffusion
 
 ```python
-c = plot_relaxations(relaxations_df, "inv_diffusion", title="1/D")
+c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="1/D")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -204,7 +191,7 @@ if save_figures:
 ### Rotational Relaxation
 
 ```python
-c = plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation")
+c = figures.plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation")
 
 if save_figures:
     with alt.data_transformers.enable("default"):
@@ -231,15 +218,11 @@ relax_df = (
 ```
 
 ```python
-from figures import reshape_dataframe, plot_multi_relaxations
-```
-
-```python
 mol_df.head()
 ```
 
 ```python
-comp_relax_df = reshape_dataframe(relax_df)
+comp_relax_df = figures.reshape_dataframe(relax_df)
 ```
 
 ```python
@@ -247,11 +230,11 @@ comp_relax_df.variable.unique()
 ```
 
 ```python
-plot_relaxations(mol_df, "tau_F")
+figures.plot_relaxations(mol_df, "tau_F")
 ```
 
 ```python
-plot_multi_relaxations(
+figures.plot_multi_relaxations(
     comp_relax_df, ["tau_F", "scattering_function"], title="Molecular"
 )
 ```
@@ -261,9 +244,9 @@ comp_relax_df.variable.unique()
 ```
 
 ```python
-plot_multi_relaxations(comp_relax_df, ["rot1", "rot2"])
+figures.plot_multi_relaxations(comp_relax_df, ["rot1", "rot2"])
 ```
 
 ```python
-plot_multi_relaxations(comp_relax_df, ["inv_diffusion", "tau_D"])
+figures.plot_multi_relaxations(comp_relax_df, ["inv_diffusion", "tau_D"])
 ```
