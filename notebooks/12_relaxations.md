@@ -156,18 +156,18 @@ values = pd.DataFrame(
     {
         "inv_temp_norm": relaxations.inv_temp_norm,
         "Temperature": relaxations.temperature,
-        "r1r2": relaxations.rot1_value / relaxations.rot2_value,
-        "Dr1T": relaxations.msd_value
-        * relaxations.rot2_value
+        "r1r2": relaxations.rot1_mean / relaxations.rot2_mean,
+        "Dr1T": relaxations.msd_mean
+        * relaxations.rot2_mean
         * relaxations.inv_temp_norm,
-        "Dr2T": relaxations.msd_value
-        * relaxations.rot2_value
+        "Dr2T": relaxations.msd_mean
+        * relaxations.rot2_mean
         * relaxations.inv_temp_norm,
-        "DsT": relaxations.msd_value
-        * relaxations.com_struct_value
+        "DsT": relaxations.msd_mean
+        * relaxations.com_struct_mean
         * relaxations.inv_temp_norm,
-        "Dr1": relaxations.msd_value * relaxations.rot1_value,
-        "Dr2": relaxations.msd_value * relaxations.rot2_value,
+        "Dr1": relaxations.msd_mean * relaxations.rot1_mean,
+        "Dr2": relaxations.msd_mean * relaxations.rot2_mean,
     }
 )
 ```
