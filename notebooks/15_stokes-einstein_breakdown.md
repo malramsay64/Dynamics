@@ -169,7 +169,7 @@ alt.Chart(df_fast_groups.mean().reset_index(drop=True)).mark_line().encode(
 ```
 
 ```python
-mol_id = 140
+mol_id = 130
 
 df_path = df_fast.query("molecule == @mol_id").copy()
 df_path = df_path[1:]
@@ -178,12 +178,15 @@ df_path = df_path[:8000]
 ```
 
 ```python
-c = alt.Chart(df_path).mark_point(opacity=0.8, filled=True).transform_filter(
-    alt.datum.displacement < 3.1
-).encode(
-    x="displacement",
-    y="rotation",
-    color=alt.Color("timestep", scale=alt.Scale(scheme="viridis")),
+c = (
+    alt.Chart(df_path)
+    .mark_point(opacity=0.8, filled=True)
+    .transform_filter(alt.datum.displacement < 3.1)
+    .encode(
+        x="displacement",
+        y="rotation",
+        color=alt.Color("timestep", scale=alt.Scale(scheme="viridis")),
+    )
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/molecule_trajectory.svg")
