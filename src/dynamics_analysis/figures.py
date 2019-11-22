@@ -198,31 +198,19 @@ def plot_multi_relaxations(
         .encode(
             x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
             color=alt.Color("pressure:N", title="Pressure"),
+            shape=alt.Shape("variable", title="Relaxation"),
+            y=alt.Y(
+                "mean:Q",
+                title=title,
+                scale=alt.Scale(type="log"),
+                axis=alt.Axis(format=axis_format),
+            ),
+            yError=alt.YError("std:Q"),
         )
         .transform_filter(alt.FieldOneOfPredicate(field="variable", oneOf=prop))
     )
 
-    confidence_interval = relax_chart_base.mark_rule(opacity=1.0).encode(
-        y=alt.Y(
-            "lower:Q",
-            title=title,
-            scale=alt.Scale(type="log"),
-            axis=alt.Axis(format=axis_format),
-        ),
-        y2=alt.Y2("upper:Q", title=title),
-    )
-
-    values = relax_chart_base.mark_point().encode(
-        y=alt.Y(
-            "value:Q",
-            title=title,
-            scale=alt.Scale(type="log"),
-            axis=alt.Axis(format=axis_format),
-        ),
-        shape=alt.Shape("variable", title="Relaxation"),
-    )
-
-    return values + confidence_interval
+    return relax_chart_base.mark_errorbar() + relax_chart_base.mark_point()
 
 
 def radial_distribution(
