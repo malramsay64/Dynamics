@@ -343,7 +343,7 @@ df["log_tau_F"] = np.log10(df.tau_F)
 ```
 
 ```python
-alt.Chart(df).mark_bar(opacity=1.8).encode(
+alt.Chart(df).mark_bar(opacity=0.8).encode(
     x=alt.X("diffs:Q", bin=alt.Bin(maxbins=50)),
     y=alt.Y("count()", stack=None),
     color="dataset",
