@@ -27,13 +27,13 @@ dynamics_agg = data/analysis/dynamics_clean_agg.h5
 dynamics: | $(dynamics_agg) ## Compute dynamics quantities for all parameters of the trimer molecule
 
 $(dynamics_agg): $(dynamics_clean)
-	python src/calc_dynamics.py bootstrap $<
+	dynamics_analysis bootstrap $<
 
 $(dynamics_clean): $(dynamics)
-	python src/calc_dynamics.py clean --min-samples 10 $<
+	dynamics_analysis clean --min-samples 10 $<
 
 $(dynamics): $(analysis)
-	python3 src/calc_dynamics.py collate $@ $^
+	dynamics_analysis collate $@ $^
 
 $(analysis_dir)/trajectory-Trimer-P1.00-%.h5: $(simulation_dir)/trajectory-Trimer-P1.00-%.gsd
 	sdanalysis --keyframe-interval 1_000_000 --linear-steps 100 --wave-number 2.80 comp-dynamics --scattering-function $< $@
@@ -47,8 +47,8 @@ $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trim
 
 .PHONY: figures
 figures:  | ## Create all publication figures.
-	python3 src/figures.py plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/radial_distribution.pdf
-	python3 src/figures.py plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/static_structure_factor.pdf
+	dynamics_figures plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/radial_distribution.pdf
+	dynamics_figures plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/static_structure_factor.pdf
 
 all_notebooks = $(wildcard notebooks/[0-9][0-9]_*.md)
 

@@ -29,4 +29,9 @@ setup(
     python_requires=">=3.6,<4",
     install_requires=[],
     extras_require={"dev": [], "test": [],},
+    entry_points="""
+        [console_scripts]
+        dynamics_analysis=dynamics_analysis.calc_dynamics:main
+        dynamics_figures=dynamics_analysis.figures:main
+    """,
 )
