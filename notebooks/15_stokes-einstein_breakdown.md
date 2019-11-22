@@ -178,12 +178,18 @@ df_path = df_path[:8000]
 ```
 
 ```python
-alt.Chart(df_path).mark_point(opacity=0.4, filled=True).encode(
+c = alt.Chart(df_path).mark_point(opacity=0.8, filled=True).transform_filter(
+    alt.datum.displacement < 3.1
+).encode(
     x="displacement",
     y="rotation",
     color=alt.Color("timestep", scale=alt.Scale(scheme="viridis")),
 )
+with alt.data_transformers.enable("default"):
+    c.save("../figures/molecule_trajectory.svg")
 ```
+
+![](../figures/molecule_trajectory.svg")
 
 ```python
 df_path.columns
