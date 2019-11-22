@@ -47,8 +47,8 @@ $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trim
 
 .PHONY: figures
 figures:  | ## Create all publication figures.
-	dynamics_figures plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/radial_distribution.pdf
-	dynamics_figures plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/static_structure_factor.pdf
+	dynamics_figures plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/radial_distribution.svg
+	dynamics_figures plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/static_structure_factor.svg
 
 all_notebooks = $(wildcard notebooks/[0-9][0-9]_*.md)
 
