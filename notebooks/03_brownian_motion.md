@@ -13,8 +13,7 @@ jupyter:
     name: dynamics
 ---
 
-Brownian Motion
-===============
+# Brownian Motion
 
 This is an attempt at a better understanding of our new metrics of molecular motion,
 namely how they relate to each other when Brownian Dynamics are observed.
@@ -23,15 +22,14 @@ then uses the simulation of Brownian motion to investigate
 how the molecular relaxation times respond.
 
 
-Implementation
---------------
+## Implementation
 
-The code in the cell below implements the brownian dynamics.
-For 2D brownian dynamics, x0 with 2 elements can be used as the input.
+The code in the cell below implements the Brownian dynamics.
+For 2D Brownian dynamics, x0 with 2 elements can be used as the input.
 
 ```python
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas
 import altair as alt
 import itertools
@@ -69,41 +67,35 @@ plt.grid(True)
 plt.show()
 ```
 
-Dynamics Analysis
------------------
+## Dynamics Analysis
 
-Now we have a function to generate brownian dynamics,
-I want to use it to
-
-
-
-
-
-
-
-```python
-def get_relax(
-    steps: int = 1000, time: int = 10, step_size: float = 0.25, molecules: int = 2000
-):
-    delta = np.linalg.norm(
-        brownian.brownian(np.zeros((2, molecules)), steps, time / steps, step_size),
-        axis=0,
-    )
-    tau_F = dynamics.MolecularRelaxation(molecules, 0.4)
-    tau_D = dynamics.MolecularRelaxation(molecules, 2.0)
-    tau_L = dynamics.LastMolecularRelaxation(molecules, 0.4, 2.0)
-    for time in range(delta.shape[-1]):
-        tau_F.add(time, delta[:, time])
-        tau_D.add(time, delta[:, time])
-        tau_L.add(time, delta[:, time])
-    return tau_F, tau_D, tau_L
-```
-
+Now we have a function to generate Brownian dynamics,
+I want to use it to understand the behaviour
+of the new molecular quantities I have defined.
+The calculation of these relaxation quantities
+is done using the `get_relax` function
+from the `brownian` module.
 
 ```python
 num_samples = 20_000
-relax = get_relax(steps=10000, time=10, step_size=0.75, molecules=num_samples)
+relax = brownian.get_brownian_relax(steps=10_000, time=10, step_size=0.75, molecules=num_samples)
 ```
+
+Once these relaxation values are calculated,
+there is some clean-up that needs to occur.
+Firstly the conversion to a `pandas.DataFrame`
+which allows for the easy manipulation of the data.
+In this form,
+the missing values need to be removed.
+Any values which did not complete relaxation
+have a value of $2^{32} - 1$,
+the largest value which can be stored as a `uint32`
+so these values are removed.
+The final pre-processing step is a timescale normalisation.
+To be able to compare the Brownian motion
+with those from simulations
+I am normalising by the mean value of
+the structural relaxation time $\tau_F$.
 
 ```python
 df_brownian = pandas.DataFrame(
@@ -117,6 +109,12 @@ df_brownian = df_brownian.mask(df_brownian == 2 ** 32 - 1).dropna()
 df_brownian = df_brownian / df_brownian["tau_F"].mean()
 ```
 
+One of the results of Brownian motion
+is that there should be no correlation
+between particles on short and long timescales,
+that it particles with a fast structural relaxation (short time)
+shouldn't correlate with particles that have a fast diffusion (long time).
+
 ```python
 c_brownian = (
     alt.Chart(df_brownian.sample(num_samples, replace=True))
@@ -126,18 +124,62 @@ c_brownian = (
         y=alt.Y("tau_D", scale=alt.Scale(type="log")),
     )
 )
-c_brownian
+with alt.data_transformers.enable("default"):
+    c_brownian.save("figures/brownian_tau_F_tau_D.svg", webdriver="firefox")
 ```
 
-```python
-df = df_brownian[["tau_D", "tau_L"]]
-for x1, x2 in itertools.combinations(df.columns, 2):
-    correlation, pValue = scipy.stats.pearsonr(getattr(df, x1), getattr(df, x2))
-    print(f"{x1: <8} {x2: <8} {correlation:.2f}")
-```
+This relation does indeed hold true here as shown in the below figure.
+
+![tau_F vs tau_D](figures/brownian_tau_F_tau_D.svg)
+
+One method we can use to measure the correlation
+of these two values is through the Pearson Correlation Coefficient,
+which is a measure of how well the ordering of one collection of values
+corresponds to another.
+The Pearson correlation has values between -1 and 1,
+with a value of -1 indicating anti-correlation,
+that is the fastest structural relaxation is the slowest diffuser,
+a value of 0 indicating no correlation,
+and a value of 1 indicating perfect correlation.
 
 ```python
-# brownian_relation = brownian_relation.loc[:, ["tau_L", "tau_F"]]
+correlation, pValue = scipy.stats.pearsonr(
+    df_brownian["tau_F"], df_brownian["tau_D"]
+)
+print(f"Correlation of tau_F and tau_D {correlation:.2f}")
+```
+
+Using the scipy implementation of the Pearson correlation,
+we get a value very close to 0,
+meaning there is no correlation between these two quantities
+as expected.
+
+## Comparison to Molecular System
+
+Using these tools to analyse brownian motion
+is a great test of their applicability,
+however it doesn't provide us with any additional information.
+For that we need to study a molecular system.
+
+The data for the molecular systems is within the file
+`../data/analysis/dynamics_clean.h5` under the `molecular_relaxations` table.
+This data is calculated when running the command `make dynamics`.
+
+There are two separate datasets which I am investigating
+for the analysis of the molecular relaxations.
+A high temperature simulation,
+from simulations at a temperature of 2.50,
+which is expected to be Brownian in nature.
+Additionally there is a low temperature dataset
+from a temperature of 1.30,
+which is below the melting point of 1.35
+and so is expected to show behaviour of a supercooled liquid.
+
+To ensure a better comparison between the datasets
+I am ensuring they all have the same number of data points
+by using a method of sampling with replacement.
+
+```python
 df_brownian["dataset"] = "Brownian"
 
 df = pandas.read_hdf("../data/analysis/dynamics_clean.h5", "molecular_relaxations")
@@ -149,10 +191,163 @@ df_low["dataset"] = "Low T"
 df_low.reset_index(inplace=True)
 
 df_high = df.loc[(13.50, 2.50), :].copy()
-df_high = df_high.query("tau_F < 1e7")
 df_high = df_high / df_high["tau_F"].mean()
 df_high["dataset"] = "High T"
 df_high.reset_index(inplace=True)
+
+df_sim = pandas.concat([df_low.sample(num_samples, replace=True),
+df_high.sample(num_samples, replace=True)])
+```
+
+Plotting the data in the same way as the Brownian motion
+we get very different pictures for
+the low and the high temperature simulations.
+
+```python
+c = (
+    alt.Chart(df_sim)
+    .mark_point(opacity=0.2)
+    .encode(
+        x=alt.X("tau_F", scale=alt.Scale(type="log")),
+        y=alt.Y("tau_D", scale=alt.Scale(type="log")),
+        column="dataset",
+    )
+)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/trimer_tau_F_tau_D.svg", webdriver="firefox")
+```
+
+![tau_F vs tau_D for the trimer molecule](../figures/trimer_tau_F_tau_D.svg)
+
+Also useful in this discussion are the correlations coefficients.
+
+```python
+correlation, pValue = scipy.stats.pearsonr(
+    df_high["tau_F"], df_high["tau_D"]
+)
+print(f"Correlation of tau_F and tau_D {correlation:.2f}")
+```
+
+```python
+correlation, pValue = scipy.stats.pearsonr(
+    df_low["tau_F"], df_low["tau_D"]
+)
+print(f"Correlation of tau_F and tau_D {correlation:.2f}")
+```
+
+The value of tau_F for the low temperature dataset
+is distributed over a much wider range of values
+than of the high temperature dataset.
+While there is roughly the spread of diffusive motion.
+The distribution of tau_F is representative of
+the dynamic heterogeneities present within
+the low temperature simulation.
+It is important to note
+that the dynamic heterogeneities
+are only present on the short
+time and length scales.
+
+## Reversals
+
+One of the results of comparing dynamics with the standard quantities
+is that the first relaxation is not indicative of relaxation,
+instead the last passage time is more important.
+This can be explained by the reversal of structural relaxations
+which are captured by the traditional quantities.
+
+The distances of reversals which we are discussing here
+being 0.43 are beyond what would typically be considered reversible.
+That is, the molecule has escaped the confinement of it's local area.
+It is important to note that there is also
+a rate at which reversals occur as modelled by Brownian motion.
+In fact when considering a random walk,
+in 2D it is guaranteed you will pass back through the origin.
+
+When modelling the last passage time using Brownian motion.
+
+```python
+c = (
+    alt.Chart(df_brownian)
+    .mark_point(opacity=0.2)
+    .encode(
+        x=alt.X("tau_L", scale=alt.Scale(type="log")),
+        y=alt.Y("tau_D", scale=alt.Scale(type="log")),
+    )
+)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/brownian_tau_L_tau_D.svg", webdriver="firefox")
+```
+
+![tau_L vs tau_D for brownian relaxation](../figures/brownian_tau_L_tau_D.svg)
+
+Which translates to the following in simulations
+
+```python
+c = (
+    alt.Chart(df_sim)
+    .mark_point(opacity=0.2)
+    .encode(
+        x=alt.X("tau_L", scale=alt.Scale(type="log")),
+        y=alt.Y("tau_D", scale=alt.Scale(type="log")),
+        column="dataset",
+    )
+)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/trimer_tau_L_tau_D.svg", webdriver="firefox")
+```
+
+![tau_L vs tau_D for the trimer molecule](../figures/trimer_tau_L_tau_D.svg)
+
+Also useful in this discussion are the correlations coefficients.
+
+```python
+correlation, pValue = scipy.stats.pearsonr(
+    df_high["tau_L"], df_high["tau_D"]
+)
+print(f"Correlation of tau_L and tau_D {correlation:.2f}")
+```
+
+```python
+correlation, pValue = scipy.stats.pearsonr(
+    df_low["tau_L"], df_low["tau_D"]
+)
+print(f"Correlation of tau_L and tau_D {correlation:.2f}")
+```
+
+There is a strong correlation between these two quantities,
+an element of which is to be expected,
+since the diffusion length is included as part of the last passage time,
+defining the last part.
+Despite this, it is interesting to compare with the first passage time.
+This is directly a measure of the idea of cage escape,
+for the molecule to undergo diffusive motion it has to have escaped the cage,
+1.2 units is a large motion.
+
+Also particularly interesting here
+is that the simulations have a more pronounced
+relationship than the Brownian motion,
+likely the effect of caging is influencing this.
+
+### Understanding reversals
+
+Taking the time between the first and last relaxation time
+provides a nice picture.
+
+```python
+df = pandas.concat([df_brownian, df_sim], sort=True)
+df["diffs"] = (df.tau_D - df.tau_L)
+mask = df["diffs"] != 0  # Problematic with log
+df.loc[mask, "log_diffs"] = np.log10(df.loc[mask, "diffs"])
+df["log_tau_F"] = np.log10(df.tau_F)
+# df = df.query("log_diffs > 0")
+```
+
+```python
+alt.Chart(df).mark_bar(opacity=1.8).encode(
+    x=alt.X("diffs:Q", bin=alt.Bin(maxbins=50)),
+    y=alt.Y("count()", stack=None),
+    color="dataset",
+)
 ```
 
 ```python
