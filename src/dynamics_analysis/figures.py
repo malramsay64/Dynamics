@@ -75,7 +75,7 @@ def plot_dynamics(
 
     Args:
         df: DataFrame containing quantities to plot. There should be columns 
-            with suffixes '_value', '_lower', and '_upper'.
+            with suffixes '_mean' and '_sem'.
         prop: The property to plot, with the respective values for that property 
             having suffixes.
         title: Custom title used to label the property.
@@ -98,30 +98,18 @@ def plot_dynamics(
                 axis=alt.Axis(format="e"),
             ),
             color=alt.Color("temperature:N", title="Temperature"),
+            y=alt.Y(
+                prop + "_mean:Q",
+                title=title,
+                scale=alt.Scale(type=scale),
+                axis=alt.Axis(format=axis_format),
+            ),
+            yError=alt.YError(prop + "_sem:Q"),
         )
         .transform_filter(alt.datum.msd_value < 50)
     )
 
-    confidence_interval = dyn_chart_base.mark_errorband().encode(
-        y=alt.Y(
-            prop + "_lower:Q",
-            title=title,
-            scale=alt.Scale(type=scale),
-            axis=alt.Axis(format=axis_format),
-        ),
-        y2=alt.Y2(prop + "_upper:Q", title=title),
-    )
-
-    values = dyn_chart_base.mark_line().encode(
-        y=alt.Y(
-            prop + "_value:Q",
-            title=title,
-            scale=alt.Scale(type=scale),
-            axis=alt.Axis(format=axis_format),
-        )
-    )
-
-    return values + confidence_interval
+    return dyn_chart_base.mark_errorband() + dyn_chart_base.mark_line()
 
 
 def plot_relaxations(
@@ -131,7 +119,7 @@ def plot_relaxations(
 
     Args:
         df: DataFrame containing quantities to plot. There should be columns 
-            with suffixes '_value', '_lower', and '_upper'.
+            with suffixes '_mean', and '_sem'.
         prop: The property to plot, with the respective values for that property 
             having suffixes.
         title: Custom title used to label the property.
@@ -150,7 +138,7 @@ def plot_relaxations(
             scale=alt.Scale(type="log"),
             axis=alt.Axis(format=axis_format),
         ),
-        yError=alt.YError(prop + "_std:Q"),
+        yError=alt.YError(prop + "_sem:Q"),
     )
 
     return relax_chart_base.mark_point() + relax_chart_base.mark_errorbar()
@@ -179,7 +167,7 @@ def plot_multi_relaxations(
 
     Args:
         df: DataFrame containing quantities to plot. There should be columns 
-            with suffixes '_value', '_lower', and '_upper'.
+            with suffixes '_mean', and '_sem'.
         prop: The property to plot, with the respective values for that property 
             having suffixes.
         title: Custom title used to label the property.
@@ -189,9 +177,6 @@ def plot_multi_relaxations(
         prop = [prop]
 
     axis_format = "e"
-
-    #  plot_df = df.query("variable in @prop")
-    #  plot_df.loc[:, "variable"] = title
 
     relax_chart_base = (
         alt.Chart(df)
@@ -205,7 +190,7 @@ def plot_multi_relaxations(
                 scale=alt.Scale(type="log"),
                 axis=alt.Axis(format=axis_format),
             ),
-            yError=alt.YError("std:Q"),
+            yError=alt.YError("_sem:Q"),
         )
         .transform_filter(alt.FieldOneOfPredicate(field="variable", oneOf=prop))
     )
