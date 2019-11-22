@@ -144,28 +144,16 @@ def plot_relaxations(
     relax_chart_base = alt.Chart(df).encode(
         x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
         color=alt.Color("pressure:N", title="Pressure"),
-    )
-
-    confidence_interval = relax_chart_base.mark_rule(opacity=1.0).encode(
         y=alt.Y(
-            prop + "_lower:Q",
+            prop + "_mean:Q",
             title=title,
             scale=alt.Scale(type="log"),
             axis=alt.Axis(format=axis_format),
         ),
-        y2=alt.Y2(prop + "_upper:Q", title=title),
+        yError=alt.YError(prop + "_std:Q"),
     )
 
-    values = relax_chart_base.mark_point().encode(
-        y=alt.Y(
-            prop + "_value:Q",
-            title=title,
-            scale=alt.Scale(type="log"),
-            axis=alt.Axis(format=axis_format),
-        )
-    )
-
-    return values + confidence_interval
+    return relax_chart_base.mark_point() + relax_chart_base.mark_errorbar()
 
 
 def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
