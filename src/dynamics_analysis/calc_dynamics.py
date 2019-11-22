@@ -116,7 +116,7 @@ def bootstrap(infile):
     df_agg = (
         df.drop(columns="keyframe")
         .groupby(["temperature", "pressure", "time"])
-        .agg(["mean", "std"])
+        .agg(["mean", "sem"])
     )
     df_agg.columns = ["_".join(col).strip() for col in df_agg.columns.values]
     df_agg = df_agg.reset_index()
@@ -132,7 +132,7 @@ def bootstrap(infile):
     # makes the most sense from the perspective of computing an average,
     # since all molecules are present and not independent. One can be
     # fast because others are slow.
-    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(["mean", "std"])
+    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(["mean", "sem"])
 
     df_mol_agg.columns = ["_".join(col).strip() for col in df_mol_agg.columns.values]
     df_mol_agg = df_mol_agg.reset_index()
@@ -151,7 +151,7 @@ def bootstrap(infile):
     df_relax["inv_diffusion"] = 1 / df_relax["msd"]
 
     # Calculate the bootstrapped errors in the relaxation times
-    df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(["mean", "std"])
+    df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(["mean", "sem"])
 
     df_relax_agg.columns = [
         "_".join(col).strip() for col in df_relax_agg.columns.values
