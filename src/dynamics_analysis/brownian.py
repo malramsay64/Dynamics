@@ -20,6 +20,27 @@ from math import sqrt
 
 import numpy as np
 from scipy.stats import norm
+from sdanalysis import dynamics
+
+
+def get_brownian_relax(
+    steps: int = 1000, time: int = 10, step_size: float = 0.25, molecules: int = 2000
+):
+    """Compute the translational relaxation times for Brownian motion."""
+    # Change in position from motion
+    delta = np.linalg.norm(
+        brownian(np.zeros((2, molecules)), steps, time / steps, step_size), axis=0,
+    )
+    # These are the relaxation quantities to calculate
+    tau_F = dynamics.MolecularRelaxation(molecules, 0.4)
+    tau_D = dynamics.MolecularRelaxation(molecules, 2.0)
+    tau_L = dynamics.LastMolecularRelaxation(molecules, 0.4, 2.0)
+    # Add displacements to relaxation calculations
+    for time in range(delta.shape[-1]):
+        tau_F.add(time, delta[:, time])
+        tau_D.add(time, delta[:, time])
+        tau_L.add(time, delta[:, time])
+    return tau_F, tau_D, tau_L
 
 
 def brownian(x0: np.ndarray, n: int, dt: float, delta: float, out=None):
