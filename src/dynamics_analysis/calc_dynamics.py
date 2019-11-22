@@ -87,7 +87,7 @@ def clean(infile: Path, min_samples: int):
     df_mol = df_mol.reset_index()
 
     # Replace invalid values (2**32 - 1) with NaN's
-    df_mol.replace(2 ** 32 - 1, np.nan, inplace=True)
+    df_mol.replace((2 ** 32 - 1) * 0.005, np.nan, inplace=True)
     # Remove keyframes where relaxation hasn't completed,
     # that is there are NaN values present.
     df_mol = df_mol.groupby(["keyframe", "temperature", "pressure"]).filter(
