@@ -192,7 +192,7 @@ with alt.data_transformers.enable("default"):
     c.save("../figures/molecule_trajectory.svg")
 ```
 
-![](../figures/molecule_trajectory.svg")
+![](../figures/molecule_trajectory.svg)
 
 ```python
 df_path.columns
