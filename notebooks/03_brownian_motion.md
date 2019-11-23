@@ -78,7 +78,9 @@ from the `brownian` module.
 
 ```python
 num_samples = 20_000
-relax = brownian.get_brownian_relax(steps=10_000, time=10, step_size=0.75, molecules=num_samples)
+relax = brownian.get_brownian_relax(
+    steps=10_000, time=10, step_size=0.75, molecules=num_samples
+)
 ```
 
 Once these relaxation values are calculated,
@@ -143,9 +145,7 @@ a value of 0 indicating no correlation,
 and a value of 1 indicating perfect correlation.
 
 ```python
-correlation, pValue = scipy.stats.pearsonr(
-    df_brownian["tau_F"], df_brownian["tau_D"]
-)
+correlation, pValue = scipy.stats.pearsonr(df_brownian["tau_F"], df_brownian["tau_D"])
 print(f"Correlation of tau_F and tau_D {correlation:.2f}")
 ```
 
@@ -195,8 +195,12 @@ df_high = df_high / df_high["tau_F"].mean()
 df_high["dataset"] = "High T"
 df_high.reset_index(inplace=True)
 
-df_sim = pandas.concat([df_low.sample(num_samples, replace=True),
-df_high.sample(num_samples, replace=True)])
+df_sim = pandas.concat(
+    [
+        df_low.sample(num_samples, replace=True),
+        df_high.sample(num_samples, replace=True),
+    ]
+)
 ```
 
 Plotting the data in the same way as the Brownian motion
@@ -222,16 +226,12 @@ with alt.data_transformers.enable("default"):
 Also useful in this discussion are the correlations coefficients.
 
 ```python
-correlation, pValue = scipy.stats.pearsonr(
-    df_high["tau_F"], df_high["tau_D"]
-)
+correlation, pValue = scipy.stats.pearsonr(df_high["tau_F"], df_high["tau_D"])
 print(f"Correlation of tau_F and tau_D {correlation:.2f}")
 ```
 
 ```python
-correlation, pValue = scipy.stats.pearsonr(
-    df_low["tau_F"], df_low["tau_D"]
-)
+correlation, pValue = scipy.stats.pearsonr(df_low["tau_F"], df_low["tau_D"])
 print(f"Correlation of tau_F and tau_D {correlation:.2f}")
 ```
 
@@ -301,16 +301,12 @@ with alt.data_transformers.enable("default"):
 Also useful in this discussion are the correlations coefficients.
 
 ```python
-correlation, pValue = scipy.stats.pearsonr(
-    df_high["tau_L"], df_high["tau_D"]
-)
+correlation, pValue = scipy.stats.pearsonr(df_high["tau_L"], df_high["tau_D"])
 print(f"Correlation of tau_L and tau_D {correlation:.2f}")
 ```
 
 ```python
-correlation, pValue = scipy.stats.pearsonr(
-    df_low["tau_L"], df_low["tau_D"]
-)
+correlation, pValue = scipy.stats.pearsonr(df_low["tau_L"], df_low["tau_D"])
 print(f"Correlation of tau_L and tau_D {correlation:.2f}")
 ```
 
@@ -335,7 +331,7 @@ provides a nice picture.
 
 ```python
 df = pandas.concat([df_brownian, df_sim], sort=True)
-df["diffs"] = (df.tau_D - df.tau_L)
+df["diffs"] = df.tau_D - df.tau_L
 mask = df["diffs"] != 0  # Problematic with log
 df.loc[mask, "log_diffs"] = np.log10(df.loc[mask, "diffs"])
 df["log_tau_F"] = np.log10(df.tau_F)
