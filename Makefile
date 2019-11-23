@@ -46,7 +46,7 @@ $(analysis_dir)/trajectory-Trimer-P13.50-%.h5: $(simulation_dir)/trajectory-Trim
 #
 
 .PHONY: figures
-figures:  | ## Create all publication figures.
+figures: | ## Create all publication figures.
 	dynamics_figures plot-rdf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/radial_distribution.svg
 	dynamics_figures plot-ssf --num-frames 100 data/simulations/trimer/output/dump-Trimer-P13.50-T1.50.gsd figures/static_structure_factor.svg
 
@@ -66,6 +66,41 @@ notebooks/%.ipynb: notebooks/%.md
 clean: ## Remove generated dynamics files and revert figures to latest committed version
 	rm data/analysis/dynamics_clean.h5
 	git checkout figures/*
+
+#
+# Reports
+#
+
+# Variables
+#
+# These find all the different items which are going to become reports. I am converting
+# all the notebooks to a pdf report, as well as markdown files in the reports directory.
+#
+# Additionally where there are figures which need converting from svg to pdf, this takes
+# finds the targets.
+
+report_targets = $(patsubst %.md, %.pdf, $(wildcard notebooks/*.md))
+all_figures = $(wildcard figures/*.svg)
+
+# Commands
+#
+# There are a couple of commands here. Generating all the figures and additionally
+# creating the pdf reports.
+
+.PHONY: reports
+reports: figures notebooks $(report_targets) ## Generate pdf reports
+
+# Conversions
+#
+# These are the rules to convert the different filetypes to a pdf
+
+%.pdf: %.md
+	cd $(dir $<); pandoc $(notdir $<) --pdf-engine=tectonic --filter ../src/pandoc-svg.py -o $(notdir $@)
+
+#
+# Help
+#
+# The magic which provides some help output when running make by itself
 
 .DEFAULT_GOAL := help
 .PHONY: help
