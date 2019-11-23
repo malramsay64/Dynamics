@@ -106,7 +106,7 @@ def plot_dynamics(
             ),
             yError=alt.YError(prop + "_sem:Q"),
         )
-        .transform_filter(alt.datum.msd_value < 50)
+        .transform_filter(alt.datum.msd_mean < 50)
     )
 
     return dyn_chart_base.mark_errorband() + dyn_chart_base.mark_line()
