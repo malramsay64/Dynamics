@@ -32,3 +32,8 @@ dependencies:
   - isort=4.3.21
   - hypothesis=4.23
   - mypy=0.740
+  # Report Dependencies
+  - pandoc
+  - tectonic
+  - cairosvg
+  - conda-forge::pandocfilters==1.4.2
