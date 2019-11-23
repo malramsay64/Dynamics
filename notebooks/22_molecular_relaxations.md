@@ -46,7 +46,7 @@ df = (
     .reset_index()
 )
 
-df_melt = figures.reshape_dataframe(df_relax)
+df_melt = figures.reshape_dataframe(df)
 ```
 
 ## Structural Relaxation Analog
