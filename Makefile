@@ -60,7 +60,7 @@ sync: ## Synchronise notebook and markdown representations
 	jupytext --set-formats ipynb,md $(all_notebooks:.md=.ipynb)
 	jupytext --sync --pipe-fmt py --pipe black $(all_notebooks:.md=.ipynb)
 
-notebooks/%.ipynb: notebooks/%.md
+notebooks/%.ipynb: notebooks/%.md $(dynamics_agg)
 	cd notebooks && jupytext --to ipynb --execute $(notdir $<)
 
 clean: ## Remove generated dynamics files and revert figures to latest committed version
