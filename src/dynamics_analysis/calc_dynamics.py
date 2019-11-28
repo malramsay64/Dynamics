@@ -20,6 +20,7 @@ from typing import Any, Dict, List, Tuple
 import click
 import numpy as np
 import pandas as pd
+import scipy.stats
 import sdanalysis
 from sdanalysis.relaxation import series_relaxation_value
 
@@ -41,6 +42,14 @@ def _read_temperatures(filename: Path) -> Dict[float, float]:
     for row in df:
         melting_points[float(row["pressure"])] = float(row["melting_point"])
     return melting_points
+
+
+def inv_mean(values: np.ndarray):
+    return (1 / values).mean()
+
+
+def inv_sem(values: np.ndarray):
+    return scipy.stats.sem(1 / values)
 
 
 @click.group()
@@ -128,11 +137,9 @@ def bootstrap(infile):
 
     df_mol = pd.read_hdf(infile, "molecular_relaxations").drop(columns=["molecule"])
 
-    # Taking the average over all the molecules from a single keyframe
-    # makes the most sense from the perspective of computing an average,
-    # since all molecules are present and not independent. One can be
-    # fast because others are slow.
-    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(["mean", "sem"])
+    df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(
+        ["mean", "sem", "inv_mean", "inv_sem"]
+    )
 
     df_mol_agg.columns = ["_".join(col).strip() for col in df_mol_agg.columns.values]
     df_mol_agg = df_mol_agg.reset_index()
