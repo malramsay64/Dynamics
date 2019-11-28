@@ -190,7 +190,7 @@ def plot_multi_relaxations(
                 scale=alt.Scale(type="log"),
                 axis=alt.Axis(format=axis_format),
             ),
-            yError=alt.YError("_sem:Q"),
+            yError=alt.YError("sem:Q"),
         )
         .transform_filter(alt.FieldOneOfPredicate(field="variable", oneOf=prop))
     )
