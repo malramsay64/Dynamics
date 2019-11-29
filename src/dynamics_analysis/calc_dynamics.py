@@ -44,12 +44,12 @@ def _read_temperatures(filename: Path) -> Dict[float, float]:
     return melting_points
 
 
-def inv_mean(values: np.ndarray):
+def inv_mean(values: pd.Series) -> float:
     return (1 / values).mean()
 
 
-def inv_sem(values: np.ndarray):
-    return scipy.stats.sem(1 / values)
+def inv_sem(values: pd.Series) -> float:
+    return (1 / values).sem()
 
 
 @click.group()
@@ -137,8 +137,9 @@ def bootstrap(infile):
 
     df_mol = pd.read_hdf(infile, "molecular_relaxations").drop(columns=["molecule"])
 
+    df_mol = df_mol.drop(columns=["keyframe", "index"])
     df_mol_agg = df_mol.groupby(["temperature", "pressure"]).agg(
-        ["mean", "sem", "inv_mean", "inv_sem"]
+        ["mean", "sem", inv_mean, inv_sem]
     )
 
     df_mol_agg.columns = ["_".join(col).strip() for col in df_mol_agg.columns.values]
