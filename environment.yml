@@ -36,4 +36,4 @@ dependencies:
   - pandoc
   - tectonic
   - cairosvg
-  - conda-forge::pandocfilters==1.4.2
+  - pandocfilters==1.4.2
