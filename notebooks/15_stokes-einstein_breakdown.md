@@ -143,7 +143,10 @@ with pandas.HDFStore(outfile) as src:
 
 ```python
 # # Read in pre-computed dynamics properties for a single trajectory
-dynamics_df = pandas.read_hdf(f"../data/analysis/dynamics/trajectory-Trimer-P13.50-T{temperature}.h5", "molecular_relaxations").query("keyframe == 0")
+dynamics_df = pandas.read_hdf(
+    f"../data/analysis/dynamics/trajectory-Trimer-P13.50-T{temperature}.h5",
+    "molecular_relaxations",
+).query("keyframe == 0")
 # Find the fastest particles
 fastest = dynamics_df.sort_values("tau_D").head(5).index.values
 slowest = dynamics_df.sort_values("tau_D").tail(5).index.values
@@ -244,14 +247,15 @@ rotations.shape
 ```
 
 ```python
-c = alt.Chart(rotations).mark_bar(opacity=0.8).transform_filter(alt.datum.value < 3.1).encode(
-    x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=30)),
-    y=alt.Y("count():Q", title="Occurence", stack=None),
-    color=alt.Color("variable", title="Time"),
+c = (
+    alt.Chart(rotations)
+    .mark_bar(opacity=0.8)
+    .transform_filter(alt.datum.value < 3.1)
+    .encode(
+        x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=30)),
+        y=alt.Y("count():Q", title="Occurence", stack=None),
+        color=alt.Color("variable", title="Time"),
+    )
 )
-c 
-```
-
-```python
-
+c
 ```
