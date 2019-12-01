@@ -88,9 +88,7 @@ with alt.data_transformers.enable("default"):
 ## Rotational Relaxation Analog
 
 ```python
-c = figures.plot_multi_relaxations(
-    df_melt, ["tau_T4", "rot2"], title="Relaxation Time"
-)
+c = figures.plot_multi_relaxations(df_melt, ["tau_T4", "rot2"], title="Relaxation Time")
 with alt.data_transformers.enable("default"):
     c.save("../figures/rotational_time.svg", webdriver="firefox")
 ```
@@ -103,20 +101,33 @@ with alt.data_transformers.enable("default"):
 ```python
 df_relax = df.set_index(["pressure", "inv_temp_norm"]).sort_index()
 
-df_ratios = pandas.DataFrame({
-    "D_tau_D": df_relax["inv_diffusion_mean"] / df_relax["tau_D_mean"],
-#     "tau_S_tau_F": df_relax["struct_mean"] / df_relax["tau_F_mean"],
-    "tau_S_tau_L": df_relax["struct_mean"] / df_relax["tau_L_mean"],
-    "rot1_tau_T2": df_relax["rot1_mean"] / df_relax["tau_T2_mean"],
-    "rot2_tau_T4": df_relax["rot2_mean"] / df_relax["tau_T4_mean"],
-}).reset_index().melt(id_vars=["pressure", "inv_temp_norm"])
+df_ratios = (
+    pandas.DataFrame(
+        {
+            "D_tau_D": df_relax["inv_diffusion_mean"] / df_relax["tau_D_mean"],
+            #     "tau_S_tau_F": df_relax["struct_mean"] / df_relax["tau_F_mean"],
+            "tau_S_tau_L": df_relax["struct_mean"] / df_relax["tau_L_mean"],
+            "rot1_tau_T2": df_relax["rot1_mean"] / df_relax["tau_T2_mean"],
+            "rot2_tau_T4": df_relax["rot2_mean"] / df_relax["tau_T4_mean"],
+        }
+    )
+    .reset_index()
+    .melt(id_vars=["pressure", "inv_temp_norm"])
+)
 ```
 
 ```python
-c = alt.Chart(df_ratios).mark_point().encode(x="inv_temp_norm", y="value", color="variable", shape="variable")
+c = (
+    alt.Chart(df_ratios)
+    .mark_point()
+    .encode(x="inv_temp_norm", y="value", color="variable", shape="variable")
+)
 
 with alt.data_transformers.enable("default"):
     c.save("../figures/ratio_comparison.svg", webdriver="firefox")
 ```
 
 ![Ratio comparison](../figures/ratio_comparison.svg)
+
+
+## Heterogeneities

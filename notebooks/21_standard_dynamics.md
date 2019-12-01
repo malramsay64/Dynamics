@@ -27,7 +27,7 @@ from pathlib import Path
 import pandas
 import numpy as np
 import altair as alt
-from dynamics_analysis import figures, calc_dynamics
+from dynamics_analysis import figures, calc_dynamics, util
 
 ```
 
@@ -131,9 +131,7 @@ with alt.data_transformers.enable("default"):
 ![rotational relaxation](../figures/rotational_relaxation.svg)
 
 ```python
-c = figures.plot_dynamics(
-    dynamics_df, "alpha_rot", title="Rotational Non-Gaussian"
-)
+c = figures.plot_dynamics(dynamics_df, "alpha_rot", title="Rotational Non-Gaussian")
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "rotational_alpha.svg"), webdriver="firefox")
@@ -181,13 +179,15 @@ with alt.data_transformers.enable("default"):
 
 ```python
 c2 = figures.plot_relaxations(
-    relaxations_df, "struct", title="Structural Relaxation"
+    relaxations_df, "com_struct", title="Structural Relaxation"
 )
 
 with alt.data_transformers.enable("default"):
-    c2.save(
-        str(figure_dir / "structural_relaxation_summary.svg"), webdriver="firefox"
-    )
+    c2.save(str(figure_dir / "structural_relaxation_summary.svg"), webdriver="firefox")
+```
+
+```python
+relaxations_df
 ```
 
 ![structural relaxation times](../figures/structural_relaxation_summary.svg)
@@ -211,9 +211,19 @@ with alt.data_transformers.enable("default"):
 c = figures.plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation")
 
 with alt.data_transformers.enable("default"):
-    c.save(
-        str(figure_dir / "rotational_relaxation_summary.svg"), webdriver="firefox"
-    )
+    c.save(str(figure_dir / "rotational_relaxation_summary.svg"), webdriver="firefox")
 ```
 
 ![rotational relaxation times](../figures/rotational_relaxation_summary.svg)
+
+
+## Heterogeneities
+
+
+```python
+c = figures.plot_relaxations(relaxations_df, "alpha", title="Rotational Relaxation")
+
+with alt.data_transformers.enable("default"):
+    c.save(str(figure_dir / "alpha_relaxation_summary.svg"), webdriver="firefox")
+c
+```
