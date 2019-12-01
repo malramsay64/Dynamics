@@ -54,6 +54,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import altair as alt
 
+import sdanalysis
 from sdanalysis.dynamics import Dynamics, MolecularRelaxation, LastMolecularRelaxation
 from sdanalysis.StepSize import GenerateStepSeries
 import sdanalysis
@@ -88,47 +89,45 @@ directory = Path("../data/simulations/trimer/output/")
 # Load up a linear trajectory for ease of analysis
 file = directory / f"trajectory-Trimer-P{pressure}-T{temperature}.gsd"
 outfile = Path(f"Trimer-13.50-{temperature}.h5")
-# # Read in pre-computed dynamics properties for a single trajectory
-# dynamics_df = pandas.read_hdf(directory / 'dynamics' / f'trajectory-13.50-{temperature}.hdf5',
-#                               'relaxations').loc[0, :]
-# # Find the fastest particles
-# fastest = dynamics_df.sort_values('tau_D1').head(5).index.values
 ```
 
 ### Computation of Dynamics
 
-The values of the dynamics we have calculated previously have been using an exponential timescale, which while great for the more traditional dynamics quantities becomes unhelpful in computing the molecular quantities and the analysis that will be presented in the rest of this document.
+The values of the dynamics we have calculated previously
+have been using an exponential timescale,
+which while great for the more traditional dynamics quantities
+becomes unhelpful in computing the molecular quantities
+that will be presented in the rest of this document.
 
-I have stored the configuration at a series of linear steps and so the below analysis computes the molecular relaxations at a single temperature (1.30) using this linear scale, while also computing the displacement and rotation at each point in time allowing for the querying of the resulting dataset.
-
-The data is stored in a sqlite database as this is a highly queryable format while still remaining compatible with a range of systems.
-
-```python
-import sdanalysis
-```
+I have stored the configuration at a series of linear steps
+so the below analysis computes the molecular relaxations
+at a single temperature (1.30) using this linear scale,
+while also computing the displacement and rotation
+at each point in time allowing for the querying of the resulting dataset.
 
 ```python
 max_steps = None
 recompute = False
 # Uncomment to recompute quantities this takes a long time to compute
 # recompute = True
+outfile = Path(f"Trimer-13.50-{temperature}.h5")
 if recompute or not outfile.exists():
-    #     sdanalysis.read.process_file(file, 2.90, outfile=outfile)
     dyn = None
     displacements = []
-    for frame in sdanalysis.read.open_trajectory(file):
+    for frame in sdanalysis.open_trajectory(file):
         if len(frame) == 0:
             continue
         if dyn is None:
             dyn = sdanalysis.dynamics.Dynamics.from_frame(frame)
+        dyn.add(frame.position, frame.orientation)
         displacements.append(
             pandas.DataFrame(
                 {
                     "timestep": dyn.compute_time_delta(frame.timestep),
                     "time": dyn.compute_time_delta(frame.timestep) * 0.005,
                     "molecule": dyn.get_molid(),
-                    "displacement": dyn.get_displacements(frame.position),
-                    "rotation": dyn.get_rotations(frame.orientation),
+                    "displacement": dyn.compute_displacement(),
+                    "rotation": dyn.compute_rotation(),
                 }
             )
         )
@@ -143,18 +142,15 @@ with pandas.HDFStore(outfile) as src:
 ```
 
 ```python
-# df.set_index(["mol_index", "time"], inplace=True, drop=False)
-df.info()
-```
+# # Read in pre-computed dynamics properties for a single trajectory
+dynamics_df = pandas.read_hdf(f"../data/analysis/dynamics/trajectory-Trimer-P13.50-T{temperature}.h5", "molecular_relaxations").query("keyframe == 0")
+# Find the fastest particles
+fastest = dynamics_df.sort_values("tau_D").head(5).index.values
+slowest = dynamics_df.sort_values("tau_D").tail(5).index.values
 
-```python
 # Molecules for selection
-selected = [120, 130, 140]
+selected = fastest
 df_fast = df.query("molecule in @selected")
-```
-
-```python
-df_fast.head()
 ```
 
 ```python
@@ -169,19 +165,16 @@ alt.Chart(df_fast_groups.mean().reset_index(drop=True)).mark_line().encode(
 ```
 
 ```python
-mol_id = 130
+mol_id = 120
 
-df_path = df_fast.query("molecule == @mol_id").copy()
+df_path = df.query("molecule == @mol_id").copy()
 df_path = df_path[1:]
 df_path.loc[:, "timestep"] = np.log(df_path.loc[:, "timestep"].values)
-df_path = df_path[:8000]
-```
+df_path = df_path[:10_000]
 
-```python
 c = (
     alt.Chart(df_path)
     .mark_point(opacity=0.8, filled=True)
-    .transform_filter(alt.datum.displacement < 3.1)
     .encode(
         x="displacement",
         y="rotation",
@@ -189,32 +182,39 @@ c = (
     )
 )
 with alt.data_transformers.enable("default"):
-    c.save("../figures/molecule_trajectory.svg")
+    c.save("../figures/molecule_trajectory_fast.svg")
 ```
+
+![](../figures/molecule_trajectory_fast.svg)
+
+```python
+slowest
+```
+
+```python
+mol_id = 85
+
+df_path = df.query("molecule == @mol_id").copy()
+df_path = df_path[1:]
+df_path.loc[:, "timestep"] = np.log(df_path.loc[:, "timestep"].values)
+df_path = df_path[:10_000]
+c = (
+    alt.Chart(df_path)
+    .mark_point(opacity=0.8, filled=True)
+    .encode(
+        x="displacement",
+        y="rotation",
+        color=alt.Color("timestep", scale=alt.Scale(scheme="viridis")),
+    )
+)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/molecule_trajectory_slow.svg")
+```
+
+![](../figures/molecule_trajectory_fast.svg)
+
 
 ![](../figures/molecule_trajectory.svg)
-
-```python
-df_path.columns
-```
-
-```python
-mol_df.sort_values("tau_L")
-mol_df = mol_df.query("tau_L != 2 ** 32 - 1")
-```
-
-```python
-fig, ax = plt.subplots()
-ax.plot(mol_df.sort_values("tau_F").reset_index(drop=True)["tau_F"], ".")
-ax.plot(mol_df.sort_values("tau_F").reset_index(drop=True)["tau_L"], ".")
-ax.legend()
-ax.set_yscale("log")
-fig.savefig("passage_times.pdf")
-```
-
-```python
-mol_df.info()
-```
 
 ```python
 rotations_first = []
@@ -233,25 +233,25 @@ for molecule, first, last in mol_df.set_index("molecule")[
 rot_first = np.array(rotations_first)
 rot_last = np.array(rotations_last)
 rotations = (
-    pandas.DataFrame({"first passage": rot_first})
+    pandas.DataFrame({"First Passage": rot_first})
     .melt()
-    .append(pandas.DataFrame({"last passage": rot_last}).melt())
+    .append(pandas.DataFrame({"Last Passage": rot_last}).melt())
 )
 ```
 
 ```python
-alt.Chart(rotations).mark_bar(opacity=0.8).encode(
-    x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=20)),
-    y=alt.Y("count():Q", title="Occurence"),
+rotations.shape
+```
+
+```python
+c = alt.Chart(rotations).mark_bar(opacity=0.8).transform_filter(alt.datum.value < 3.1).encode(
+    x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=30)),
+    y=alt.Y("count():Q", title="Occurence", stack=None),
     color=alt.Color("variable", title="Time"),
 )
+c 
 ```
 
 ```python
-fig, ax = plt.subplots()
-ax.hist(rot_last, range=(0, np.pi), density=True, alpha=0.7, label="Last Passage")
-ax.hist(rot_first, range=(0, np.pi), density=True, alpha=0.7, label="First Passage")
-ax.legend(frameon=False)
-ax.set_xlabel(r"$\Delta\theta$")
-fig.savefig(f"Rotational_disp-{outfile.stem}.pdf")
+
 ```
