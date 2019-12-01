@@ -131,3 +131,38 @@ with alt.data_transformers.enable("default"):
 
 
 ## Heterogeneities
+
+```python
+df_temp = df_mol.set_index(["temperature", "pressure", "inv_temp_norm"])
+df_hetero = (
+    pandas.DataFrame(
+        {
+            "tau_D": df_temp["tau_D_mean"] * df_temp["tau_D_inv_mean"],
+            "tau_F": df_temp["tau_F_mean"] * df_temp["tau_F_inv_mean"],
+            "tau_L": df_temp["tau_L_mean"] * df_temp["tau_L_inv_mean"],
+            "tau_T2": df_temp["tau_T2_mean"] * df_temp["tau_T2_inv_mean"],
+            "tau_T3": df_temp["tau_T3_mean"] * df_temp["tau_T3_inv_mean"],
+            "tau_T4": df_temp["tau_T4_mean"] * df_temp["tau_T4_inv_mean"],
+        }
+    )
+    .reset_index()
+    .melt(id_vars=["temperature", "pressure", "inv_temp_norm"])
+)
+```
+
+```python
+c = (
+    alt.Chart(df_hetero)
+    .mark_point()
+    .encode(
+        x="inv_temp_norm",
+        y=alt.Y("value", scale=alt.Scale(type="log")),
+        color="variable",
+        shape="variable",
+    )
+)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/molecular_heterogeneities.svg", webdriver="firefox")
+```
+
+![](../figures/molecular_heterogeneities.svg)
