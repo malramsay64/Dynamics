@@ -18,6 +18,7 @@ import freud
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
+import scipy.optimize
 import sdanalysis
 
 logger = logging.getLogger(__name__)
@@ -112,8 +113,51 @@ def plot_dynamics(
     return dyn_chart_base.mark_errorband() + dyn_chart_base.mark_line()
 
 
+def vogel_tamman_fulcher(
+    inv_T_norm: np.ndarray, tau0: float, D: float, T0: float
+) -> np.ndarray:
+    r"""Function describing the Vogel--Tamman--Fulcher relations.
+
+    This is a relationship which describes the dynamics as they approach the 
+    glass transition temperature. Once fit it allows the prediction of
+    the relaxation time :math:`\tau_\alpha`.
+
+    .. math::
+
+        \tau_\alpha = \tau_0 \exp\left[\frac{DT_0}{T-T_0}\right] 
+
+    Args:
+        inv_T_norm: The normalised temperature for which to find the values.
+        tau0: This is an extrapolated relaxation time found through fitting to
+            calculated data.
+        D: A breadth parameter found through fitting to a dataset.
+        T0: An extrapolated temperature found through fitting.
+
+    Returns:
+        The predicted values based on the input.
+
+    """
+    return tau0 * np.exp(D * T0 / (1 / inv_T_norm - T0))
+
+
+def fit_vtf(
+    inv_temp_norm: np.ndarray, values: np.ndarray, errors: Optional[np.ndarray] = None
+):
+    """Fit the Vogel--Tamman--Fulcher relations for a specific relaxation quantity.
+
+    Args:
+        inv_temp_norm: The normalised temperature.
+        quantity: The quantity to find the relation. This will be without the '_mean' suffix.
+
+    """
+    fit, error = scipy.optimize.curve_fit(
+        vogel_tamman_fulcher, inv_temp_norm, values, sigma=errors, p0=(1.0, 1.0, 0.0),
+    )
+    return fit, np.sqrt(np.diag(error))
+
+
 def plot_relaxations(
-    df: pandas.DataFrame, prop: str, title: Optional[str] = None
+    df: pandas.DataFrame, prop: str, title: Optional[str] = None, fit=False
 ) -> alt.Chart:
     """Helper to plot relaxation quantities using Altair.
 
@@ -129,6 +173,20 @@ def plot_relaxations(
         title = prop
     axis_format = "e"
 
+    if fit:
+        params, error = fit_vtf(
+            df["inv_temp_norm"], df[f"{prop}_mean"], df[f"{prop}_sem"]
+        )
+        x = np.linspace(df["inv_temp_norm"].min(), df["inv_temp_norm"].max())
+        df_fit = pandas.DataFrame(
+            {"inv_temp_norm": x, "predicted": vogel_tamman_fulcher(x, *params)}
+        )
+        line_fit = (
+            alt.Chart(df_fit)
+            .mark_line(color="black")
+            .encode(x="inv_temp_norm", y="predicted",)
+        )
+
     relax_chart_base = alt.Chart(df).encode(
         x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
         color=alt.Color("pressure:N", title="Pressure"),
@@ -141,7 +199,12 @@ def plot_relaxations(
         yError=alt.YError(prop + "_sem:Q"),
     )
 
-    return relax_chart_base.mark_point() + relax_chart_base.mark_errorbar()
+    if fit:
+        return (
+            line_fit + relax_chart_base.mark_point() + relax_chart_base.mark_errorbar()
+        )
+    else:
+        return relax_chart_base.mark_point() + relax_chart_base.mark_errorbar()
 
 
 def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
