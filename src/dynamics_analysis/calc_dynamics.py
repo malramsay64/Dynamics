@@ -150,6 +150,7 @@ def bootstrap(infile):
 
     df_mol_agg.to_hdf(outfile, "molecular_relaxations")
 
+    df["msr"] = df["msr"].mask(lambda x: x < 10, 1000)
     # Calculate the relaxation time from each keyframe
     df_relax = (
         df.set_index("time")
