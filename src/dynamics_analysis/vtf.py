@@ -67,12 +67,21 @@ def find_glass_transition_fragility(
     values: np.ndarray,
     errors: Optional[np.ndarray] = None,
     root=1e14,
-    bracket=(1.2, 1.4),
 ) -> Tuple[float, float]:
     fit, _ = fit_vtf(inv_temp_norm, values, errors)
-    root = scipy.optimize.root_scalar(
-        lambda x: vogel_tamman_fulcher(x, *fit) - root, bracket=bracket,
-    ).root
+    bracket = (inv_temp_norm.max(), inv_temp_norm.max() + 0.1)
+    for i in range(10):
+        try:
+            root = scipy.optimize.root_scalar(
+                lambda x: vogel_tamman_fulcher(x, *fit) - root, bracket=bracket,
+            ).root
+            break
+        except ValueError:
+            bracket = bracket[0] + 0.1, bracket[1] + 0.1
+    # When we don't break out of the loop, that is find a root, raise a runtime error.
+    else:
+        raise RuntimeError("Unable to find root of function")
+
     fragility = scipy.misc.derivative(
         lambda x: np.log(vogel_tamman_fulcher(x, *fit)), root, dx=1e-6
     )
