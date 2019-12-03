@@ -10,7 +10,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import altair as alt
 import click
@@ -18,6 +18,7 @@ import freud
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas
+import scipy.misc
 import scipy.optimize
 import sdanalysis
 
@@ -154,6 +155,23 @@ def fit_vtf(
         vogel_tamman_fulcher, inv_temp_norm, values, sigma=errors, p0=(1.0, 1.0, 0.0),
     )
     return fit, np.sqrt(np.diag(error))
+
+
+def find_glass_transition_fragility(
+    inv_temp_norm: np.ndarray,
+    values: np.ndarray,
+    errors: Optional[np.ndarray] = None,
+    root=1e14,
+    bracket=(1.2, 1.4),
+) -> Tuple[float, float]:
+    fit, _ = fit_vtf(inv_temp_norm, values, errors)
+    root = scipy.optimize.root_scalar(
+        lambda x: vogel_tamman_fulcher(x, *fit) - root, bracket=bracket,
+    ).root
+    fragility = scipy.misc.derivative(
+        lambda x: np.log(vogel_tamman_fulcher(x, *fit)), root, dx=1e-6
+    )
+    return root, fragility
 
 
 def plot_relaxations(
