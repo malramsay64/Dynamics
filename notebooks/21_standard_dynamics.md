@@ -27,7 +27,7 @@ from pathlib import Path
 import pandas
 import numpy as np
 import altair as alt
-from dynamics_analysis import figures, calc_dynamics, util
+from dynamics_analysis import figures, calc_dynamics, util, vtf
 ```
 
 This notebook generates a collection of figures
@@ -301,7 +301,11 @@ relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxation
 relaxations_df = relaxations_df.query("inv_temp_norm < 1.2")
 ```
 
-### Scattering Function
+### Structural Relaxation
+
+The intermediate scattering function is
+the standard measure of structural relaxation,
+so we investigate the relaxation times here.
 
 ```python
 c = figures.plot_relaxations(relaxations_df, "scattering_function", fit=True)
@@ -312,16 +316,34 @@ with alt.data_transformers.enable("default"):
 
 ![scattering function relaxation times](../figures/scattering_function_summary.svg)
 
+Most notable about the structural relaxation time
+is the fragility, being the degree to which the curve is non-linear.
+It is possible to extrapolate this curve to a relaxation time of 1e14,
+the timescale of the glass transition.
+From this we can extract both the glass transition temperature
+and the fragility of the material.
+
 ```python
-glass_transition, fragility = figures.find_glass_transition_fragility(
+glass_transition, fragility = vtf.find_glass_transition_fragility(
     relaxations_df["inv_temp_norm"],
     relaxations_df["scattering_function_mean"],
     errors=relaxations_df["scattering_function_sem"],
 )
-f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+print(f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
 and at P=1.00 {1/glass_transition * 0.36}.
-The fragility is {fragility}."""
+The fragility is {fragility}.""")
 ```
+
+The fragility observed is in excess of 200,
+which makes it a highly fragile liquid.
+Also of note is that the glass transition temperature $T_g$
+is well below the current temperatures studied,
+meaning the dynamic heterogeneities have an onset well above 1.2 $T_g$.
+
+The same analysis can be performed with the
+individual particle structural relaxation time.
+This analysis gives much the same result as
+the intermediate scattering function.
 
 ```python
 c2 = figures.plot_relaxations(
@@ -335,17 +357,21 @@ with alt.data_transformers.enable("default"):
 ![structural relaxation times](../figures/structural_relaxation_summary.svg)
 
 ```python
-glass_transition, fragility = figures.find_glass_transition_fragility(
+glass_transition, fragility = vtf.find_glass_transition_fragility(
     relaxations_df["inv_temp_norm"],
     relaxations_df["struct_mean"],
     errors=relaxations_df["struct_sem"],
 )
-f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+print(f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
 and at P=1.00 {1/glass_transition * 0.36}.
-The fragility is {fragility}."""
+The fragility is {fragility}.""")
 ```
 
 ### Diffusion
+
+The inverse diffusion constant
+can also be considered a relaxation time
+and is studied as such.
 
 ```python
 c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="1/D_t", fit=True)
@@ -357,15 +383,22 @@ with alt.data_transformers.enable("default"):
 ![Diffusion constant](../figures/diffusion_constant_summary.svg)
 
 ```python
-glass_transition, fragility = figures.find_glass_transition_fragility(
+glass_transition, fragility = vtf.find_glass_transition_fragility(
     relaxations_df["inv_temp_norm"],
-    relaxations_df["struct_mean"],
-    errors=relaxations_df["struct_sem"],
+    relaxations_df["inv_diffusion_mean"],
+    errors=relaxations_df["inv_diffusion_sem"],
 )
-f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+print(f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
 and at P=1.00 {1/glass_transition * 0.36}.
-The fragility is {fragility}."""
+The fragility is {fragility}.""")
 ```
+
+Notable about the diffusive relaxation
+is the fragility is significantly less
+than the structural relaxation,
+being about half the value.
+This smaller fragility is also observed
+with the rotational diffusion.
 
 ```python
 c = figures.plot_relaxations(relaxations_df, "inv_diffusion_rot", title="1/D_r",
@@ -378,18 +411,21 @@ with alt.data_transformers.enable("default"):
 ![Rotational diffusion](../figures/rot_diffusion_summary.svg)
 
 ```python
-glass_transition, fragility = figures.find_glass_transition_fragility(
+glass_transition, fragility = vtf.find_glass_transition_fragility(
     relaxations_df["inv_temp_norm"],
     relaxations_df["inv_diffusion_rot_mean"],
     errors=relaxations_df["inv_diffusion_rot_sem"],
-    bracket=(1.2, 1.5),
 )
-f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+print(f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
 and at P=1.00 {1/glass_transition * 0.36}.
-The fragility is {fragility}."""
+The fragility is {fragility}.""")
 ```
 
 ### Rotational Relaxation
+
+The rotation associated with the second Legendre polynomial
+is normally accessed in simulations
+so it is the rotational relaxation quantity I am presenting.
 
 ```python
 c = figures.plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation",
@@ -402,15 +438,42 @@ with alt.data_transformers.enable("default"):
 ![rotational relaxation times](../figures/rotational_relaxation_summary.svg)
 
 ```python
-glass_transition, fragility = figures.find_glass_transition_fragility(
+glass_transition, fragility = vtf.find_glass_transition_fragility(
     relaxations_df["inv_temp_norm"],
     relaxations_df["rot2_mean"],
     errors=relaxations_df["rot2_sem"],
 )
-f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+print(f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
 and at P=1.00 {1/glass_transition * 0.36}.
-The fragility is {fragility}."""
+The fragility is {fragility}.""")
 ```
+
+It is rather puzzling that this has a fragility
+between that of the structural relaxation and the diffusion.
+Maybe the first order polynomial is able to provide some more insight.
+
+```python
+glass_transition, fragility = vtf.find_glass_transition_fragility(
+    relaxations_df["inv_temp_norm"],
+    relaxations_df["rot1_mean"],
+    errors=relaxations_df["rot1_sem"],
+
+)
+print(f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+and at P=1.00 {1/glass_transition * 0.36}.
+The fragility is {fragility}.""")
+```
+
+Here it seems the degree of fragility is affected by the timescale
+over which we take a measurement.
+The structural relaxation is over the shortest timescale
+and it has the largest fragility.
+The diffusion constants, both rotational and translational
+both have the smallest fragilities
+and are associated with the longest timescales.
+The rotational relaxations are in the middle
+with $C_2$ having a slightly larger fragility,
+which makes sense here as it has the shorter relaxation distance.
 
 ## Heterogeneities
 
