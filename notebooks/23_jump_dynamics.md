@@ -27,10 +27,6 @@ from dynamics_analysis import figures, calc_dynamics, util
 ```
 
 ```python
-
-```
-
-```python
 # Where the data files with the results are located
 data_dir = Path("../data/analysis")
 
@@ -61,12 +57,14 @@ relaxations_df.columns
 ```python
 index = ["temperature", "pressure", "inv_temp_norm"]
 df_temp = relaxations_df.set_index(index).join(df_mol.set_index(index))
-df_ratio = pandas.DataFrame({
-    "Traditional":  df_temp["rot1_mean"] / df_temp["rot2_mean"],
-#     "tau1/tau2_sem":  df_temp["rot2_sem"] / df_temp["rot2_mean"] + df_temp["rot1_sem"] / df_temp["rot2_mean"],
-    "Molecular":  df_temp["tau_T2_mean"] / df_temp["tau_T4_mean"],
-#     "tau_T2/tau_T4_sem":  df_temp["tau_T2_sem"] / df_temp["tau_T2_mean"] + df_temp["tau_T4_sem"] / df_temp["tau_T4_mean"],
-}).reset_index()
+df_ratio = pandas.DataFrame(
+    {
+        "Traditional": df_temp["rot1_mean"] / df_temp["rot2_mean"],
+        #     "tau1/tau2_sem":  df_temp["rot2_sem"] / df_temp["rot2_mean"] + df_temp["rot1_sem"] / df_temp["rot2_mean"],
+        "Molecular": df_temp["tau_T2_mean"] / df_temp["tau_T4_mean"],
+        #     "tau_T2/tau_T4_sem":  df_temp["tau_T2_sem"] / df_temp["tau_T2_mean"] + df_temp["tau_T4_sem"] / df_temp["tau_T4_mean"],
+    }
+).reset_index()
 # df_ratio["tau1/tau2_sem"] *= df_ratio["tau1/tau2_mean"]
 # df_ratio["tau_T2/tau_T4_sem"] *= df_ratio["tau_T2/tau_T4_mean"]
 ```
@@ -76,11 +74,7 @@ df_ratios = df_ratio.melt(id_vars=index)
 ```
 
 ```python
-c = alt.Chart(df_ratios).encode(
-    x="inv_temp_norm",
-    y="value",
-    color="variable"
-)
+c = alt.Chart(df_ratios).encode(x="inv_temp_norm", y="value", color="variable")
 c = c.mark_point() + c.mark_errorbar()
 
 with alt.data_transformers.enable("default"):
@@ -90,24 +84,26 @@ with alt.data_transformers.enable("default"):
 ![](../figures/rotational_jumps.svg)
 
 ```python
-df_mol 
+df_mol
 
 df_temp = df_mol.set_index(["temperature", "pressure", "inv_temp_norm"])
-df_ratio = pandas.DataFrame({
-    "tau_T2/tau_T4_mean":  df_temp["tau_T2_mean"] / df_temp["tau_T4_mean"],
-    "tau_T2/tau_T4_sem":  df_temp["tau_T2_sem"] / df_temp["tau_T2_mean"] + df_temp["tau_T4_sem"] / df_temp["tau_T4_mean"],
-    "tau_D/tau_L_mean":  df_temp["tau_D_mean"] / df_temp["tau_L_mean"],
-    "tau_D/tau_L_sem":  df_temp["tau_L_sem"] / df_temp["tau_L_mean"] + df_temp["tau_D_sem"] / df_temp["tau_D_mean"],
-}).reset_index()
+df_ratio = pandas.DataFrame(
+    {
+        "tau_T2/tau_T4_mean": df_temp["tau_T2_mean"] / df_temp["tau_T4_mean"],
+        "tau_T2/tau_T4_sem": df_temp["tau_T2_sem"] / df_temp["tau_T2_mean"]
+        + df_temp["tau_T4_sem"] / df_temp["tau_T4_mean"],
+        "tau_D/tau_L_mean": df_temp["tau_D_mean"] / df_temp["tau_L_mean"],
+        "tau_D/tau_L_sem": df_temp["tau_L_sem"] / df_temp["tau_L_mean"]
+        + df_temp["tau_D_sem"] / df_temp["tau_D_mean"],
+    }
+).reset_index()
 df_ratio["tau_T2/tau_T4_sem"] *= df_ratio["tau_T2/tau_T4_mean"]
 df_ratio["tau_D/tau_L_sem"] *= df_ratio["tau_D/tau_L_mean"]
 ```
 
 ```python
 c = alt.Chart(df_ratio).encode(
-    x="inv_temp_norm",
-    y="tau_T2/tau_T4_mean",
-    yError="tau_T2/tau_T4_sem",
+    x="inv_temp_norm", y="tau_T2/tau_T4_mean", yError="tau_T2/tau_T4_sem"
 )
 c = c.mark_point() + c.mark_errorbar()
 
@@ -121,14 +117,44 @@ c
 
 ```python
 c = alt.Chart(df_ratio).encode(
-    x="inv_temp_norm",
-    y="tau_D/tau_L_mean",
-    yError="tau_D/tau_L_sem",
+    x="inv_temp_norm", y="tau_D/tau_L_mean", yError="tau_D/tau_L_sem"
 )
 c = c.mark_point() + c.mark_errorbar()
 c
 ```
 
 ```python
+relaxations_df
+```
 
+## Breakdown in Stokes Einstein
+
+```python
+df_temp = relaxations_df.set_index(index)
+df_stokes = (
+    pandas.DataFrame(
+        {
+            "D_t/D_r": df_temp["msd_mean"] / df_temp["msr_mean"],
+            "D_t_tau_r1": df_temp["msd_mean"] * df_temp["rot2_mean"],
+        }
+    )
+    .reset_index()
+    .melt(id_vars=index)
+)
+
+alt.Chart(df_stokes).mark_point().encode(x="inv_temp_norm", y="value", color="variable")
+```
+
+```python
+c = (
+    alt.Chart(relaxations_df)
+    .mark_point()
+    .encode(x=alt.X("struct_mean", scale=alt.Scale(type="log")))
+)
+(
+    c.encode(y=alt.Y("inv_diffusion_mean", scale=alt.Scale(type="log"))) +
+    c.encode( y="inv_diffusion_rot_mean" ) +
+    c.encode(y=alt.Y("rot1_mean")) +
+    c.encode(y=alt.Y("rot2_mean"))
+)
 ```
