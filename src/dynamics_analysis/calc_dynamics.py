@@ -157,6 +157,7 @@ def bootstrap(infile):
         .agg(series_relaxation_value)
     )
     df_relax["inv_diffusion"] = 1 / df_relax["msd"]
+    df_relax["inv_diffusion_rot"] = 1 / df_relax["msr"]
 
     # Calculate the bootstrapped errors in the relaxation times
     df_relax_agg = df_relax.groupby(["temperature", "pressure"]).agg(["mean", "sem"])
