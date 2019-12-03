@@ -28,7 +28,6 @@ import pandas
 import numpy as np
 import altair as alt
 from dynamics_analysis import figures, calc_dynamics, util
-
 ```
 
 This notebook generates a collection of figures
@@ -73,6 +72,23 @@ has behaviour that aligns with much of the literature.
 
 ### Mean Squared Displacement
 
+The mean squared displacement is a long timescale look at the translational motion.
+There are three main sections to the motion, the initial ballistic motion,
+which has a slope of 2.
+This is before the particles have collided and so are able to move freely.
+Beyond this timescale the particles start to collide,
+which results in temperature dependent behaviour.
+At low temperatures,
+we see a plateau region,
+which is typically described as a timescale over which particles
+are trapped in their local environment also known as the cage.
+At higher temperatures there is sufficient energy to escape
+going directly to the third region,
+which is the diffusive regime.
+This final region is where the particles
+are undergoing Brownian motion,
+and the motion can be described by small random jumps.
+
 ```python
 c = figures.plot_dynamics(
     dynamics_df, "msd", title="Mean Squared Displacement", scale="log"
@@ -84,8 +100,43 @@ with alt.data_transformers.enable("default"):
 
 ![mean squared displacement](../figures/mean_squared_displacement.svg)
 
+The behaviour of the mean-squared-rotation,
+is equivalent to that of the mean-squared-displacement,
+showing the same regions,
+albeit at different time and length scales.
 
-## Non-gaussian
+```python
+c = figures.plot_dynamics(
+    dynamics_df, "msr", title="Mean Squared Rotation", scale="log"
+).transform_filter(alt.datum.msr_mean < 10)
+
+with alt.data_transformers.enable("default"):
+    c.save(str(figure_dir / "mean_squared_rotation.svg"), webdriver="firefox")
+```
+
+![msr](../figures/mean_squared_rotation.svg)
+
+
+### Non-Gaussian
+
+A result of the plateau region in the MSD
+is that there are particles which are fast escaping their cage,
+while other particles are very slow.
+This leads to heterogeneous dynamics,
+that is, regions of fast and slow dynamics within a configuration.
+One of the measures of the heterogeneity
+within a simulation is the non-Gaussian parameter $\alpha$
+given by
+
+$ \alpha = \frac{\langle \Delta \vec{r}^4 \rangle}{\langle \Delta \vec{r}^2 \rangle^2} - 1 $
+
+This parameter provides information on both
+the size, and
+the timescale
+of the heterogeneity of the dynamics.
+A value of 0 indicates that the distribution of the dynamics
+is perfectly Gaussian,
+while larger values indicate a deviation from Gaussian.
 
 ```python
 c = figures.plot_dynamics(dynamics_df, "alpha", title="Non Gaussian")
@@ -94,19 +145,40 @@ with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "non_gaussian.svg"), webdriver="firefox")
 ```
 
-![non-gaussian](../figures/non_gaussian.svg)
+![non-Gaussian](../figures/non_gaussian.svg)
 
+As the temperature drops,
+the non-Gaussian behaviour increases in magnitude and timescale.
+This results re-enforces the idea that the heterogeneous dynamics
+are represented by the plateau region in the MSD.
 
-## Structural Relaxation
+The same approach can be applied to the rotational dynamics
+which displays similar behaviour.
+The most notable difference
+is the sharp peal that occurs in the rotational non-Gaussian,
+in addition to the 'master curve',
+where all temperatures share the start and branch off at different times.
+
 
 ```python
-c = figures.plot_dynamics(dynamics_df, "struct", title="Structrual Relaxation")
+c = figures.plot_dynamics(dynamics_df, "alpha_rot", title="Rotational Non-Gaussian")
 
 with alt.data_transformers.enable("default"):
-    c.save(str(figure_dir / "structural_relaxation.svg"), webdriver="firefox")
+    c.save(str(figure_dir / "rotational_alpha.svg"), webdriver="firefox")
 ```
 
-![structural relaxation](../figures/structural_relaxation.svg)
+![rotational heterogeneities](../figures/rotational_alpha.svg)
+
+
+### Structural Relaxation
+
+The structural relaxation is a fundamental quantity of dynamics
+describing the short timescale motions associated with viscosity.
+The typical measure of structural relaxation is through the
+intermediate scattering function
+the calculation of which is described in <06_computing_structural_relaxation>.
+This relaxation is chosen since it is experimentally measurable
+using neutron scattering.
 
 ```python
 c = figures.plot_dynamics(
@@ -119,7 +191,37 @@ with alt.data_transformers.enable("default"):
 
 ![intermediate scattering function](../figures/scattering_function.svg)
 
-## Rotational Relaxation
+A simpler measure of structural relaxation
+is to count the fraction of particles
+which are more than a specified distance from their initial positions.
+With the standard distance being the characteristic distance of
+the wave number from the intermediate scattering function.
+This generates a curve very similar to the intermediate scattering function,
+while also being able to attribute relaxation to each particle.
+
+```python
+c = figures.plot_dynamics(dynamics_df, "struct", title="Structrual Relaxation")
+
+with alt.data_transformers.enable("default"):
+    c.save(str(figure_dir / "structural_relaxation.svg"), webdriver="firefox")
+```
+
+![structural relaxation](../figures/structural_relaxation.svg)
+
+
+### Rotational Relaxation
+
+The rotational relaxation function $C_l$ is another quantity of interest,
+although it is typically calculated as a dipole relaxation
+
+$ C_l = \langle \hat{\vect{u}}(0) \cdot \hat{\vect{u}}(t) \rangle
+
+where $\hat\vect{u}$ is the unit vector representing
+the orientation of a dipole at a point in time.
+The reason it is a dipole is that
+it is unable to capture the rotations
+around the axis of the vector,
+although for 2D this distinction is not present.
 
 ```python
 c = figures.plot_dynamics(dynamics_df, "rot2", title="Rotational Relaxation")
@@ -130,17 +232,27 @@ with alt.data_transformers.enable("default"):
 
 ![rotational relaxation](../figures/rotational_relaxation.svg)
 
-```python
-c = figures.plot_dynamics(dynamics_df, "alpha_rot", title="Rotational Non-Gaussian")
-
-with alt.data_transformers.enable("default"):
-    c.save(str(figure_dir / "rotational_alpha.svg"), webdriver="firefox")
-```
-
-![rotational  heterogenaeties](../figures/rotational_alpha.svg)
-
+The rotational relaxation takes place as a two-step process,
+just like the diffusion,
+with the initial relaxation to a plateau
+followed by more complete relaxation.
+This can be described by the KWW stretched exponential.
 
 ## Rotational and Translational Coupling
+
+The rotational-translational coupling,
+is a concept derived from the non-Gaussian,
+including the contributions from both
+the rotational and translational motion.
+The coupling factor $\gamma$ is given by
+
+$ \gamma = \frac{\langle \Delta \vec{r}^2 \Delta \theta^2 \rangle}
+{\langle \Delta \vec{r}^2 \rangle\langle \vec{\theta}^2 \rangle} - 1 $
+
+and shows very similar behaviour to
+both the rotational and translational non-Gaussian parameters.
+This indicates that where particles are mobile,
+they are mobile in both translational and rotational motion.
 
 ```python
 c = figures.plot_dynamics(
@@ -151,25 +263,48 @@ with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "gamma.svg"), webdriver="firefox")
 ```
 
-![Tranlational and Rotational Coupling](../figures/gamma.svg)
+![Translational and Rotational Coupling](../figures/gamma.svg)
 
 
 ## Relaxation Quantities
 
-```python
-relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
-# relaxations_df = relaxations_df.query("pressure == 13.50")
-relaxations_df[relaxations_df < 0] = np.NaN
-```
+As a method of evaluating the relaxation timescales,
+I am using the Vogel-Tamman-Fulcher relation
+
+$ \tau_\alpha = \tau_0 \exp\left[\frac{DT_0}{T-T_0}\right] $
+
+which can be fit to the existing dynamics.
+Once the values of $\tau_0$, $T_0$, and $D$
+have been determined from the fit,
+it is possible to extrapolate the glass transition temperature $T_g$
+along with the fragility.
+The glass transition temperature
+is the temperature at which the relaxation time $\tau_\alpha$
+is predicted to exceed a time of $10^{14}$.
+While the fragility $m$ is extracted from the differentiation
+
+$ m = \frac{d \log \tau}{d T_g / T} \right\vert_{T=T_g} $
+
+This analysis is based off that from @Meenakshisundaram2019
+
+### Data
+
+The data is within the file `../data/analysis/dynamics_clean_agg.h5`
+under the `'relaxations'` table.
+To ensure good fitting of the data,
+only values with a normalised temperature above 1.2
+are included in the analysis.
 
 ```python
-relaxations_df.columns
+relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
+# Remove the lowest temperature data
+relaxations_df = relaxations_df.query("inv_temp_norm < 1.2")
 ```
 
 ### Scattering Function
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "scattering_function")
+c = figures.plot_relaxations(relaxations_df, "scattering_function", fit=True)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "scattering_function_summary.svg"), webdriver="firefox")
@@ -178,25 +313,42 @@ with alt.data_transformers.enable("default"):
 ![scattering function relaxation times](../figures/scattering_function_summary.svg)
 
 ```python
+glass_transition, fragility = figures.find_glass_transition_fragility(
+    relaxations_df["inv_temp_norm"],
+    relaxations_df["scattering_function_mean"],
+    errors=relaxations_df["scattering_function_sem"],
+)
+f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+and at P=1.00 {1/glass_transition * 0.36}.
+The fragility is {fragility}."""
+```
+
+```python
 c2 = figures.plot_relaxations(
-    relaxations_df, "com_struct", title="Structural Relaxation"
+    relaxations_df, "struct", title="Structural Relaxation", fit=True
 )
 
 with alt.data_transformers.enable("default"):
     c2.save(str(figure_dir / "structural_relaxation_summary.svg"), webdriver="firefox")
 ```
 
-```python
-relaxations_df
-```
-
 ![structural relaxation times](../figures/structural_relaxation_summary.svg)
 
+```python
+glass_transition, fragility = figures.find_glass_transition_fragility(
+    relaxations_df["inv_temp_norm"],
+    relaxations_df["struct_mean"],
+    errors=relaxations_df["struct_sem"],
+)
+f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+and at P=1.00 {1/glass_transition * 0.36}.
+The fragility is {fragility}."""
+```
 
 ### Diffusion
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="1/D")
+c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="1/D_t", fit=True)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "diffusion_constant_summary.svg"), webdriver="firefox")
@@ -204,11 +356,44 @@ with alt.data_transformers.enable("default"):
 
 ![Diffusion constant](../figures/diffusion_constant_summary.svg)
 
+```python
+glass_transition, fragility = figures.find_glass_transition_fragility(
+    relaxations_df["inv_temp_norm"],
+    relaxations_df["struct_mean"],
+    errors=relaxations_df["struct_sem"],
+)
+f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+and at P=1.00 {1/glass_transition * 0.36}.
+The fragility is {fragility}."""
+```
+
+```python
+c = figures.plot_relaxations(relaxations_df, "inv_diffusion_rot", title="1/D_r",
+fit=True)
+
+with alt.data_transformers.enable("default"):
+    c.save(str(figure_dir / "rot_diffusion_summary.svg"), webdriver="firefox")
+```
+
+![Rotational diffusion](../figures/rot_diffusion_summary.svg)
+
+```python
+glass_transition, fragility = figures.find_glass_transition_fragility(
+    relaxations_df["inv_temp_norm"],
+    relaxations_df["inv_diffusion_rot_mean"],
+    errors=relaxations_df["inv_diffusion_rot_sem"],
+    bracket=(1.2, 1.5),
+)
+f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+and at P=1.00 {1/glass_transition * 0.36}.
+The fragility is {fragility}."""
+```
 
 ### Rotational Relaxation
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation")
+c = figures.plot_relaxations(relaxations_df, "rot2", title="Rotational Relaxation",
+fit=True)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "rotational_relaxation_summary.svg"), webdriver="firefox")
@@ -216,12 +401,22 @@ with alt.data_transformers.enable("default"):
 
 ![rotational relaxation times](../figures/rotational_relaxation_summary.svg)
 
+```python
+glass_transition, fragility = figures.find_glass_transition_fragility(
+    relaxations_df["inv_temp_norm"],
+    relaxations_df["rot2_mean"],
+    errors=relaxations_df["rot2_sem"],
+)
+f"""The glass transition temperature at P=13.50 is {1/glass_transition * 1.35}
+and at P=1.00 {1/glass_transition * 0.36}.
+The fragility is {fragility}."""
+```
 
 ## Heterogeneities
 
-
 ```python
-c = figures.plot_relaxations(relaxations_df, "alpha", title="Rotational Relaxation")
+c = figures.plot_relaxations(relaxations_df, "alpha", title="Rotational Relaxation",
+fit=True)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "alpha_relaxation_summary.svg"), webdriver="firefox")
