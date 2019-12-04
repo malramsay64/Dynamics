@@ -149,12 +149,15 @@ alt.Chart(df_stokes).mark_point().encode(x="inv_temp_norm", y="value", color="va
 c = (
     alt.Chart(relaxations_df)
     .mark_point()
-    .encode(x=alt.X("struct_mean", scale=alt.Scale(type="log")))
+    .encode(
+        x=alt.X("x:Q", scale=alt.Scale(type="log")),
+        y=alt.Y("value:Q", scale=alt.Scale(type="log")),
+        color="key:N",
+    )
+    .transform_fold(["msd_mean", "msr_mean"])
+    .transform_calculate("x", alt.datum.struct_mean * alt.datum.inv_temp_norm)
+    
 )
-(
-    c.encode(y=alt.Y("inv_diffusion_mean", scale=alt.Scale(type="log"))) +
-    c.encode( y="inv_diffusion_rot_mean" ) +
-    c.encode(y=alt.Y("rot1_mean")) +
-    c.encode(y=alt.Y("rot2_mean"))
-)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/trans_rot_trimer.svg", webdriver="firefox")
 ```
