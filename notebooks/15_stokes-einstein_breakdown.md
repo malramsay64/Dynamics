@@ -243,19 +243,19 @@ rotations = (
 ```
 
 ```python
-rotations.shape
+rotations2 = rotations.query("value < 1.57").groupby("variable").apply(lambda x: x.sample(300)).reset_index(drop=True)
 ```
 
 ```python
 c = (
-    alt.Chart(rotations)
+    alt.Chart(rotations2)
     .mark_bar(opacity=0.8)
-    .transform_filter(alt.datum.value < 3.1)
     .encode(
-        x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=30)),
+        x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=10)),
         y=alt.Y("count():Q", title="Occurence", stack=None),
         color=alt.Color("variable", title="Time"),
     )
 )
-c
+with alt.data_transformers.enable("default"):
+    c.save("../figures/angular_displacement.svg", webdriver="firefox")
 ```
