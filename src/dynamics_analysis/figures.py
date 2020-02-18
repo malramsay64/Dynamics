@@ -163,7 +163,7 @@ def plot_relaxations(
         )
 
     relax_chart_base = alt.Chart(df).encode(
-        x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+        x=alt.X("inv_temp_norm:Q", title="Tm/T", axis=alt.Axis(format="g")),
         color=alt.Color("pressure:N", title="Pressure"),
         y=alt.Y(
             prop + "_mean:Q",
@@ -219,7 +219,7 @@ def plot_multi_relaxations(
     relax_chart_base = (
         alt.Chart(df)
         .encode(
-            x=alt.X("inv_temp_norm:Q", title="Tₘ/T", axis=alt.Axis(format="g")),
+            x=alt.X("inv_temp_norm:Q", title="Tm/T", axis=alt.Axis(format="g")),
             color=alt.Color("pressure:N", title="Pressure"),
             shape=alt.Shape("variable", title="Relaxation"),
             y=alt.Y(
