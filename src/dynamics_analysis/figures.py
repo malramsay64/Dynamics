@@ -33,12 +33,29 @@ def my_theme() -> Dict[str, Any]:
     and removing the grid from the figure which is distracting.
 
     """
+    font = "Roboto"
     return {
         "config": {
             "view": {"height": 400, "width": 600},
-            "legend": {"titleFontSize": 20, "labelFontSize": 16},
-            "axis": {"grid": False, "labelFontSize": 16, "titleFontSize": 20},
-            "header": {"titleFontSize": 22, "labelFontSize": 18},
+            "legend": {
+                "titleFontSize": 20,
+                "labelFontSize": 16,
+                "labelFont": font,
+                "titleFont": font,
+            },
+            "axis": {
+                "grid": False,
+                "labelFontSize": 16,
+                "titleFontSize": 20,
+                "labelFont": font,
+                "titleFont": font,
+            },
+            "header": {
+                "titleFontSize": 22,
+                "labelFontSize": 18,
+                "titleFont": font,
+                "labelFont": font,
+            },
             "background": "white",
         }
     }
