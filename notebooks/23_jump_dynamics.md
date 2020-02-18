@@ -156,7 +156,6 @@ c = (
     )
     .transform_fold(["msd_mean", "msr_mean"])
     .transform_calculate("x", alt.datum.struct_mean * alt.datum.inv_temp_norm)
-    
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/trans_rot_trimer.svg", webdriver="firefox")

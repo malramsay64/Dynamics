@@ -243,7 +243,12 @@ rotations = (
 ```
 
 ```python
-rotations2 = rotations.query("value < 1.57").groupby("variable").apply(lambda x: x.sample(300)).reset_index(drop=True)
+rotations2 = (
+    rotations.query("value < 1.57")
+    .groupby("variable")
+    .apply(lambda x: x.sample(300))
+    .reset_index(drop=True)
+)
 ```
 
 ```python
@@ -252,7 +257,7 @@ c = (
     .mark_bar(opacity=0.8)
     .encode(
         x=alt.X("value:Q", title="Angular Displacement", bin=alt.Bin(maxbins=10)),
-        y=alt.Y("count():Q", title="Occurence", stack=None),
+        y=alt.Y("count():Q", title="Occurrence", stack=None),
         color=alt.Color("variable", title="Time"),
     )
 )
