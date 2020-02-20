@@ -158,5 +158,30 @@ c = (
     .transform_calculate("x", alt.datum.struct_mean * alt.datum.inv_temp_norm)
 )
 with alt.data_transformers.enable("default"):
+     c.save("../figures/trans_rot_diff_trimer.svg", webdriver="firefox")
+```
+
+![trans rot diff trimer](../figures/trans_rot_diff_trimer.svg)
+
+```python
+c
+```
+
+```python
+c = (
+    alt.Chart(relaxations_df)
+    .mark_point()
+    .encode(
+        x=alt.X("x:Q", scale=alt.Scale(type="log")),
+        y=alt.Y("value:Q", scale=alt.Scale(type="log")),
+        color="key:N",
+    )
+    .transform_calculate("inv_rot", 1/alt.datum.rot1_mean )
+    .transform_fold(["msd_mean", "inv_rot"])
+    .transform_calculate("x", alt.datum.struct_mean * alt.datum.inv_temp_norm)
+)
+with alt.data_transformers.enable("default"):
     c.save("../figures/trans_rot_trimer.svg", webdriver="firefox")
 ```
+
+![trans rot trimer](../figures/trans_rot_trimer.svg)
