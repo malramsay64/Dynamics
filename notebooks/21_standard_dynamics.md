@@ -140,7 +140,7 @@ is perfectly Gaussian,
 while larger values indicate a deviation from Gaussian.
 
 ```python
-c = figures.plot_dynamics(dynamics_df, "alpha", title="Non Gaussian")
+c = figures.plot_dynamics(dynamics_df, "alpha", title="Non-Gaussian")
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "non_gaussian.svg"), webdriver="firefox")
@@ -309,7 +309,7 @@ the standard measure of structural relaxation,
 so we investigate the relaxation times here.
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "scattering_function", fit=True)
+c = figures.plot_relaxations(relaxations_df, "scattering_function", title="Structural Relaxation Time", fit=True)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "scattering_function_summary.svg"), webdriver="firefox")
@@ -350,7 +350,7 @@ the intermediate scattering function.
 
 ```python
 c2 = figures.plot_relaxations(
-    relaxations_df, "struct", title="Structural Relaxation", fit=True
+    relaxations_df, "struct", title="Structural Relaxation Time", fit=True
 )
 
 with alt.data_transformers.enable("default"):
@@ -379,7 +379,7 @@ can also be considered a relaxation time
 and is studied as such.
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="1/D_t", fit=True)
+c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="Inverse Translational Diffusion Constant", fit=True)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "diffusion_constant_summary.svg"), webdriver="firefox")

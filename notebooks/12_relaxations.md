@@ -91,7 +91,7 @@ where $D t$ is the function defining the fit.
 The parameter `D` is used as the diffusion constant in the following figure.
 
 ```python
-figures.plot_dynamics(dynamics, "msd", scale="log")
+figures.plot_dynamics(dynamics, "msd", title="Mean Square Displacement", scale="log")
 ```
 
 ### Rotational Relaxation R2
@@ -104,7 +104,7 @@ $$R_2(t) = \langle 2[ \hat{\mathbf{e}}(0) \cdot \hat{\mathbf{e}}(t)]^2 - 1 \rang
 where the value is averaged over all molecules and starting configurations.
 
 ```python
-figures.plot_dynamics(dynamics, "rot2")
+figures.plot_dynamics(dynamics, "rot2", title="Rotational Relaxation")
 ```
 
 ### Structural Relaxation
@@ -114,7 +114,7 @@ This is the fraction of particles which
 have moved a distance of 0.3 from their initial position.
 
 ```python
-figures.plot_dynamics(dynamics, "struct")
+figures.plot_dynamics(dynamics, "struct", title="Intermediate Scattering Function")
 ```
 
 ## Summary Values
@@ -124,7 +124,7 @@ The values calculated below summarise the above information,
 providing a method of investigating temperature dependence of these properties.
 
 ```python
-figures.plot_relaxations(relaxations, "msd")
+figures.plot_relaxations(relaxations, "msd", title="Diffusion Constant")
 ```
 
 ```python
@@ -132,11 +132,11 @@ relaxations.columns
 ```
 
 ```python
-figures.plot_relaxations(relaxations, "inv_diffusion")
+figures.plot_relaxations(relaxations, "inv_diffusion", "Inverse Diffusion Constant")
 ```
 
 ```python
-figures.plot_relaxations(relaxations, "rot2")
+figures.plot_relaxations(relaxations, "rot2", title="Rotational Relaxation Time")
 ```
 
 ```python
