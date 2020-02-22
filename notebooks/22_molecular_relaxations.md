@@ -167,6 +167,30 @@ with alt.data_transformers.enable("default"):
 
 ![](../figures/molecular_heterogeneities.svg)
 
-```python
 
+## Distribution of timescales
+
+```python
+df_mol_dist = pandas.read_hdf(data_dir / "dynamics_clean.h5", "molecular_relaxations")
 ```
+
+```python
+df_hist =  (
+    df_mol_dist.set_index(["pressure", "temperature"])
+    .sort_index()
+    .loc[(13.50, 1.40), "tau_L"]
+    .reset_index(drop=True)
+).to_frame()
+```
+
+```python
+c = alt.Chart(df_hist).mark_bar().encode(
+    x=alt.X("tau_L", title="τ_L", bin=alt.Bin(maxbins=100)),
+    y=alt.Y("count()", title="Frequency"),
+).transform_filter(alt.datum.tau_L > 0)
+
+with alt.data_transformers.enable("default"):
+    c.save("../figures/histogram_last_passage.svg", webdriver="firefox")
+```
+
+![](../figures/histogram_last_passage.svg)
