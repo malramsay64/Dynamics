@@ -309,7 +309,9 @@ the standard measure of structural relaxation,
 so we investigate the relaxation times here.
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "scattering_function", title="Structural Relaxation Time", fit=True)
+c = figures.plot_relaxations(
+    relaxations_df, "scattering_function", title="Structural Relaxation Time", fit=True
+)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "scattering_function_summary.svg"), webdriver="firefox")
@@ -379,7 +381,12 @@ can also be considered a relaxation time
 and is studied as such.
 
 ```python
-c = figures.plot_relaxations(relaxations_df, "inv_diffusion", title="Inverse Translational Diffusion Constant", fit=True)
+c = figures.plot_relaxations(
+    relaxations_df,
+    "inv_diffusion",
+    title="Inverse Translational Diffusion Constant",
+    fit=True,
+)
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "diffusion_constant_summary.svg"), webdriver="firefox")

@@ -53,7 +53,10 @@ df_melt = figures.reshape_dataframe(df)
 
 ```python
 c = figures.plot_multi_relaxations(
-    df_melt, ["tau_F", "struct"], title="Relaxation Time", replace={"tau_F": "τ_F", "struct": "τ_S"}
+    df_melt,
+    ["tau_F", "struct"],
+    title="Relaxation Time",
+    replace={"tau_F": "τ_F", "struct": "τ_S"},
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/first_passage_time.svg", webdriver="firefox")
@@ -63,7 +66,10 @@ with alt.data_transformers.enable("default"):
 
 ```python
 c = figures.plot_multi_relaxations(
-    df_melt, ["tau_L", "struct"], title="Relaxation Time", replace={"tau_L": "τ_L", "struct": "τ_S"}
+    df_melt,
+    ["tau_L", "struct"],
+    title="Relaxation Time",
+    replace={"tau_L": "τ_L", "struct": "τ_S"},
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/last_passage_time.svg", webdriver="firefox")
@@ -76,7 +82,10 @@ with alt.data_transformers.enable("default"):
 
 ```python
 c = figures.plot_multi_relaxations(
-    df_melt, ["tau_D", "inv_diffusion"], title="Relaxation Time", replace={"tau_D": "τ_D", "inv_diffusion": "1/D"}
+    df_melt,
+    ["tau_D", "inv_diffusion"],
+    title="Relaxation Time",
+    replace={"tau_D": "τ_D", "inv_diffusion": "1/D"},
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/diffusive_time.svg", webdriver="firefox")
@@ -88,7 +97,12 @@ with alt.data_transformers.enable("default"):
 ## Rotational Relaxation Analog
 
 ```python
-c = figures.plot_multi_relaxations(df_melt, ["tau_T4", "rot2"], title="Relaxation Time", replace={"tau_T4": "τ_T4", "rot2": "τ_2"})
+c = figures.plot_multi_relaxations(
+    df_melt,
+    ["tau_T4", "rot2"],
+    title="Relaxation Time",
+    replace={"tau_T4": "τ_T4", "rot2": "τ_2"},
+)
 with alt.data_transformers.enable("default"):
     c.save("../figures/rotational_time.svg", webdriver="firefox")
 ```
@@ -155,9 +169,9 @@ c = (
     alt.Chart(df_hetero)
     .mark_point()
     .encode(
-        x="inv_temp_norm",
-        y=alt.Y("value", scale=alt.Scale(type="log")),
-        color="variable",
+        x=alt.X("inv_temp_norm", title="T/T_m"),
+        y=alt.Y("value", title="Heterogeneities", scale=alt.Scale(type="log")),
+        color=alt.Color("variable", title="Variable"),
         shape="variable",
     )
 )
