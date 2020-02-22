@@ -199,7 +199,10 @@ def reshape_dataframe(df: pandas.DataFrame) -> pandas.DataFrame:
 
 
 def plot_multi_relaxations(
-    df: pandas.DataFrame, prop: List[str], title: str = "Relaxation Values"
+    df: pandas.DataFrame,
+    prop: List[str],
+    title: str = "Relaxation Values",
+    replace: Dict[str, str] = None,
 ) -> alt.Chart:
     """Helper to plot relaxation quantities using Altair.
 
@@ -209,6 +212,7 @@ def plot_multi_relaxations(
         prop: The property to plot, with the respective values for that property 
             having suffixes.
         title: Custom title used to label the property.
+        replace: Replace the names of variables
 
     """
     if isinstance(prop, str):
@@ -216,21 +220,17 @@ def plot_multi_relaxations(
 
     axis_format = "e"
 
-    relax_chart_base = (
-        alt.Chart(df)
-        .encode(
-            x=alt.X("inv_temp_norm:Q", title="Tm/T", axis=alt.Axis(format="g")),
-            color=alt.Color("pressure:N", title="Pressure"),
-            shape=alt.Shape("variable", title="Relaxation"),
-            y=alt.Y(
-                "mean:Q",
-                title=title,
-                scale=alt.Scale(type="log"),
-                axis=alt.Axis(format=axis_format),
-            ),
-            yError=alt.YError("sem:Q"),
-        )
-        .transform_filter(alt.FieldOneOfPredicate(field="variable", oneOf=prop))
+    relax_chart_base = alt.Chart(df.query("variable in @prop").replace(replace)).encode(
+        x=alt.X("inv_temp_norm:Q", title="Tm/T", axis=alt.Axis(format="g")),
+        color=alt.Color("pressure:N", title="Pressure"),
+        shape=alt.Shape("variable", title="Relaxation"),
+        y=alt.Y(
+            "mean:Q",
+            title=title,
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format=axis_format),
+        ),
+        yError=alt.YError("sem:Q"),
     )
 
     return relax_chart_base.mark_errorbar() + relax_chart_base.mark_point()
