@@ -53,7 +53,7 @@ df_melt = figures.reshape_dataframe(df)
 
 ```python
 c = figures.plot_multi_relaxations(
-    df_melt, ["tau_F", "struct"], title="Relaxation Time"
+    df_melt, ["tau_F", "struct"], title="Relaxation Time", replace={"tau_F": "τ_F", "struct": "τ_S"}
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/first_passage_time.svg", webdriver="firefox")
@@ -63,7 +63,7 @@ with alt.data_transformers.enable("default"):
 
 ```python
 c = figures.plot_multi_relaxations(
-    df_melt, ["tau_L", "struct"], title="Relaxation Time"
+    df_melt, ["tau_L", "struct"], title="Relaxation Time", replace={"tau_L": "τ_L", "struct": "τ_S"}
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/last_passage_time.svg", webdriver="firefox")
@@ -76,7 +76,7 @@ with alt.data_transformers.enable("default"):
 
 ```python
 c = figures.plot_multi_relaxations(
-    df_melt, ["tau_D", "inv_diffusion"], title="Relaxation Time"
+    df_melt, ["tau_D", "inv_diffusion"], title="Relaxation Time", replace={"tau_D": "τ_D", "inv_diffusion": "1/D"}
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/diffusive_time.svg", webdriver="firefox")
@@ -88,7 +88,7 @@ with alt.data_transformers.enable("default"):
 ## Rotational Relaxation Analog
 
 ```python
-c = figures.plot_multi_relaxations(df_melt, ["tau_T4", "rot2"], title="Relaxation Time")
+c = figures.plot_multi_relaxations(df_melt, ["tau_T4", "rot2"], title="Relaxation Time", replace={"tau_T4": "τ_T4", "rot2": "τ_2"})
 with alt.data_transformers.enable("default"):
     c.save("../figures/rotational_time.svg", webdriver="firefox")
 ```
@@ -104,11 +104,11 @@ df_relax = df.set_index(["pressure", "inv_temp_norm"]).sort_index()
 df_ratios = (
     pandas.DataFrame(
         {
-            "D_tau_D": df_relax["inv_diffusion_mean"] / df_relax["tau_D_mean"],
+            "D/τ_D": df_relax["inv_diffusion_mean"] / df_relax["tau_D_mean"],
             #     "tau_S_tau_F": df_relax["struct_mean"] / df_relax["tau_F_mean"],
-            "tau_S_tau_L": df_relax["struct_mean"] / df_relax["tau_L_mean"],
-            "rot1_tau_T2": df_relax["rot1_mean"] / df_relax["tau_T2_mean"],
-            "rot2_tau_T4": df_relax["rot2_mean"] / df_relax["tau_T4_mean"],
+            "τ_S/τ_L": df_relax["struct_mean"] / df_relax["tau_L_mean"],
+            "τ_R1, τ_T2": df_relax["rot1_mean"] / df_relax["tau_T2_mean"],
+            "τ_R2, τ_T4": df_relax["rot2_mean"] / df_relax["tau_T4_mean"],
         }
     )
     .reset_index()
@@ -137,12 +137,12 @@ df_temp = df_mol.set_index(["temperature", "pressure", "inv_temp_norm"])
 df_hetero = (
     pandas.DataFrame(
         {
-            "tau_D": df_temp["tau_D_mean"] * df_temp["tau_D_inv_mean"],
-            "tau_F": df_temp["tau_F_mean"] * df_temp["tau_F_inv_mean"],
-            "tau_L": df_temp["tau_L_mean"] * df_temp["tau_L_inv_mean"],
-            "tau_T2": df_temp["tau_T2_mean"] * df_temp["tau_T2_inv_mean"],
-            "tau_T3": df_temp["tau_T3_mean"] * df_temp["tau_T3_inv_mean"],
-            "tau_T4": df_temp["tau_T4_mean"] * df_temp["tau_T4_inv_mean"],
+            "τ_D": df_temp["tau_D_mean"] * df_temp["tau_D_inv_mean"],
+            "τ_F": df_temp["tau_F_mean"] * df_temp["tau_F_inv_mean"],
+            "τ_L": df_temp["tau_L_mean"] * df_temp["tau_L_inv_mean"],
+            "τ_T2": df_temp["tau_T2_mean"] * df_temp["tau_T2_inv_mean"],
+            "τ_T3": df_temp["tau_T3_mean"] * df_temp["tau_T3_inv_mean"],
+            "τ_T4": df_temp["tau_T4_mean"] * df_temp["tau_T4_inv_mean"],
         }
     )
     .reset_index()
@@ -166,3 +166,7 @@ with alt.data_transformers.enable("default"):
 ```
 
 ![](../figures/molecular_heterogeneities.svg)
+
+```python
+
+```
