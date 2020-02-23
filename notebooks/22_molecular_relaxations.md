@@ -185,26 +185,91 @@ with alt.data_transformers.enable("default"):
 ## Distribution of timescales
 
 ```python
-df_mol_dist = pandas.read_hdf(data_dir / "dynamics_clean.h5", "molecular_relaxations")
-```
-
-```python
-df_hist =  (
-    df_mol_dist.set_index(["pressure", "temperature"])
+df_mol_dist = (
+    pandas.read_hdf(data_dir / "dynamics_clean.h5", "molecular_relaxations")
+    .set_index(["pressure", "temperature"])
     .sort_index()
-    .loc[(13.50, 1.40), "tau_L"]
-    .reset_index(drop=True)
-).to_frame()
+)
 ```
 
 ```python
-c = alt.Chart(df_hist).mark_bar().encode(
-    x=alt.X("tau_L", title="τ_L", bin=alt.Bin(maxbins=100)),
-    y=alt.Y("count()", title="Frequency"),
-).transform_filter(alt.datum.tau_L > 0)
+df_hist = (df_mol_dist.loc[(13.50, 1.40), "tau_L"].reset_index(drop=True)).to_frame()
+```
+
+```python
+c = (
+    alt.Chart(df_hist)
+    .mark_bar()
+    .encode(
+        x=alt.X("tau_L", title="τ_L", bin=alt.Bin(maxbins=100)),
+        y=alt.Y("count()", title="Frequency"),
+    )
+    .transform_filter(alt.datum.tau_L > 0)
+)
 
 with alt.data_transformers.enable("default"):
     c.save("../figures/histogram_last_passage.svg", webdriver="firefox")
 ```
 
 ![](../figures/histogram_last_passage.svg)
+
+```python
+df_mol_coupling = df_mol_dist.loc[
+    (13.50, 1.40),
+]
+```
+
+```python
+df_first = df_mol_coupling.apply(lambda x: x < df_mol_coupling["tau_F"]).assign(
+    time="first"
+)
+df_last = df_mol_coupling.apply(lambda x: x < df_mol_coupling["tau_L"]).assign(
+    time="last"
+)
+df_prop = pandas.concat([df_first, df_last]).reset_index()
+```
+
+```python
+df_plot = (
+    df_prop.melt(
+        id_vars=["time", "temperature"], value_vars=["tau_T2", "tau_T3", "tau_T4"]
+    )
+    .groupby(["time", "temperature", "variable"])
+    .mean()
+    .reset_index()
+    .replace(
+        {
+            "first": "τ_F",
+            "last": "τ_L",
+            "tau_T2": "τ_T2",
+            "tau_T3": "τ_T3",
+            "tau_T4": "τ_T4",
+        }
+    )
+)
+```
+
+```python
+c = (
+    alt.Chart(df_plot[::-1])
+    .mark_bar()
+    .encode(
+        x=alt.X(
+            "variable",
+            title="Rotational Relaxation",
+            axis=alt.Axis(labelAngle=0),
+            sort=None,
+        ),
+        y=alt.Y("value", title="Fraction Relaxed", scale=alt.Scale(domain=(0.0, 1))),
+        column=alt.Column("time", title="Translational Time"),
+        color=alt.Color("variable:N", title="Rotational Relaxation", legend=None),
+    )
+    .properties(width=300)
+)
+c
+```
+
+```python
+with alt.data_transformers.enable("default"):
+    c.save("../figures/rotational_displacement.svg", webdriver="firefox")
+```
