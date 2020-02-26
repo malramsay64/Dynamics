@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.3.0
+      jupytext_version: 1.3.3
   kernelspec:
     display_name: dynamics
     language: python
@@ -199,7 +199,7 @@ c = (
         ),
         color=alt.Color("key:N", title="Relaxation"),
     )
-    .transform_calculate("1/τ_R", 1 / (alt.datum.rot2_mean))
+    .transform_calculate("1/τ_R", 0.25 / (alt.datum.rot2_mean))
     .transform_fold(["D_t", "1/τ_R"])
 )
 with alt.data_transformers.enable("default"):

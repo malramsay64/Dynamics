@@ -7,7 +7,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.3.0
+      jupytext_version: 1.3.3
   kernelspec:
     display_name: dynamics
     language: python
@@ -134,7 +134,12 @@ df_ratios = (
 c = (
     alt.Chart(df_ratios)
     .mark_point()
-    .encode(x="inv_temp_norm", y="value", color="variable", shape="variable")
+    .encode(
+        x=alt.X("inv_temp_norm",title="Tm/T"), 
+        y=alt.Y("value", title="Ratio"), 
+        color=alt.Color("variable", title="Quantity"), 
+        shape="variable"
+    )
 )
 
 with alt.data_transformers.enable("default"):
