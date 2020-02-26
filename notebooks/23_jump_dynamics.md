@@ -21,6 +21,7 @@ from pathlib import Path
 
 # Read/write data files and data analysis
 import pandas
+from scipy.stats import hmean
 import numpy as np
 import altair as alt
 from dynamics_analysis import figures, calc_dynamics, util
@@ -233,4 +234,40 @@ c = (
 c
 # with alt.data_transformers.enable("default"):
 #     c.save("../figures/trans_rot_trimer.svg", webdriver="firefox")
+```
+
+## Sampling Jump dynamics
+
+```python
+df_samples = pandas.read_hdf("../data/analysis/dynamics_clean.h5", "molecular_relaxations")
+```
+
+```python
+def sample(df):
+    result = {}
+    for i in range(6):
+        if i == 0:
+            values = df.values
+        else:
+            values = np.random.choice(df.values, (100_000, i)).sum(axis=1)
+        result[i] = values.mean() / hmean(values)
+    return result
+
+df_jumps = (
+    df_samples.groupby(["pressure", "temperature"])["tau_L"]
+    .apply(sample)
+    .reset_index()
+    .assign(inv_temp_norm=lambda x: 1/util.normalised_temperature(x.temperature, x.pressure))
+    .rename(columns={"level_2": "Jumps"})
+)
+```
+
+```python
+c = alt.Chart(df_jumps).mark_point().encode(
+    x=alt.X("inv_temp_norm", title="T/Tm"),
+    y=alt.Y("tau_L", title="Heterogeneities"),
+    color=alt.Color("Jumps:N"),
+)
+with alt.data_transformers.enable("default"):
+    c.save("../figures/jump_dynamics.svg", webdriver="firefox")
 ```
