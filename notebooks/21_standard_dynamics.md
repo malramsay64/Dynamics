@@ -7,7 +7,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.3.0
+      jupytext_version: 1.3.3
   kernelspec:
     display_name: dynamics
     language: python
@@ -506,4 +506,46 @@ c = figures.plot_relaxations(
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "alpha_relaxation_summary.svg"), webdriver="firefox")
 c
+```
+
+## Demonstration of Dynamic Heterogeneities
+
+```python
+from sdanalysis import open_trajectory
+from sdanalysis.dynamics import Dynamics
+import matplotlib.pyplot as plt
+```
+
+```python
+temperature = 1.40
+pressure = 13.50
+alpha_time = relaxations_df.set_index(["pressure", "temperature"]).loc[(13.50, 1.40), "gamma_mean"]
+
+frame_iterator = open_trajectory(f"../data/simulations/trimer/output/trajectory-Trimer-P{pressure:.2f}-T{temperature:.2f}.gsd")
+
+dyn = Dynamics.from_frame(next(frame_iterator))
+for frame in frame_iterator:
+    if frame.timestep * 0.005 > alpha_time:
+        break
+    dyn.add_frame(frame)
+```
+
+```python
+df_hetero = pandas.DataFrame({
+    "x": frame.x_position,
+    "y": frame.y_position,
+    "disp_x": dyn.delta_translation[:, 0],
+    "disp_y": dyn.delta_translation[:, 1],
+    "rot_disp": np.power(dyn.compute_rotation(), 0.3),
+})
+```
+
+```python
+fig, ax = plt.subplots()
+ax.scatter("x", "y", c="rot_disp", data=df_hetero, cmap="Blues")
+ax.quiver("x", "y", "disp_x", "disp_y", data=df_hetero)
+ax.set_frame_on(False)
+ax.set_xticks([])
+ax.set_yticks([])
+fig.savefig("../figures/heterogeneities.svg")
 ```
