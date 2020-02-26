@@ -37,8 +37,13 @@ dynamics_df = dynamics_df.query("pressure == 13.50")
 dynamics_df = dynamics_df.sort_values("time")
 
 
-relaxations_df = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
-relaxations_df[relaxations_df < 0] = np.NaN
+relaxations_df = (
+    pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "relaxations")
+    .where(lambda x: x >= 0, np.NaN)
+    .assign(
+        temp_norm=lambda x: util.normalised_temperature(x["temperature"], x["pressure"])
+    )
+)
 
 df_mol = pandas.read_hdf(data_dir / "dynamics_clean_agg.h5", "molecular_relaxations")
 
@@ -74,7 +79,11 @@ df_ratios = df_ratio.melt(id_vars=index)
 ```
 
 ```python
-c = alt.Chart(df_ratios).encode(x="inv_temp_norm", y="value", color="variable")
+c = alt.Chart(df_ratios).encode(
+    x=alt.X("inv_temp_norm", title="T_m/T"),
+    y=alt.Y("value", title="Jump Dynamics"),
+    color=alt.Color("variable", title="Calculation"),
+)
 c = c.mark_point() + c.mark_errorbar()
 
 with alt.data_transformers.enable("default"):
@@ -123,10 +132,6 @@ c = c.mark_point() + c.mark_errorbar()
 c
 ```
 
-```python
-relaxations_df
-```
-
 ## Breakdown in Stokes Einstein
 
 ```python
@@ -134,8 +139,8 @@ df_temp = relaxations_df.set_index(index)
 df_stokes = (
     pandas.DataFrame(
         {
-            "D_t/D_r": df_temp["msd_mean"] / df_temp["msr_mean"],
-            "D_t_tau_r1": df_temp["msd_mean"] * df_temp["rot2_mean"],
+            "D_t / D_r": df_temp["msd_mean"] / df_temp["msr_mean"],
+            "D_t * τ_r1": df_temp["msd_mean"] * df_temp["rot2_mean"],
         }
     )
     .reset_index()
@@ -147,21 +152,29 @@ alt.Chart(df_stokes).mark_point().encode(x="inv_temp_norm", y="value", color="va
 
 ```python
 c = (
-    alt.Chart(relaxations_df)
+    alt.Chart(relaxations_df.rename(columns={"msd_mean": "D_t", "msr_mean": "D_r"}))
     .mark_point()
     .encode(
-        x=alt.X("x:Q", scale=alt.Scale(type="log")),
-        y=alt.Y("value:Q", scale=alt.Scale(type="log")),
-        color="key:N",
+        x=alt.X(
+            "x:Q",
+            title="Structural Relaxation Time",
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format="e"),
+        ),
+        y=alt.Y(
+            "value:Q",
+            title="Rate",
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format="e"),
+        ),
+        color=alt.Color("key:N", title="Quantity"),
     )
-    .transform_fold(["msd_mean", "msr_mean"])
+    .transform_fold(["D_t", "D_r"])
     .transform_calculate("x", alt.datum.struct_mean * alt.datum.inv_temp_norm)
 )
 with alt.data_transformers.enable("default"):
-     c.save("../figures/trans_rot_diff_trimer.svg", webdriver="firefox")
+    c.save("../figures/trans_rot_diff_trimer.svg", webdriver="firefox")
 ```
-
-![trans rot diff trimer](../figures/trans_rot_diff_trimer.svg)
 
 ```python
 c
@@ -169,19 +182,55 @@ c
 
 ```python
 c = (
-    alt.Chart(relaxations_df)
+    alt.Chart(relaxations_df.rename(columns={"msd_mean": "D_t"}))
     .mark_point()
     .encode(
-        x=alt.X("x:Q", scale=alt.Scale(type="log")),
-        y=alt.Y("value:Q", scale=alt.Scale(type="log")),
-        color="key:N",
+        x=alt.X(
+            "struct_mean:Q",
+            title="Structural Relaxation Time",
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format="e"),
+        ),
+        y=alt.Y(
+            "value:Q",
+            title="Relaxation Time",
+            scale=alt.Scale(type="log"),
+            axis=alt.Axis(format="e"),
+        ),
+        color=alt.Color("key:N", title="Relaxation"),
     )
-    .transform_calculate("inv_rot", 1/alt.datum.rot1_mean )
-    .transform_fold(["msd_mean", "inv_rot"])
-    .transform_calculate("x", alt.datum.struct_mean * alt.datum.inv_temp_norm)
+    .transform_calculate("1/τ_R", 1 / (alt.datum.rot2_mean))
+    .transform_fold(["D_t", "1/τ_R"])
 )
 with alt.data_transformers.enable("default"):
     c.save("../figures/trans_rot_trimer.svg", webdriver="firefox")
 ```
 
-![trans rot trimer](../figures/trans_rot_trimer.svg)
+```python
+c
+```
+
+```python
+def norm(x):
+    x / max(x)
+
+
+c = (
+    alt.Chart(
+        relaxations_df.assign(
+            ratio_debye=lambda x: x["msd_mean"] * x["rot2_mean"],
+            ratio_einstein=lambda x: x["msd_mean"] / x["msr_mean"],
+        )
+    )
+    .mark_point()
+    .encode(
+        x=alt.X("temp_norm:Q", title="T/T_m",),
+        y=alt.Y("value:Q", title="Relaxation Time", scale=alt.Scale(type="log")),
+        color=alt.Color("key:N", title="Relaxation"),
+    )
+    .transform_fold(["ratio_debye", "ratio_einstein"])
+)
+c
+# with alt.data_transformers.enable("default"):
+#     c.save("../figures/trans_rot_trimer.svg", webdriver="firefox")
+```

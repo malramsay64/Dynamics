@@ -7,7 +7,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.3.3
+      jupytext_version: 1.3.0
   kernelspec:
     display_name: dynamics
     language: python
@@ -519,9 +519,13 @@ import matplotlib.pyplot as plt
 ```python
 temperature = 1.40
 pressure = 13.50
-alpha_time = relaxations_df.set_index(["pressure", "temperature"]).loc[(13.50, 1.40), "gamma_mean"]
+alpha_time = relaxations_df.set_index(["pressure", "temperature"]).loc[
+    (13.50, 1.40), "gamma_mean"
+]
 
-frame_iterator = open_trajectory(f"../data/simulations/trimer/output/trajectory-Trimer-P{pressure:.2f}-T{temperature:.2f}.gsd")
+frame_iterator = open_trajectory(
+    f"../data/simulations/trimer/output/trajectory-Trimer-P{pressure:.2f}-T{temperature:.2f}.gsd"
+)
 
 dyn = Dynamics.from_frame(next(frame_iterator))
 for frame in frame_iterator:
@@ -531,13 +535,15 @@ for frame in frame_iterator:
 ```
 
 ```python
-df_hetero = pandas.DataFrame({
-    "x": frame.x_position,
-    "y": frame.y_position,
-    "disp_x": dyn.delta_translation[:, 0],
-    "disp_y": dyn.delta_translation[:, 1],
-    "rot_disp": np.power(dyn.compute_rotation(), 0.3),
-})
+df_hetero = pandas.DataFrame(
+    {
+        "x": frame.x_position,
+        "y": frame.y_position,
+        "disp_x": dyn.delta_translation[:, 0],
+        "disp_y": dyn.delta_translation[:, 1],
+        "rot_disp": np.power(dyn.compute_rotation(), 0.3),
+    }
+)
 ```
 
 ```python
