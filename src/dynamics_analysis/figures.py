@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas
 import sdanalysis
+from toolz.curried import pipe
 
 from .vtf import fit_vtf, vogel_tamman_fulcher
 
@@ -64,7 +65,7 @@ def my_theme() -> Dict[str, Any]:
 def json_dir(data, data_dir="altairdata"):
     data_dir = Path(data_dir)
     data_dir.mkdir(exist_ok=True)
-    return alt.pipe(
+    return pipe(
         data, alt.to_json(filename=str(data_dir / "{prefix}-{hash}.{extension}"))
     )
 
