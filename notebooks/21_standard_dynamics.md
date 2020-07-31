@@ -188,7 +188,7 @@ using neutron scattering.
 
 ```python
 c = figures.plot_dynamics(
-    dynamics_df, "scattering_function", title="Intermediate Scattering Function"
+    dynamics_df, "scattering_function", title="Self-Intermediate Scattering Function"
 )
 
 with alt.data_transformers.enable("default"):
