@@ -95,16 +95,15 @@ c = figures.plot_dynamics(
     dynamics_df, "msd", title="Mean Squared Displacement", scale="log"
 )
 x=np.linspace(1e-2, 1, 5)
-df = pandas.DataFrame({"x2": x, "y2": x**2, "x": x*2e7, "y": x*50})
+df = pandas.DataFrame({"x2": x, "y2": x**2, "x": x*1.5e7, "y": x*50})
 c2 = alt.Chart(df).encode(x="x").mark_line(color="black")
 c = c + c2.encode(x="x2", y="y2") + c2.encode(x="x", y="y")
 
 with alt.data_transformers.enable("default"):
     c.save(str(figure_dir / "mean_squared_displacement.svg"), webdriver="firefox")
-c
 ```
 
-![ mean squared displacement](../figures/mean_squared_displacement.svg)
+![mean squared displacement](../figures/mean_squared_displacement.svg)
 
 The behaviour of the mean-squared-rotation,
 is equivalent to that of the mean-squared-displacement,

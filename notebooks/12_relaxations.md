@@ -91,7 +91,11 @@ where $D t$ is the function defining the fit.
 The parameter `D` is used as the diffusion constant in the following figure.
 
 ```python
-figures.plot_dynamics(dynamics, "msd", title="Mean Square Displacement", scale="log")
+fig = figures.plot_dynamics(dynamics, "msd", title="Mean Square Displacement", scale="log")
+x=np.linspace(1e-2, 1, 5)
+df = pd.DataFrame({"x2": x, "y2": x**2, "x": x*5e6, "y": x*50})
+c = alt.Chart(df).encode(x="x").mark_line(color="black")
+fig + c.encode(x="x2", y="y2").mark_line(color="black") + c.encode(x="x", y="y")
 ```
 
 ### Rotational Relaxation R2
