@@ -257,7 +257,7 @@ which are captured by the traditional quantities.
 
 The distances of reversals which we are discussing here
 being 0.43 are beyond what would typically be considered reversible.
-That is, the molecule has escaped the confinement of it's local area.
+That is, the molecule has escaped the confinement of its local area.
 It is important to note that there is also
 a rate at which reversals occur as modelled by Brownian motion.
 In fact when considering a random walk,

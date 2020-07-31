@@ -21,7 +21,7 @@ Structural relaxation is a key concept for studying
 the dynamics of supercooled liquids,
 being the most fundamental relaxation process (Angell 2000).
 It is the process by which
-a liquid forgets it's structure from some earlier time (Edger 1996),
+a liquid forgets its structure from some earlier time (Edger 1996),
 and can be measured experimentally through
 quasi-elastic neutron scattering or photon correlation spectroscopy.
 These experimental techniques are measuring
