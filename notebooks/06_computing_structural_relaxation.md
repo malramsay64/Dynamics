@@ -28,17 +28,17 @@ These experimental techniques are measuring
 the density-density correlations of the liquid,
 which can be represented by either
 the density autocorrelation function,
-or as is more common the intermediate scattering function $F(k, t)$.
+or as is more common the self intermediate scattering function $F(k, t)$.
 This function is represented as
 
-$$ F(k, t) = \frac{1}{N}\langle \sum_j^N \exp{
+$$ F_s(k, t) = \frac{1}{N}\langle \sum_j^N \exp{
     i\mathbf{k} \cdot [\mathbf{r}_j(0) - \mathbf{r}_j(t)]
 } \rangle $$
 
 where the angle brackets denote the averaging over
 many initial configurations.
 
-The intermediate scattering function is
+The self-intermediate scattering function is
 the spatial Fourier transform of the
 van Hove correlation function $G(r, t)$
 which is a much quantity to calculate
